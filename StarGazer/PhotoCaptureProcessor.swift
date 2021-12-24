@@ -8,6 +8,7 @@
 import Foundation
 import Photos
 import NextLevel
+import UIKit
 
 class PhotoCaptureProcessor: NSObject {
     
@@ -21,24 +22,32 @@ class PhotoCaptureProcessor: NSObject {
     
     private let photoProcessingHandler: (Bool) -> Void
     
-    private let service : CameraService;
+    private let service : CameraService
     
+    private var photoStack : PhotoStack
+    
+    private var intrinsicMatrix = simd_float3x3(0)
+    
+    private let queue = DispatchQueue(label: "com.jungemeyer.preview-merge-queue")
 //    The actual captured photo's data
     var photoData: Data?
+    var previewPhoto: UIImage?
     
 //    The maximum time lapse before telling UI to show a spinner
     private var maxPhotoProcessingTime: CMTime?
         
 //    Init takes multiple closures to be called in each step of the photco capture process
     init(with requestedPhotoSettings: AVCapturePhotoSettings, willCapturePhotoAnimation: @escaping () -> Void, completionHandler: @escaping (PhotoCaptureProcessor) -> Void, photoProcessingHandler: @escaping (Bool) -> Void,
-         service: CameraService) {
+         service: CameraService,
+         photoStack : PhotoStack) {
         
         self.requestedPhotoSettings = requestedPhotoSettings
         self.willCapturePhotoAnimation = willCapturePhotoAnimation
         self.completionHandler = completionHandler
         self.photoProcessingHandler = photoProcessingHandler
         
-        self.service = service;
+        self.service = service
+        self.photoStack = photoStack
     }
 }
 
@@ -73,6 +82,20 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         
+        // TODO: Check if the phone actually has the matrix. Which phones have it?
+        
+        
+        if let depthData = photo.depthData {
+            if let calibrationData = depthData.cameraCalibrationData {
+                self.intrinsicMatrix = calibrationData.intrinsicMatrix
+                //self.photoStack.setCameraParams(matrix: calibrationData.intrinsicMatrix)
+            } else {
+                print("NO CALIBRATION DATA")
+            }
+        } else {
+            print("NO DEPTH DATA")
+        }
+        
         DispatchQueue.main.async {
             self.photoProcessingHandler(false)
         }
@@ -93,7 +116,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     let options = PHAssetResourceCreationOptions()
                     let creationRequest = PHAssetCreationRequest.forAsset()
                     options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
-                    //creationRequest.addResource(with: .photo, data: photoData, options: options)
+                    creationRequest.addResource(with: .photo, data: photoData, options: options)
                     
                     
                 }, completionHandler: { _, error in
@@ -130,7 +153,13 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 return
             }
             
-            self.saveToPhotoLibrary(data)
+            
+            //self.saveToPhotoLibrary(data)
+            //self.previewPhoto = self.photoStack.add(photo: data)
+            
+            DispatchQueue.main.async {
+                self.completionHandler(self)
+            }
         }
         
         self.service.capturePhoto()

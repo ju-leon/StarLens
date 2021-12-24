@@ -8,11 +8,12 @@
 import SwiftUI
 import Combine
 import AVFoundation
+import UIKit
 
 final class CameraModel: ObservableObject {
     private let service = CameraService()
     
-    @Published var photo: Photo!
+    @Published var photo: UIImage!
     
     @Published var showAlertError = false
     
@@ -21,6 +22,8 @@ final class CameraModel: ObservableObject {
     @Published var willCapturePhoto = false
     
     @Published var isRecording = false
+    
+    @Published var numPictures = 0
     
     var alertError: AlertError!
     
@@ -31,7 +34,7 @@ final class CameraModel: ObservableObject {
     init() {
         self.session = service.session
         
-        service.$photo.sink { [weak self] (photo) in
+        service.$previewPhoto.sink { [weak self] (photo) in
             guard let pic = photo else { return }
             self?.photo = pic
         }
@@ -57,6 +60,11 @@ final class CameraModel: ObservableObject {
             self?.isRecording = val
         }
         .store(in: &self.subscriptions)
+        
+        service.$numPicures.sink { [weak self] (val) in
+            self?.numPictures = val
+        }
+        .store(in: &self.subscriptions)
     }
     
     func configure() {
@@ -64,9 +72,13 @@ final class CameraModel: ObservableObject {
         service.configure()
     }
     
-    func capturePhoto() {
-        service.isCaptureRunning = !service.isCaptureRunning
-        service.capturePhoto()
+    func startTimelapse() {
+        if service.isCaptureRunning {
+            service.isCaptureRunning = false
+        } else {
+            service.isCaptureRunning = true
+            service.startTimelapse()
+        }
     }
     
     func flipCamera() {
@@ -93,7 +105,7 @@ struct CameraView: View {
     
     var captureButton: some View {
         Button(action: {
-            model.capturePhoto()
+            model.startTimelapse()
         }, label: {
             if !model.isRecording {
                 Circle()
@@ -123,24 +135,7 @@ struct CameraView: View {
         })
     }
     
-    var capturedPhotoThumbnail: some View {
-        Group {
-            if model.photo != nil {
-                Image(uiImage: model.photo.image!)
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-                    .frame(width: 60, height: 60)
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
-                    .animation(.spring())
-                
-            } else {
-                RoundedRectangle(cornerRadius: 10)
-                    .frame(width: 60, height: 60, alignment: .center)
-                    .foregroundColor(.black)
-            }
-        }
-    }
-    
+
     var flipCameraButton: some View {
         Button(action: {
             model.flipCamera()
@@ -160,48 +155,52 @@ struct CameraView: View {
                 Color.black.edgesIgnoringSafeArea(.all)
                 
                 VStack {
-                    Button(action: {
-                        model.switchFlash()
-                    }, label: {
-                        Image(systemName: model.isFlashOn ? "bolt.fill" : "bolt.slash.fill")
-                            .font(.system(size: 20, weight: .medium, design: .default))
-                    })
-                    .accentColor(model.isFlashOn ? .yellow : .white)
+                    Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack")
                     
-                    CameraPreview(session: model.session)
-                        .gesture(
-                            DragGesture().onChanged({ (val) in
-                                //  Only accept vertical drag
-                                if abs(val.translation.height) > abs(val.translation.width) {
-                                    //  Get the percentage of vertical screen space covered by drag
-                                    let percentage: CGFloat = -(val.translation.height / reader.size.height)
-                                    //  Calculate new zoom factor
-                                    let calc = currentZoomFactor + percentage
-                                    //  Limit zoom factor to a maximum of 5x and a minimum of 1x
-                                    let zoomFactor: CGFloat = min(max(calc, 1), 5)
-                                    //  Store the newly calculated zoom factor
-                                    currentZoomFactor = zoomFactor
-                                    //  Sets the zoom factor to the capture device session
-                                    model.zoom(with: zoomFactor)
-                                }
-                            })
-                        )
-                        .onAppear {
-                            model.configure()
-                        }
-                        .alert(isPresented: $model.showAlertError, content: {
-                            Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                model.alertError.primaryAction?()
-                            }))
-                        })
-                        .overlay(
-                            Group {
-                                if model.willCapturePhoto {
-                                    Color.black
-                                }
+                    if !model.isRecording {
+                        CameraPreview(session: model.session)
+                            .gesture(
+                                DragGesture().onChanged({ (val) in
+                                    //  Only accept vertical drag
+                                    if abs(val.translation.height) > abs(val.translation.width) {
+                                        //  Get the percentage of vertical screen space covered by drag
+                                        let percentage: CGFloat = -(val.translation.height / reader.size.height)
+                                        //  Calculate new zoom factor
+                                        let calc = currentZoomFactor + percentage
+                                        //  Limit zoom factor to a maximum of 5x and a minimum of 1x
+                                        let zoomFactor: CGFloat = min(max(calc, 1), 5)
+                                        //  Store the newly calculated zoom factor
+                                        currentZoomFactor = zoomFactor
+                                        //  Sets the zoom factor to the capture device session
+                                        model.zoom(with: zoomFactor)
+                                    }
+                                })
+                            )
+                            .onAppear {
+                                model.configure()
                             }
-                        )
-                        .animation(.easeInOut)
+                            .alert(isPresented: $model.showAlertError, content: {
+                                Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                                    model.alertError.primaryAction?()
+                                }))
+                            })
+                            .overlay(
+                                Group {
+                                    if model.willCapturePhoto {
+                                        Color.black
+                                    }
+                                }
+                            )
+                            .animation(.easeInOut)
+                    }
+                    else {
+                        Image(uiImage: model.photo)
+                            .resizable()
+                            .clipped()
+                            //.frame(height: 300)
+                    }
+
+                    
                     
                     
                     HStack {

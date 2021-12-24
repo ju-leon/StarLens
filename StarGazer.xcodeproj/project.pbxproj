@@ -20,6 +20,7 @@
 		05B9B8CD276BDBB100FF442F /* StarGazerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8CC276BDBB100FF442F /* StarGazerTests.swift */; };
 		05B9B8D7276BDBB100FF442F /* StarGazerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */; };
 		05B9B8D9276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */; };
+		05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CEB59D27723D8800EDDE7D /* PhotoStack.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		05B9B8D2276BDBB100FF442F /* StarGazerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarGazerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITests.swift; sourceTree = "<group>"; };
 		05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -112,6 +114,7 @@
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
+				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
 				051F0A89276FC0630015C507 /* CameraPreview.swift */,
 				051F0A81276FBBB30015C507 /* CaptureView.swift */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
@@ -284,6 +287,7 @@
 				05B9B8BE276BDBAF00FF442F /* ContentView.swift in Sources */,
 				051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */,
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
+				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
 				051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */,

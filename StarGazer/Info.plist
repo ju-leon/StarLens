@@ -26,6 +26,10 @@
 	<string>Needs to access photo lib</string>
 	<key>NSMicrophoneUsageDescription</key>
 	<string>dsfds</string>
+	<key>NSLocationUsageDescription</key>
+	<string>To find out how the sky is moving, we need to know your location.</string>
+	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>To find out how the sky is moving, we need to know your location.</string>
 	<key>UIApplicationSceneManifest</key>
 	<dict>
 		<key>UIApplicationSupportsMultipleScenes</key>
@@ -38,6 +42,7 @@
 	<key>UIRequiredDeviceCapabilities</key>
 	<array>
 		<string>armv7</string>
+		<string>gyroscope</string>
 	</array>
 	<key>UISupportedInterfaceOrientations</key>
 	<array>
