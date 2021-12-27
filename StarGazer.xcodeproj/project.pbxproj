@@ -13,6 +13,9 @@
 		051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */; };
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
 		051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A89276FC0630015C507 /* CameraPreview.swift */; };
+		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
+		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
+		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
 		05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */; };
 		05B9B8BE276BDBAF00FF442F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BD276BDBAF00FF442F /* ContentView.swift */; };
 		05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B9B8BF276BDBB100FF442F /* Assets.xcassets */; };
@@ -47,6 +50,9 @@
 		051F0A85276FBCBB0015C507 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		051F0A89276FC0630015C507 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
+		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
+		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
 		05B9B8B8276BDBAF00FF442F /* StarGazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StarGazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerApp.swift; sourceTree = "<group>"; };
 		05B9B8BD276BDBAF00FF442F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -86,6 +92,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		056CBBC927790DE700538E2E /* Filters */ = {
+			isa = PBXGroup;
+			children = (
+				056CBBC727790DB900538E2E /* AverageStacking.metal */,
+				056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */,
+			);
+			path = Filters;
+			sourceTree = "<group>";
+		};
 		05B9B8AF276BDBAF00FF442F = {
 			isa = PBXGroup;
 			children = (
@@ -109,12 +124,14 @@
 		05B9B8BA276BDBAF00FF442F /* StarGazer */ = {
 			isa = PBXGroup;
 			children = (
+				056CBBC927790DE700538E2E /* Filters */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
 				05B9B8BD276BDBAF00FF442F /* ContentView.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
 				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
+				056CBBCC2779C8AD00538E2E /* CaptureObject.swift */,
 				051F0A89276FC0630015C507 /* CameraPreview.swift */,
 				051F0A81276FBBB30015C507 /* CaptureView.swift */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
@@ -285,13 +302,16 @@
 			buildActionMask = 2147483647;
 			files = (
 				05B9B8BE276BDBAF00FF442F /* ContentView.swift in Sources */,
+				056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */,
 				051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */,
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
+				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
 				051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */,
 				051F0A82276FBBB30015C507 /* CaptureView.swift in Sources */,
+				056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -381,6 +401,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = StarGazer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
@@ -437,6 +459,8 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_FILE = StarGazer/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 15.0;
+				MTLLINKER_FLAGS = "-cikernel";
+				MTL_COMPILER_FLAGS = "-fcikernel";
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
 				SDKROOT = iphoneos;

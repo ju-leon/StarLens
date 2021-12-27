@@ -30,8 +30,11 @@ class PhotoCaptureProcessor: NSObject {
     
     private let queue = DispatchQueue(label: "com.jungemeyer.preview-merge-queue")
 //    The actual captured photo's data
-    var photoData: Data?
     var previewPhoto: UIImage?
+    
+    private var rawFileURL: URL?
+    private var compressedData: Data?
+    private var captureTime: Date?
     
 //    The maximum time lapse before telling UI to show a spinner
     private var maxPhotoProcessingTime: CMTime?
@@ -62,6 +65,8 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     /// - Tag: WillCapturePhoto
     func photoOutput(_ output: AVCapturePhotoOutput, willCapturePhotoFor resolvedSettings: AVCaptureResolvedPhotoSettings) {
+        self.captureTime = Date()
+        
         DispatchQueue.main.async {
             self.willCapturePhotoAnimation()
         }
@@ -83,11 +88,11 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         
         // TODO: Check if the phone actually has the matrix. Which phones have it?
-        
-        
         if let depthData = photo.depthData {
             if let calibrationData = depthData.cameraCalibrationData {
                 self.intrinsicMatrix = calibrationData.intrinsicMatrix
+                self.photoStack.addIntrinsicMatrix(matrix: self.intrinsicMatrix)
+                print(self.intrinsicMatrix)
                 //self.photoStack.setCameraParams(matrix: calibrationData.intrinsicMatrix)
             } else {
                 print("NO CALIBRATION DATA")
@@ -96,46 +101,40 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             print("NO DEPTH DATA")
         }
         
+    
+        //TODO: WHY??
         DispatchQueue.main.async {
             self.photoProcessingHandler(false)
         }
+    
         
-        if let error = error {
-            print("Error capturing photo: \(error)")
+        guard let photoData = photo.fileDataRepresentation() else {
+                    print("No photo data to write.")
+                    return
+                }
+                
+        if photo.isRawPhoto {
+            // Generate a unique URL to write the RAW file.
+            rawFileURL = makeUniqueDNGFileURL()
+            do {
+                // Write the RAW (DNG) file data to a URL.
+                try photoData.write(to: rawFileURL!)
+            } catch {
+                fatalError("Couldn't write DNG file to the URL.")
+            }
         } else {
-            photoData = photo.fileDataRepresentation()
+            // Store compressed bitmap data.
+            compressedData = photoData
         }
+        
     }
     
-    //        MARK: Saves capture to photo library
-    func saveToPhotoLibrary(_ photoData: Data) {
-        
-        PHPhotoLibrary.requestAuthorization { status in
-            if status == .authorized {
-                PHPhotoLibrary.shared().performChanges({
-                    let options = PHAssetResourceCreationOptions()
-                    let creationRequest = PHAssetCreationRequest.forAsset()
-                    options.uniformTypeIdentifier = self.requestedPhotoSettings.processedFileType.map { $0.rawValue }
-                    creationRequest.addResource(with: .photo, data: photoData, options: options)
-                    
-                    
-                }, completionHandler: { _, error in
-                    if let error = error {
-                        print("Error occurred while saving photo to photo library: \(error)")
-                    }
-                    
-                    DispatchQueue.main.async {
-                        self.completionHandler(self)
-                    }
-                }
-                )
-            } else {
-                DispatchQueue.main.async {
-                    self.completionHandler(self)
-                }
-            }
-        }
+    private func makeUniqueDNGFileURL() -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileName = ProcessInfo.processInfo.globallyUniqueString
+        return tempDir.appendingPathComponent(fileName).appendingPathExtension("dng")
     }
+    
     
     /// - Tag: DidFinishCapture
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
@@ -146,7 +145,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             }
             return
         } else {
-            guard let data  = photoData else {
+            guard let data  = compressedData else {
                 DispatchQueue.main.async {
                     self.completionHandler(self)
                 }
@@ -154,8 +153,17 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             }
             
             
+            guard let rawURL = rawFileURL else {
+                DispatchQueue.main.async {
+                    self.completionHandler(self)
+                }
+                print("Setup shot")
+                self.service.stop(completion: self.service.configureCaptureSession)
+                return
+            }
+            
             //self.saveToPhotoLibrary(data)
-            //self.previewPhoto = self.photoStack.add(photo: data)
+            self.previewPhoto = self.photoStack.add(url: rawURL, preview: data, time: self.captureTime!)
             
             DispatchQueue.main.async {
                 self.completionHandler(self)
