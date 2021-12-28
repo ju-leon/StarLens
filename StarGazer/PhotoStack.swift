@@ -18,7 +18,7 @@ class PhotoStack {
     private var coverPhoto : UIImage
     
     private var captureObjects: [CaptureObject] = []
-    private var calibrationMatrix : [Double]?
+    private var calibrationMatrix : [Double]? = [3020.6292, 0, 2009, 0, 3020.6292, 1528, 0,0,1]
     private var calibrationMatrixInverse : [Double]?
     
     let startTime : Date?
@@ -137,6 +137,7 @@ class PhotoStack {
         
         let angles = PhotoStack.matrixToRotation(rotationMatrix: rotation)
         
+        self.calibrationMatrixInverse = PhotoStack.invert(self.calibrationMatrix!)
         print("Angles: ")
         print(angles)
         
@@ -159,8 +160,9 @@ class PhotoStack {
     
     func addIntrinsicMatrix(matrix: simd_float3x3) {
         // Init calibaration matrix
-        self.calibrationMatrix = PhotoStack.simdToDouble(matrix.transpose)
-        self.calibrationMatrixInverse = PhotoStack.simdToDouble(matrix.transpose.inverse)
+        //self.calibrationMatrix = PhotoStack.simdToDouble(matrix.transpose)
+        //self.calibrationMatrixInverse = PhotoStack.simdToDouble(matrix.transpose.inverse)
+        self.calibrationMatrixInverse = PhotoStack.invert(self.calibrationMatrix!)
     }
 
     func add(url: URL, preview: Data, time: Date) -> UIImage {
@@ -184,11 +186,11 @@ class PhotoStack {
         return coverPhoto
     }
     
-    func stackPhotos() {
+    func stackPhotos(_ statusUpdateCallback: ((Double)->())?) {
         var finalImage = CIImage(contentsOf: captureObjects[0].getURL())
         let filter = AverageStackingFilter()
         
-        for captureObject in self.captureObjects.dropFirst(1) {
+        for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
             print("Stacking \(captureObject.getURL())")
             
             autoreleasepool {
@@ -197,7 +199,7 @@ class PhotoStack {
                 let newImage = CIImage(contentsOf: captureObject.getURL())!.transformed(by: getTranslation(captureTime: captureObject.captureTime))
                 
                 filter.inputNewImage = newImage
-                filter.inputStackCount = Double(self.captureObjects.count)
+                filter.inputStackCount = Double(i)
             
                 let context = CIContext() // Prepare for create CGImage
                 let cgimg = context.createCGImage(filter.outputImage()!, from: finalImage!.extent)!
@@ -205,6 +207,9 @@ class PhotoStack {
                 
                 finalImage = CIImage(cgImage: cgimg)
             }
+            
+            let progress = Double(i + 1) / Double(captureObjects.count - 1)
+            statusUpdateCallback?(progress)
         }
         
         captureObjects = []

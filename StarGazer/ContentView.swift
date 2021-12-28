@@ -22,8 +22,10 @@ final class CameraModel: ObservableObject {
     @Published var willCapturePhoto = false
     
     @Published var isRecording = false
-    
     @Published var numPictures = 0
+    
+    @Published var isProcessing = false
+    @Published var processingProgress = 0.0
     
     var alertError: AlertError!
     
@@ -65,6 +67,17 @@ final class CameraModel: ObservableObject {
             self?.numPictures = val
         }
         .store(in: &self.subscriptions)
+        
+        service.$isProcessing.sink { [weak self] (val) in
+            self?.isProcessing = val
+        }
+        .store(in: &self.subscriptions)
+        
+        service.$processingProgress.sink { [weak self] (val) in
+            self?.processingProgress = val
+        }
+        .store(in: &self.subscriptions)
+        
     }
     
     func configure() {
@@ -73,12 +86,12 @@ final class CameraModel: ObservableObject {
     }
     
     func startTimelapse() {
-        if service.isCaptureRunning {
-            service.isCaptureRunning = false
-        } else {
-            service.isCaptureRunning = true
-            service.startTimelapse()
-        }
+        service.isCaptureRunning = true
+        service.startTimelapse()
+    }
+
+    func stopTimelapse() {
+        service.isCaptureRunning = false
     }
     
     func flipCamera() {
@@ -93,21 +106,25 @@ final class CameraModel: ObservableObject {
         service.flashMode = service.flashMode == .on ? .off : .on
     }
     
-    func stopRecoding() {
-        service.isCaptureRunning = false
-    }
+ 
 }
 
 struct CameraView: View {
     @StateObject var model = CameraModel()
+    @StateObject var navigationModel: NavigationModel
     
     @State var currentZoomFactor: CGFloat = 1.0
     
     var captureButton: some View {
         Button(action: {
-            model.startTimelapse()
+            if !model.isRecording {
+                model.startTimelapse()
+            } else {
+                model.stopTimelapse()
+            }
         }, label: {
             if !model.isRecording {
+                
                 Circle()
                     .foregroundColor(.white)
                     .frame(width: 80, height: 80, alignment: .center)
@@ -149,82 +166,81 @@ struct CameraView: View {
         })
     }
     
+    var captureView: some View {
+        VStack {
+            Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
+            
+            if !model.isRecording {
+                CameraPreview(session: model.session)
+                    .onAppear {
+                        model.configure()
+                    }
+                    .alert(isPresented: $model.showAlertError, content: {
+                        Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                            model.alertError.primaryAction?()
+                        }))
+                    })
+                    .overlay(
+                        Group {
+                            if model.willCapturePhoto {
+                                Color.black
+                            }
+                        }
+                    )
+                    .animation(.easeInOut)
+            }
+            else {
+                Image(uiImage: model.photo)
+                    .resizable()
+                    .clipped()
+                    //.frame(height: 300)
+            }
+            
+            HStack {
+                //capturedPhotoThumbnail
+                
+                Spacer()
+                
+                captureButton
+                
+                //Spacer()
+                
+                Spacer()
+                //flipCameraButton
+                
+            }
+            .padding(.horizontal, 20)
+        }
+
+    }
+    
+    var processingView: some View {
+        ZStack {
+            Image(uiImage: model.photo)
+                .resizable()
+                .clipped()
+            
+            Color.black.edgesIgnoringSafeArea(.all).opacity(0.2)
+            
+            VStack {
+                ProgressView("Processing…", value: model.processingProgress, total: 1)
+                    .foregroundColor(.white)
+                    .padding(.all)
+                    .animation(.easeInOut)
+            }
+        }
+    }
+
     var body: some View {
         GeometryReader { reader in
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
-                
-                VStack {
-                    Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack")
-                    
-                    if !model.isRecording {
-                        CameraPreview(session: model.session)
-                            .gesture(
-                                DragGesture().onChanged({ (val) in
-                                    //  Only accept vertical drag
-                                    if abs(val.translation.height) > abs(val.translation.width) {
-                                        //  Get the percentage of vertical screen space covered by drag
-                                        let percentage: CGFloat = -(val.translation.height / reader.size.height)
-                                        //  Calculate new zoom factor
-                                        let calc = currentZoomFactor + percentage
-                                        //  Limit zoom factor to a maximum of 5x and a minimum of 1x
-                                        let zoomFactor: CGFloat = min(max(calc, 1), 5)
-                                        //  Store the newly calculated zoom factor
-                                        currentZoomFactor = zoomFactor
-                                        //  Sets the zoom factor to the capture device session
-                                        model.zoom(with: zoomFactor)
-                                    }
-                                })
-                            )
-                            .onAppear {
-                                model.configure()
-                            }
-                            .alert(isPresented: $model.showAlertError, content: {
-                                Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                    model.alertError.primaryAction?()
-                                }))
-                            })
-                            .overlay(
-                                Group {
-                                    if model.willCapturePhoto {
-                                        Color.black
-                                    }
-                                }
-                            )
-                            .animation(.easeInOut)
-                    }
-                    else {
-                        Image(uiImage: model.photo)
-                            .resizable()
-                            .clipped()
-                            //.frame(height: 300)
-                    }
-
-                    
-                    
-                    
-                    HStack {
-                        //capturedPhotoThumbnail
-                        
-                        Spacer()
-                        
-                        captureButton
-                        
-                        //Spacer()
-                        
-                        Spacer()
-                        //flipCameraButton
-                        
-                    }
-                    .padding(.horizontal, 20)
+                if (!model.isProcessing) {
+                    captureView
+                } else {
+                    processingView
                 }
             }
         }
-    }
-}
-
-struct ContentView_Previews: PreviewProvider {
-    static var previews: some View {
-        CameraView()
     }
 }

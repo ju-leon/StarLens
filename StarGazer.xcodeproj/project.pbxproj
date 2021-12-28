@@ -16,6 +16,8 @@
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
+		056CBBCF277A678600538E2E /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCE277A678600538E2E /* ProcessingView.swift */; };
+		056CBBD1277B1AA600538E2E /* NavigationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBD0277B1AA600538E2E /* NavigationView.swift */; };
 		05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */; };
 		05B9B8BE276BDBAF00FF442F /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BD276BDBAF00FF442F /* ContentView.swift */; };
 		05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B9B8BF276BDBB100FF442F /* Assets.xcassets */; };
@@ -53,6 +55,8 @@
 		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
 		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
 		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
+		056CBBCE277A678600538E2E /* ProcessingView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
+		056CBBD0277B1AA600538E2E /* NavigationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NavigationView.swift; sourceTree = "<group>"; };
 		05B9B8B8276BDBAF00FF442F /* StarGazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StarGazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerApp.swift; sourceTree = "<group>"; };
 		05B9B8BD276BDBAF00FF442F /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
@@ -126,7 +130,9 @@
 			children = (
 				056CBBC927790DE700538E2E /* Filters */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
+				056CBBD0277B1AA600538E2E /* NavigationView.swift */,
 				05B9B8BD276BDBAF00FF442F /* ContentView.swift */,
+				056CBBCE277A678600538E2E /* ProcessingView.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
@@ -308,7 +314,9 @@
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */,
+				056CBBCF277A678600538E2E /* ProcessingView.swift in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
+				056CBBD1277B1AA600538E2E /* NavigationView.swift in Sources */,
 				051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */,
 				051F0A82276FBBB30015C507 /* CaptureView.swift in Sources */,
 				056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */,

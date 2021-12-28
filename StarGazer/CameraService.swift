@@ -87,6 +87,10 @@ public class CameraService : NSObject {
     
     @Published public var numPicures = 0
 
+    @Published public var isProcessing = false
+    
+    @Published public var processingProgress = 0.0
+    
 //    MARK: Alert properties
     public var alertError: AlertError = AlertError()
     
@@ -341,6 +345,7 @@ public class CameraService : NSObject {
         }
         
         session.commitConfiguration()
+        self.setupCameraProperties()
         
         self.isConfigured = true
         self.isCaptureRunning = true
@@ -440,11 +445,31 @@ public class CameraService : NSObject {
                 device.focusMode = .continuousAutoFocus
                 device.unlockForConfiguration()
             }
+            
         }
         catch {
             print(error.localizedDescription)
         }
     }
+    
+    func setupCameraProperties() {
+        let device = self.videoDeviceInput.device
+        do {
+            try device.lockForConfiguration()
+            
+            device.setFocusModeLocked(lensPosition: 1.0)
+            
+            print("Max exposure duration: \(device.activeFormat.maxExposureDuration)")
+            
+            device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
+                                         iso: device.activeFormat.minISO,
+                                         completionHandler: nil)
+        }
+        catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     
     /// - Tag: Stop capture session
     public func stop(completion: (() -> ())? = nil) {
@@ -719,9 +744,22 @@ public class CameraService : NSObject {
             }
         } else {
             print("Config failed")
-            self.photoStack!.stackPhotos()
-            self.photoStack!.saveStack()
+            
+            self.isProcessing = true
+            
+            sessionQueue.async {
+                self.photoStack!.stackPhotos({(x: Double) -> () in
+                    DispatchQueue.main.async {
+                        self.processingProgress = x
+                    }
+                })
+                self.photoStack!.saveStack()
+            }
         }
+    }
+    
+    private func setProgress(val: Double) {
+        self.processingProgress = val
     }
     
     public func updatePreview(photo: UIImage) {
