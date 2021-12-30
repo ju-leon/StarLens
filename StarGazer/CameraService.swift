@@ -13,7 +13,6 @@ import UIKit
 import CoreLocation
 import CoreMotion
 
-
 //  MARK: Class Camera Service, handles setup of AVFoundation needed for a basic camera app.
 public struct Photo: Identifiable, Equatable {
 //    The ID of the captured photo
@@ -125,7 +124,7 @@ public class CameraService : NSObject {
     
     private var keyValueObservations = [NSKeyValueObservation]()
     
-    private var photoStack : PhotoStack?
+    private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0), heading: 0, gyro: [0,0,0])
     private var location : CLLocationCoordinate2D?
     private var heading : Double?
     private var gyro : [Double]?
@@ -151,9 +150,16 @@ public class CameraService : NSObject {
         self.previewPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
-        sessionQueue.async {
-            self.configureSetupSession()
+        
+        // Start updating the users location
+        if CLLocationManager.locationServicesEnabled() {
+            locationManager.delegate = self
+            locationManager.desiredAccuracy = kCLLocationAccuracyBest
+            locationManager.requestLocation()
         }
+        
+        self.configureCaptureSession()
+        
     }
     
     //        MARK: Checks for user's permisions
@@ -198,85 +204,6 @@ public class CameraService : NSObject {
     }
     
     //  MARK: Session Management
-    
-    // Call this on the session queue.
-    /// - Tag: ConfigureSession
-    private func configureSetupSession() {
-        
-        if setupResult != .success {
-            return
-        }
-        
-        session.beginConfiguration()
-        
-        session.sessionPreset = .photo
-        
-        // Add video input.
-        do {
-            var defaultVideoDevice: AVCaptureDevice?
-            
-            if let backCameraDevice = AVCaptureDevice.default(.builtInDualWideCamera, for: .video, position: .back) {
-                // If a rear dual camera is not available, default to the rear wide angle camera.
-                defaultVideoDevice = backCameraDevice
-            } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
-                // If the rear wide angle camera isn't available, default to the front wide angle camera.
-                defaultVideoDevice = frontCameraDevice
-            }
-            
-            
-            guard let videoDevice = defaultVideoDevice else {
-                print("Default video device is unavailable.")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
-                return
-            }
-            
-            let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
-            
-            if session.canAddInput(videoDeviceInput) {
-                session.addInput(videoDeviceInput)
-                self.videoDeviceInput = videoDeviceInput
-                
-            } else {
-                print("Couldn't add video device input to the session.")
-                setupResult = .configurationFailed
-                session.commitConfiguration()
-                return
-            }
-        } catch {
-            print("Couldn't create video device input: \(error)")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
-        
-        // Add the photo output.
-        if session.canAddOutput(photoOutput) {
-            session.addOutput(photoOutput)
-            
-            photoOutput.isLivePhotoCaptureEnabled = false
-            photoOutput.isHighResolutionCaptureEnabled = true
-            photoOutput.maxPhotoQualityPrioritization = .quality
-            photoOutput.isDepthDataDeliveryEnabled = true
-            
-            //photoOutput.isAppleProRAWEnabled = photoOutput.isAppleProRAWSupported
-            
-        } else {
-            print("Could not add photo output to the session")
-            setupResult = .configurationFailed
-            session.commitConfiguration()
-            return
-        }
-        
-        session.commitConfiguration()
-        
-        self.isConfigured = true
-        
-        self.set(zoom: 1.0)
-        
-        self.start()
-    }
-    
     public func configureCaptureSession() {
         
         if setupResult != .success {
@@ -286,9 +213,7 @@ public class CameraService : NSObject {
         session.beginConfiguration()
         
         session.sessionPreset = .photo
-        
-        session.removeInput(videoDeviceInput)
-        session.removeOutput(photoOutput)
+
         
         // Add video input.
         do {
@@ -348,108 +273,8 @@ public class CameraService : NSObject {
         self.setupCameraProperties()
         
         self.isConfigured = true
-        self.isCaptureRunning = true
         
-        self.start(completion: self.capturePhoto)
-    }
-    
- 
-    //  MARK: Device Configuration
-    
-    /// - Tag: ChangeCamera
-    public func changeCamera() {
-        //        MARK: Here disable all camera operation related buttons due to configuration is due upon and must not be interrupted
-        DispatchQueue.main.async {
-            self.isCameraButtonDisabled = true
-        }
-        //
-        
-        sessionQueue.async {
-            let currentVideoDevice = self.videoDeviceInput.device
-            let currentPosition = currentVideoDevice.position
-            
-            let preferredPosition: AVCaptureDevice.Position
-            let preferredDeviceType: AVCaptureDevice.DeviceType
-            
-            switch currentPosition {
-            case .unspecified, .front:
-                preferredPosition = .back
-                preferredDeviceType = .builtInWideAngleCamera
-                
-            case .back:
-                preferredPosition = .front
-                preferredDeviceType = .builtInWideAngleCamera
-                
-            @unknown default:
-                print("Unknown capture position. Defaulting to back, dual-camera.")
-                preferredPosition = .back
-                preferredDeviceType = .builtInWideAngleCamera
-            }
-            let devices = self.videoDeviceDiscoverySession.devices
-            var newVideoDevice: AVCaptureDevice? = nil
-            
-            // First, seek a device with both the preferred position and device type. Otherwise, seek a device with only the preferred position.
-            if let device = devices.first(where: { $0.position == preferredPosition && $0.deviceType == preferredDeviceType }) {
-                newVideoDevice = device
-            } else if let device = devices.first(where: { $0.position == preferredPosition }) {
-                newVideoDevice = device
-            }
-            
-            if let videoDevice = newVideoDevice {
-                do {
-                    let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
-                    
-                    self.session.beginConfiguration()
-                    
-                    // Remove the existing device input first, because AVCaptureSession doesn't support
-                    // simultaneous use of the rear and front cameras.
-                    self.session.removeInput(self.videoDeviceInput)
-                    
-                    if self.session.canAddInput(videoDeviceInput) {
-                        self.session.addInput(videoDeviceInput)
-                        self.videoDeviceInput = videoDeviceInput
-                    } else {
-                        self.session.addInput(self.videoDeviceInput)
-                    }
-                    
-                    if let connection = self.photoOutput.connection(with: .video) {
-                        if connection.isVideoStabilizationSupported {
-                            connection.preferredVideoStabilizationMode = .auto
-                        }
-                    }
-                    
-                    self.photoOutput.maxPhotoQualityPrioritization = .quality
-                    
-                    self.session.commitConfiguration()
-                } catch {
-                    print("Error occurred while creating video device input: \(error)")
-                }
-            }
-            
-            DispatchQueue.main.async {
-//                MARK: Here enable capture button due to successfull setup
-                self.isCameraButtonDisabled = false
-            }
-        }
-    }
-    
-    public func focus(at focusPoint: CGPoint){
-//        let focusPoint = self.videoPreviewLayer.captureDevicePointConverted(fromLayerPoint: point)
-        let device = self.videoDeviceInput.device
-        do {
-            try device.lockForConfiguration()
-            if device.isFocusPointOfInterestSupported {
-                device.focusPointOfInterest = focusPoint
-                device.exposurePointOfInterest = focusPoint
-                device.exposureMode = .continuousAutoExposure
-                device.focusMode = .continuousAutoFocus
-                device.unlockForConfiguration()
-            }
-            
-        }
-        catch {
-            print(error.localizedDescription)
-        }
+        self.start()
     }
     
     func setupCameraProperties() {
@@ -457,13 +282,14 @@ public class CameraService : NSObject {
         do {
             try device.lockForConfiguration()
             
-            device.setFocusModeLocked(lensPosition: 1.0)
+            //device.setFocusModeLocked(lensPosition: 1.0)
             
             print("Max exposure duration: \(device.activeFormat.maxExposureDuration)")
             
-            device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                         iso: device.activeFormat.minISO,
-                                         completionHandler: nil)
+            /*device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
+                                         iso: 600,
+                                        completionHandler: nil)
+             */
         }
         catch {
             print(error.localizedDescription)
@@ -523,133 +349,11 @@ public class CameraService : NSObject {
         }
     }
     
-    public func set(zoom: CGFloat){
-        let factor = zoom < 1 ? 1 : zoom
-        let device = self.videoDeviceInput.device
-        
-        do {
-            try device.lockForConfiguration()
-            device.videoZoomFactor = factor
-            device.unlockForConfiguration()
-        }
-        catch {
-            print(error.localizedDescription)
-        }
-    }
-    
     //    MARK: Capture Photo
     
     public func startTimelapse() {
-        
-        // Start updating gyro data
-        if self.motionManager.isGyroAvailable {
-            self.motionManager.startGyroUpdates()
-            
-            // busy wait, only takes a split second so should be fine
-            while(self.motionManager.gyroData == nil) {
-               
-            }
-            
-            self.gyro = [self.motionManager.gyroData!.rotationRate.x,
-                                self.motionManager.gyroData!.rotationRate.y,
-                                self.motionManager.gyroData!.rotationRate.z]
-            
-            self.motionManager.stopGyroUpdates()
-        } else {
-            print("NO GYRO DETECTED!")
-        }
-        
-        // Start updating the users location
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyNearestTenMeters
-            locationManager.requestLocation()
-            //locationManager.startUpdatingHeading()
-        }
-                
-        
-        // Capture photo will be triggered form heading callback
-        // Location callback will request heading once available to avoid race conditions
-
-        //self.capturePhoto()
-                
-    }
-    
-    private func captureDepthData() {
-        if self.setupResult != .configurationFailed {
-            if self.isCaptureRunning {
-                //self.isCameraButtonDisabled = true
-                
-                sessionQueue.async {
-                    if let photoOutputConnection = self.photoOutput.connection(with: .video) {
-                        photoOutputConnection.videoOrientation = .portrait
-                    }
-                    
-                    let photoSettings = AVCapturePhotoSettings()
-                
-                    
-                    // Sets the flash option for this capture.
-                    if self.videoDeviceInput.device.isFlashAvailable {
-                        photoSettings.flashMode = self.flashMode
-                    }
-                    
-                    if self.photoOutput.isDepthDataDeliverySupported {
-                        self.photoOutput.isDepthDataDeliveryEnabled = true
-                        photoSettings.isDepthDataDeliveryEnabled = true
-                    } else {
-                        print("NO DEPTH DATA")
-                    }
-                    
-                    if self.photoOutput.isCameraCalibrationDataDeliverySupported {
-                        photoSettings.isCameraCalibrationDataDeliveryEnabled = true
-                    } else {
-                        print("DEVICE NOT SUPPORTED")
-                    }
-                    
-                    // Sets the preview thumbnail pixel format
-                    if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
-                        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
-                    }
-                    
-                    let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
-                        // Tells the UI to flash the screen to signal that SwiftCamera took a photo.
-                        DispatchQueue.main.async {
-                            self?.willCapturePhoto = true
-                        }
-                        
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            self?.willCapturePhoto = false
-                        }
-                        
-                    }, completionHandler: { [weak self] (photoCaptureProcessor) in
-                        // Update the preview
-                        self?.previewPhoto =  photoCaptureProcessor.previewPhoto
-                        
-                        // Let the main thread knoq there's another photo
-                        self?.numPicures += 1
-                        
-                        self?.isCameraButtonDisabled = false
-                        
-                        self?.sessionQueue.async {
-                            self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
-                        }
-                    }, photoProcessingHandler: { [weak self] animate in
-                        // Animates a spinner while photo is processing
-                        if animate {
-                            self?.shouldShowSpinner = true
-                        } else {
-                            self?.shouldShowSpinner = false
-                        }
-                    }, service: self, photoStack: self.photoStack! )
-                    
-                    // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
-                    self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
-                    self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
-                }
-            }
-        } else {
-            print("Config failed")
-        }
+        self.isCaptureRunning = true
+        self.capturePhoto()
     }
     
     /// - Tag: CapturePhoto
@@ -735,7 +439,7 @@ public class CameraService : NSObject {
                         } else {
                             self?.shouldShowSpinner = false
                         }
-                    }, service: self, photoStack: self.photoStack! )
+                    }, service: self, photoStack: self.photoStack )
                     
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
@@ -745,21 +449,20 @@ public class CameraService : NSObject {
         } else {
             print("Config failed")
             
+            self.stop()
+            
             self.isProcessing = true
             
             sessionQueue.async {
-                self.photoStack!.stackPhotos({(x: Double) -> () in
+                self.stop()
+                self.photoStack.stackPhotos({(x: Double) -> () in
                     DispatchQueue.main.async {
                         self.processingProgress = x
                     }
                 })
-                self.photoStack!.saveStack()
+                self.photoStack.saveStack()
             }
         }
-    }
-    
-    private func setProgress(val: Double) {
-        self.processingProgress = val
     }
     
     public func updatePreview(photo: UIImage) {
@@ -776,8 +479,9 @@ extension CameraService : CLLocationManagerDelegate {
         }
         
         self.location = locValue
-        print("locations = \(locValue.latitude) \(locValue.longitude)")
-        self.locationManager.startUpdatingHeading()
+        print("location = \(locValue.latitude) \(locValue.longitude)")
+        
+        self.photoStack.setLocation(location: locValue)
     }
     
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
@@ -791,8 +495,7 @@ extension CameraService : CLLocationManagerDelegate {
         self.locationManager.stopUpdatingHeading()
         
         // Now that all sensor data required is availabe, the photo stack can be initalized
-        self.photoStack = PhotoStack(location: self.location!, heading: self.heading!, gyro: self.gyro!)
-        self.captureDepthData()
+        
     }
 }
 

@@ -94,14 +94,6 @@ final class CameraModel: ObservableObject {
         service.isCaptureRunning = false
     }
     
-    func flipCamera() {
-        service.changeCamera()
-    }
-    
-    func zoom(with factor: CGFloat) {
-        service.set(zoom: factor)
-    }
-    
     func switchFlash() {
         service.flashMode = service.flashMode == .on ? .off : .on
     }
@@ -152,19 +144,6 @@ struct CameraView: View {
         })
     }
     
-
-    var flipCameraButton: some View {
-        Button(action: {
-            model.flipCamera()
-        }, label: {
-            Circle()
-                .foregroundColor(Color.gray.opacity(0.2))
-                .frame(width: 45, height: 45, alignment: .center)
-                .overlay(
-                    Image(systemName: "camera.rotate.fill")
-                        .foregroundColor(.white))
-        })
-    }
     
     var captureView: some View {
         VStack {
@@ -220,7 +199,7 @@ struct CameraView: View {
                 .resizable()
                 .clipped()
             
-            Color.black.edgesIgnoringSafeArea(.all).opacity(0.2)
+            Color.black.edgesIgnoringSafeArea(.all).opacity(0.5)
             
             VStack {
                 ProgressView("Processing…", value: model.processingProgress, total: 1)

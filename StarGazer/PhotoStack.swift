@@ -10,12 +10,20 @@ import UIKit
 import Photos
 import Accelerate
 import CoreImage
+import Vision
 
 class PhotoStack {
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     let EARTH_TIME_PER_ROTATION = 86164
+    public let STRING_ID : String
+    
+    let ciFilter = OpticalFlowVisualizerFilter()
+    var requestHandler = VNSequenceRequestHandler()
     
     private var coverPhoto : UIImage
+    
+    private var stacked : CGImage?
+    private var trailing : CGImage?
     
     private var captureObjects: [CaptureObject] = []
     private var calibrationMatrix : [Double]? = [3020.6292, 0, 2009, 0, 3020.6292, 1528, 0,0,1]
@@ -23,13 +31,14 @@ class PhotoStack {
     
     let startTime : Date?
     
-    let location: CLLocationCoordinate2D
+    var location: CLLocationCoordinate2D
     let heading: Double
     let gyro: [Double]
     
     let device_alpha: Double
     let device_beta : Double
     let device_gamma: Double
+    
     
     private static func degToRad(_ deg: Double) -> Double{
         return (deg * Double.pi) / 180
@@ -125,6 +134,15 @@ class PhotoStack {
     
     //TODO: Init with actual size
     init(location: CLLocationCoordinate2D, heading: Double, gyro: [Double]) {
+        self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
+        
+        let tempDir = FileManager.default.temporaryDirectory
+        do {
+            try FileManager.default.createDirectory(atPath: tempDir.appendingPathComponent(self.STRING_ID, isDirectory: true).path, withIntermediateDirectories: true, attributes: nil)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
         // Init device heading
         self.location = location
         self.heading = heading
@@ -158,6 +176,10 @@ class PhotoStack {
         UIGraphicsEndImageContext()
     }
     
+    func setLocation(location: CLLocationCoordinate2D) {
+        self.location = location
+    }
+    
     func addIntrinsicMatrix(matrix: simd_float3x3) {
         // Init calibaration matrix
         //self.calibrationMatrix = PhotoStack.simdToDouble(matrix.transpose)
@@ -186,66 +208,205 @@ class PhotoStack {
         return coverPhoto
     }
     
+    func alignImage(request: VNRequest, frame: CIImage, index: Int) -> CIImage? {
+        // 1
+        guard
+            let results = request.results as? [VNImageTranslationAlignmentObservation],
+            let result = results.first
+        else {
+            return nil
+        }
+        // 2
+        
+        var transform = result.alignmentTransform
+        
+        print(transform)
+        
+        transform.tx = 1000
+        transform.ty = 1000
+        
+        print(transform)
+        return frame.transformed(by: CGAffineTransform(rotationAngle: 0.1 * CGFloat(index)))
+    }
+    
+    func autoEnhance(_ image: CIImage) -> CIImage {
+        let adjustments = image.autoAdjustmentFilters()
+        
+        var ciImage = image
+        for filter in adjustments {
+            filter.setValue(ciImage, forKey: kCIInputImageKey)
+            if let outputImage = filter.outputImage {
+                ciImage = outputImage
+            }
+        }
+        
+        return image
+        
+    }
+    
+    func alignImage(request: VNRequest, frame: CIImage) -> CIImage {
+        
+        
+        do {
+            let sequenceHandler = VNSequenceRequestHandler()
+            try sequenceHandler.perform([request], on: frame)
+        } catch {
+            print(error.localizedDescription)
+        }
+        
+        guard
+            let results = request.results as? [VNImageHomographicAlignmentObservation],
+            let result = results.first
+        else {
+            print("Falied")
+            return frame
+        }
+        
+
+        
+        let mat = PhotoStack.simdToDouble(result.warpTransform)
+        print(mat)
+        //print(result.p)
+        // 2
+        
+        let alignedFrame = frame.transformed(by: CGAffineTransform(
+            a: 1,//mat[0],
+            b: 0,//mat[3],
+            c: 0,//mat[1],
+            d: 1,//mat[4],
+            tx: mat[6],
+            ty: mat[7])
+        )
+        // 3
+         
+        return alignedFrame//CIImage(cvPixelBuffer: alignedFrame.pixelBuffer!)
+    }
+    
+
+    
+    func scale(image: CIImage, factor: CGFloat) -> CIImage{
+        let scaleDownFilter = CIFilter(name:"CILanczosScaleTransform")!
+        
+        let targetSize = CGSize(width:image.extent.width*factor, height:image.extent.height*factor)
+        let scale = targetSize.height / (image.extent.height)
+        let aspectRatio = targetSize.width/((image.extent.width) * scale)
+        
+        scaleDownFilter.setValue(image, forKey: kCIInputImageKey)
+        scaleDownFilter.setValue(scale, forKey: kCIInputScaleKey)
+        scaleDownFilter.setValue(aspectRatio, forKey: kCIInputAspectRatioKey)
+        
+        return scaleDownFilter.outputImage!
+    }
+    
+    func makeOpticalFlowImage(baseImage: CIImage, newImage: CGImage) -> CIImage? {
+        var opticalFlow: CIImage?
+        do {
+            let request = VNGenerateOpticalFlowRequest(targetedCGImage: newImage, options: [:])
+            try self.requestHandler.perform([request], on: baseImage)
+            
+            guard let pixelBufferObservation = request.results?.first as? VNPixelBufferObservation else { return nil }
+            opticalFlow = CIImage(cvImageBuffer: pixelBufferObservation.pixelBuffer)
+        } catch {
+            print("Flow request failed")
+            return nil
+        }
+        
+        ciFilter.inputImage = opticalFlow
+        return ciFilter.outputImage
+    }
+    
     func stackPhotos(_ statusUpdateCallback: ((Double)->())?) {
-        var finalImage = CIImage(contentsOf: captureObjects[0].getURL())
+        let firstImage = CIImage(contentsOf: captureObjects[0].getURL())!
+        let scaled = scale(image: firstImage, factor: 0.5)
+        let firstImageLow = CIImage(cgImage: CIContext().createCGImage(scaled, from: scaled.extent)!)
+        
+        
+        var finalImage = CIImage(cgImage: CIContext().createCGImage(firstImage, from: firstImage.extent)!)
         let filter = AverageStackingFilter()
         
+        var image = UIImage(cgImage: CIContext().createCGImage(firstImage, from: firstImage.extent)!)
+        
+        var images: [UIImage] = []
+        for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
+            let newImage = CIImage(contentsOf: captureObject.getURL())!
+            let uiImage = UIImage(cgImage: CIContext().createCGImage(newImage, from: newImage.extent)!)
+            images.append(uiImage)
+            
+            let progress = Double(i + 1) / Double(captureObjects.count - 1)
+            statusUpdateCallback?(progress)
+            
+        }
+        
+        image = OpenCVWrapper.stackImages(images, on: image)
+        savePhoto(image: image)
+        
+        
+        
+        
+        self.coverPhoto = image
+        /*
         for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
             print("Stacking \(captureObject.getURL())")
             
             autoreleasepool {
-                filter.inputCurrentStack = finalImage
-
-                let newImage = CIImage(contentsOf: captureObject.getURL())!.transformed(by: getTranslation(captureTime: captureObject.captureTime))
+                let context = CIContext()
+                let newImage = CIImage(contentsOf: captureObject.getURL())!
                 
-                filter.inputNewImage = newImage
-                filter.inputStackCount = Double(i)
-            
-                let context = CIContext() // Prepare for create CGImage
-                let cgimg = context.createCGImage(filter.outputImage()!, from: finalImage!.extent)!
+                let newImageLow = scale(image: newImage, factor: 0.5)
+                let newCGImg = context.createCGImage(newImageLow, from: newImageLow.extent)!
                 context.clearCaches()
                 
+                
+                print(newImageLow.extent)
+                
+                let opticalFlowImage = makeOpticalFlowImage(baseImage: firstImageLow, newImage: newCGImg)
+                
+                let request = VNHomographicImageRegistrationRequest(targetedCIImage: firstImage)
+                filter.inputNewImage = alignImage(request: request, frame: newImage)
+                filter.inputStackCount = Double(i + 1)
+                filter.inputCurrentStack = finalImage
+            
+                // Prepare for create CGImage
+                let cgimg = context.createCGImage(filter.outputImage()!, from: finalImage.extent)!
+                context.clearCaches()
                 finalImage = CIImage(cgImage: cgimg)
+                
+                print("Final Image:")
+                print(finalImage.extent)
             }
             
             let progress = Double(i + 1) / Double(captureObjects.count - 1)
             statusUpdateCallback?(progress)
         }
-        
+
         captureObjects = []
   
         let context = CIContext() // Prepare for create CGImage
-        let cgimg = context.createCGImage(finalImage!, from: finalImage!.extent)
+        let cgimg = context.createCGImage(finalImage, from: finalImage.extent)
         let output = UIImage(cgImage: cgimg!)
         
         self.coverPhoto = output
+        self.stacked = cgimg
+     */
     }
     
     func saveStack() {
+        //savePhoto(image: self.trailing!)
+    }
+    
+    func savePhoto(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
                 
                 // Don't continue if not authorized.
                 guard status == .authorized else { return }
-                
+            
                 PHPhotoLibrary.shared().performChanges {
-             
-                    // Save the RAW (DNG) file as the main resource for the Photos asset.
-                    let options = PHAssetResourceCreationOptions()
-                    options.shouldMoveFile = true
-                    /*
-                    creationRequest.addResource(with: .photo,
-                                                fileURL: rawFileURL,
-                                                options: options)
-                    */
-                    // Add the compressed (HEIF) data as an alternative resource.
                     let creationRequest = PHAssetCreationRequest.forAsset()
                     creationRequest.addResource(with: .photo,
-                                                data: self.coverPhoto.pngData()!,
+                                                data: image.jpegData(compressionQuality: 0.99)!,
                                                 options: nil)
                     
-                    
                 } completionHandler: { success, error in
-                    //print("error: \(error!)")
                     // Process the Photos library error.
                 }
         }

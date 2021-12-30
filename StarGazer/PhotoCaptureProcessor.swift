@@ -87,20 +87,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
         
-        // TODO: Check if the phone actually has the matrix. Which phones have it?
-        if let depthData = photo.depthData {
-            if let calibrationData = depthData.cameraCalibrationData {
-                self.intrinsicMatrix = calibrationData.intrinsicMatrix
-                self.photoStack.addIntrinsicMatrix(matrix: self.intrinsicMatrix)
-                print(self.intrinsicMatrix)
-                //self.photoStack.setCameraParams(matrix: calibrationData.intrinsicMatrix)
-            } else {
-                print("NO CALIBRATION DATA")
-            }
-        } else {
-            print("NO DEPTH DATA")
-        }
-        
     
         //TODO: WHY??
         DispatchQueue.main.async {
@@ -112,6 +98,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                     print("No photo data to write.")
                     return
                 }
+        
                 
         if photo.isRawPhoto {
             // Generate a unique URL to write the RAW file.
@@ -132,7 +119,9 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     private func makeUniqueDNGFileURL() -> URL {
         let tempDir = FileManager.default.temporaryDirectory
         let fileName = ProcessInfo.processInfo.globallyUniqueString
-        return tempDir.appendingPathComponent(fileName).appendingPathExtension("dng")
+        return tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
+            .appendingPathComponent(fileName)
+            .appendingPathExtension("dng")
     }
     
     
