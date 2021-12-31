@@ -73,22 +73,16 @@ vector<Mat> hdrImages;
 }
 
 - (UIImage *)composeStack {
-    NSLog (@"Composing stack");
     Mat movement;
     //findForeground(movement, hdrImages);
-    NSLog (@"Movement computed");
     cv::Mat baseImage = hdrImages[0];
     cv::Mat combinedImage;
     baseImage.convertTo(combinedImage, CV_32FC3);
     
     
     for (int i = 1; i < hdrImages.size(); i++) {
-        NSLog (@"Stacking...");
         combine(baseImage, hdrImages[i], movement, hdrImages.size(), combinedImage);
-        NSLog (@"Stacked");
     }
-    NSLog (@"Computing result");
-    
     // UIImage only supports 8bit color depth
     combinedImage.convertTo(combinedImage, CV_8UC3);
     
@@ -113,13 +107,11 @@ vector<Mat> hdrImages;
     
     std::vector<cv::Mat> matImages;
     for (id image in images) {
-        NSLog (@"Iterating");
         if ([image isKindOfClass: [UIImage class]]) {
             UIImage* rotatedImage = [image rotateToImageOrientation];
             cv::Mat matImage = [rotatedImage CVMat3];
             matImages.push_back(matImage);
         } else {
-            NSLog(@"Unsupported image type");
             return 0;
         }
     }
