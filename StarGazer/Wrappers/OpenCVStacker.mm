@@ -6,17 +6,20 @@
 //
 
 
-#import "OpenCVWrapper.h"
+#import "OpenCVStacker.h"
 #import "UIImageOpenCV.h"
 #import "UIImageRotate.h"
 #import "homography.hpp"
 #import "foreground.hpp"
+#import "hdrmerge.hpp"
 
 using namespace std;
 using namespace cv;
 
 
-@implementation OpenCVWrapper
+@implementation OpenCVStacker
+
+vector<Mat> hdrImages;
 
 - (NSString *) openCVVersionString
 {
@@ -37,7 +40,7 @@ using namespace cv;
         return 0;
     }
     
-    cv::Mat combinedImage = [image CVMat3];
+    cv::Mat combinedImage = [[image rotateToImageOrientation] CVMat3];
     
     
     std::vector<cv::Mat> matImages;
@@ -51,13 +54,13 @@ using namespace cv;
             NSLog(@"Unsupported image type");
             return 0;
         }
-    }
+    } 
     
     Mat movement;
     findForeground(movement, matImages);
     
     for (int i = 0; i < matImages.size(); i++) {
-        combine(combinedImage, matImages[i], movement);
+        combine(combinedImage, matImages[i], movement, matImages.size());
     }
     
 
@@ -65,6 +68,53 @@ using namespace cv;
     return result;
 }
 
+- (UIImage *)composeStack {
+    Mat movement;
+    findForeground(movement, hdrImages);
+    NSLog (@"Movement computed");
+    cv::Mat combinedImage = hdrImages[0];
+    for (int i = 1; i < hdrImages.size(); i++) {
+        NSLog (@"Stacking...");
+        combine(combinedImage, hdrImages[i], movement, hdrImages.size());
+        NSLog (@"Stacked");
+    }
+    NSLog (@"Computing result");
+    //combinedImage = combinedImage * 255;
+    //combinedImage.convertTo(combinedImage, CV_8UC3);
+    UIImage* result =  [UIImage imageWithCVMat:combinedImage];
+    return result;
+}
+
+
+- (UIImage *)hdrMerge:(NSArray *)images{
+    NSLog (@"Called");
+    if ([images count]==0){
+        NSLog (@"imageArray is empty");
+        return 0;
+    }
+    std::vector<cv::Mat> matImages;
+    for (id image in images) {
+        NSLog (@"Iterating");
+        if ([image isKindOfClass: [UIImage class]]) {
+            UIImage* rotatedImage = [image rotateToImageOrientation];
+            cv::Mat matImage = [rotatedImage CVMat3];
+            matImages.push_back(matImage);
+        } else {
+            NSLog(@"Unsupported image type");
+            return 0;
+        }
+    }
+    
+    cv::Mat merged;
+    hdrMerge(matImages, merged);
+    
+    merged = merged * 255;
+    merged.convertTo(merged, CV_8UC3);
+    
+    hdrImages.emplace_back(merged);
+    UIImage* result =  [UIImage imageWithCVMat:merged];
+    return result;
+}
 
 /*
 #pragma mark Private

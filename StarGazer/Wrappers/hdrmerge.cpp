@@ -11,6 +11,20 @@
 
 using namespace cv;
 
-void hdrMerge(std::vector<cv::Mat> images, cv::Mat result) {
+void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result) {
+    /*
+    Mat response;
+    Ptr<CalibrateDebevec> calibrate = createCalibrateDebevec();
+    calibrate->process(images, response, exposureTimes);
     
+    Mat hdr;
+    Ptr<MergeDebevec> merge_debevec = createMergeDebevec();
+    merge_debevec->process(images, hdr, exposureTimes, response);
+    
+    Mat ldr;
+    Ptr<Tonemap> tonemap = createTonemap(2.2f);
+    tonemap->process(hdr, ldr);
+    */
+    Ptr<MergeMertens> merge_mertens = createMergeMertens();
+    merge_mertens->process(images, result);
 }

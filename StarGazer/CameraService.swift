@@ -124,10 +124,14 @@ public class CameraService : NSObject {
     
     private var keyValueObservations = [NSKeyValueObservation]()
     
-    private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0), heading: 0, gyro: [0,0,0])
+    private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0))
     private var location : CLLocationCoordinate2D?
-    private var heading : Double?
-    private var gyro : [Double]?
+    
+    private let isoRotation: [Float] = [200, 400, 800, 1600]
+    private var isoRotationIndex = 0
+
+    public static let biasRotation: [Float] = [0, 0, 0.5, 1.0, 1.5]
+    private var biasRotationIndex = 0
     
     public func configure() {
         /*
@@ -270,32 +274,11 @@ public class CameraService : NSObject {
         }
         
         session.commitConfiguration()
-        self.setupCameraProperties()
         
         self.isConfigured = true
         
         self.start()
     }
-    
-    func setupCameraProperties() {
-        let device = self.videoDeviceInput.device
-        do {
-            try device.lockForConfiguration()
-            
-            //device.setFocusModeLocked(lensPosition: 1.0)
-            
-            print("Max exposure duration: \(device.activeFormat.maxExposureDuration)")
-            
-            /*device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                         iso: 600,
-                                        completionHandler: nil)
-             */
-        }
-        catch {
-            print(error.localizedDescription)
-        }
-    }
-    
     
     /// - Tag: Stop capture session
     public func stop(completion: (() -> ())? = nil) {
@@ -353,12 +336,46 @@ public class CameraService : NSObject {
     
     public func startTimelapse() {
         self.isCaptureRunning = true
-        self.capturePhoto()
+        self.setupCameraProperties()
     }
+    
+    func setupCameraProperties() {
+        let device = self.videoDeviceInput.device
+        do {
+            try device.lockForConfiguration()
+            
+            //device.setFocusModeLocked(lensPosition: 1.0)
+            
+            /*
+            device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
+                                         iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
+                                         completionHandler: { (val: CMTime) -> Void in
+                                            print("Captre duration: \(val)")
+                                            self.capturePhoto()
+                                        })
+            */
+            
+            print(CameraService.biasRotation[biasRotationIndex])
+            device.setExposureTargetBias(CameraService.biasRotation[biasRotationIndex], completionHandler: { (val: CMTime) -> Void in
+                print("Captre duration: \(val)")
+                
+                self.capturePhoto()
+            })
+            
+            device.unlockForConfiguration()
+            
+            isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count
+            biasRotationIndex = (biasRotationIndex + 1) % CameraService.biasRotation.count
+
+        }
+        catch {
+            print(error.localizedDescription)
+        }
+    }
+    
     
     /// - Tag: CapturePhoto
     public func capturePhoto() {
-        print("capture called")
         if self.setupResult != .configurationFailed {
             if self.isCaptureRunning {
                 //self.isCameraButtonDisabled = true
@@ -387,18 +404,6 @@ public class CameraService : NSObject {
                         photoSettings.flashMode = self.flashMode
                     }
                     
-                    if self.photoOutput.isDepthDataDeliverySupported {
-                        self.photoOutput.isDepthDataDeliveryEnabled = true
-                        photoSettings.isDepthDataDeliveryEnabled = true
-                    } else {
-                        print("NO DEPTH DATA")
-                    }
-                    
-                    if self.photoOutput.isCameraCalibrationDataDeliverySupported {
-                        photoSettings.isCameraCalibrationDataDeliveryEnabled = true
-                    } else {
-                        print("DEVICE NOT SUPPORTED")
-                    }
                     
                     photoSettings.isHighResolutionPhotoEnabled = true
                     
@@ -488,15 +493,7 @@ extension CameraService : CLLocationManagerDelegate {
         print("Failed to find user's location: \(error.localizedDescription)")
         locationManager.requestLocation()
     }
-    
-    public func locationManager(_ manager: CLLocationManager, didUpdateHeading newHeading: CLHeading) {
-        self.heading = newHeading.trueHeading
-        print(newHeading.trueHeading)
-        self.locationManager.stopUpdatingHeading()
-        
-        // Now that all sensor data required is availabe, the photo stack can be initalized
-        
-    }
+
 }
 
 extension CameraService {
@@ -525,8 +522,4 @@ extension CameraService {
         case photo = 0
         case movie = 1
     }
-}
-
-extension CameraService : AVCapturePhotoCaptureDelegate {
-    
 }

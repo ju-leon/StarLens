@@ -5,5 +5,5 @@
 //  Created by Leon Jungemeyer on 29.12.21.
 //
 
-#import "OpenCVWrapper.h"
+#import "OpenCVStacker.h"
 //#import "UIImage+OpenCV.hpp"

@@ -33,7 +33,7 @@
 		05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2235277C729E007A90DE /* CoreFoundation.framework */; };
 		05DE2238277C72A8007A90DE /* AssetsLibrary.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2237277C72A8007A90DE /* AssetsLibrary.framework */; };
 		05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2239277C72B2007A90DE /* Accelerate.framework */; };
-		05DE2244277D08C6007A90DE /* OpenCVWrapper.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2243277D08C6007A90DE /* OpenCVWrapper.mm */; };
+		05DE2244277D08C6007A90DE /* OpenCVStacker.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2243277D08C6007A90DE /* OpenCVStacker.mm */; };
 		05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2257277DB420007A90DE /* UIImageOpenCV.mm */; };
 		05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE225B277DB540007A90DE /* UIImageRotate.mm */; };
 		05DE225F277DB711007A90DE /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE225D277DB711007A90DE /* homography.cpp */; };
@@ -92,8 +92,8 @@
 		05DE2235277C729E007A90DE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
 		05DE2237277C72A8007A90DE /* AssetsLibrary.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AssetsLibrary.framework; path = System/Library/Frameworks/AssetsLibrary.framework; sourceTree = SDKROOT; };
 		05DE2239277C72B2007A90DE /* Accelerate.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Accelerate.framework; path = System/Library/Frameworks/Accelerate.framework; sourceTree = SDKROOT; };
-		05DE2242277D08C6007A90DE /* OpenCVWrapper.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCVWrapper.h; sourceTree = "<group>"; };
-		05DE2243277D08C6007A90DE /* OpenCVWrapper.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVWrapper.mm; sourceTree = "<group>"; };
+		05DE2242277D08C6007A90DE /* OpenCVStacker.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = OpenCVStacker.h; sourceTree = "<group>"; };
+		05DE2243277D08C6007A90DE /* OpenCVStacker.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = OpenCVStacker.mm; sourceTree = "<group>"; };
 		05DE2245277D08FB007A90DE /* StarGazer-Bridging-Header.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "StarGazer-Bridging-Header.h"; sourceTree = "<group>"; };
 		05DE224F277D12F5007A90DE /* PrefixHeader.pch */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = PrefixHeader.pch; sourceTree = "<group>"; };
 		05DE2256277DB420007A90DE /* UIImageOpenCV.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = UIImageOpenCV.h; sourceTree = "<group>"; };
@@ -189,15 +189,15 @@
 			children = (
 				05DE223C277D0799007A90DE /* Wrappers */,
 				056CBBC927790DE700538E2E /* Filters */,
-				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
 				056CBBD0277B1AA600538E2E /* NavigationView.swift */,
 				05B9B8BD276BDBAF00FF442F /* ContentView.swift */,
 				056CBBCE277A678600538E2E /* ProcessingView.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
-				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
-				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
+				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
 				056CBBCC2779C8AD00538E2E /* CaptureObject.swift */,
+				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
+				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
 				051F0A89276FC0630015C507 /* CameraPreview.swift */,
 				051F0A81276FBBB30015C507 /* CaptureView.swift */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
@@ -251,8 +251,8 @@
 		05DE223C277D0799007A90DE /* Wrappers */ = {
 			isa = PBXGroup;
 			children = (
-				05DE2242277D08C6007A90DE /* OpenCVWrapper.h */,
-				05DE2243277D08C6007A90DE /* OpenCVWrapper.mm */,
+				05DE2242277D08C6007A90DE /* OpenCVStacker.h */,
+				05DE2243277D08C6007A90DE /* OpenCVStacker.mm */,
 				05DE225E277DB711007A90DE /* homography.hpp */,
 				05DE225D277DB711007A90DE /* homography.cpp */,
 				05DE2261277DC3FC007A90DE /* foreground.hpp */,
@@ -506,7 +506,7 @@
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */,
 				05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */,
-				05DE2244277D08C6007A90DE /* OpenCVWrapper.mm in Sources */,
+				05DE2244277D08C6007A90DE /* OpenCVStacker.mm in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
 				051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */,

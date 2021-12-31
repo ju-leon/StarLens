@@ -9,6 +9,6 @@
 #define hdrmerge_hpp
 #include <opencv2/opencv.hpp>
 
-void hdrMerge(std::vector<cv::Mat> images, cv::Mat result);
+void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result);
 
 #endif /* hdrmerge_hpp */

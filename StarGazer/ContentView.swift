@@ -171,8 +171,9 @@ struct CameraView: View {
             else {
                 Image(uiImage: model.photo)
                     .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .clipped()
-                    //.frame(height: 300)
+                    .frame(height: 600)
             }
             
             HStack {

@@ -35,7 +35,7 @@ class PhotoCaptureProcessor: NSObject {
     private var rawFileURL: URL?
     private var compressedData: Data?
     private var captureTime: Date?
-    
+    private var metadata: [String : Any]?
 //    The maximum time lapse before telling UI to show a spinner
     private var maxPhotoProcessingTime: CMTime?
         
@@ -86,13 +86,13 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        
-    
+        // Take a new photo as soon as the old photo is processed
         //TODO: WHY??
         DispatchQueue.main.async {
             self.photoProcessingHandler(false)
         }
-    
+        
+        self.metadata = photo.metadata
         
         guard let photoData = photo.fileDataRepresentation() else {
                     print("No photo data to write.")
@@ -127,6 +127,10 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     /// - Tag: DidFinishCapture
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
+        // Capture next photo
+        self.service.setupCameraProperties()
+        
+        
         if let error = error {
             print("Error capturing photo: \(error)")
             DispatchQueue.main.async {
@@ -146,20 +150,23 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 DispatchQueue.main.async {
                     self.completionHandler(self)
                 }
-                print("Setup shot")
-                self.service.stop(completion: self.service.configureCaptureSession)
                 return
             }
             
+            print(self.metadata)
+            
             //self.saveToPhotoLibrary(data)
-            self.previewPhoto = self.photoStack.add(url: rawURL, preview: data, time: self.captureTime!)
+            let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
+            
+            
+            self.previewPhoto = self.photoStack.add(captureObject: captureObject, preview: data)
             
             DispatchQueue.main.async {
                 self.completionHandler(self)
             }
         }
         
-        self.service.capturePhoto()
+
         
     }
 }

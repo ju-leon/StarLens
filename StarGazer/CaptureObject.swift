@@ -12,10 +12,13 @@ import UIKit
 class CaptureObject {
     let url: URL
     let captureTime: Date
+    let exposureBias: Float = 1.0
+    let metadata: [String : Any]
     
-    init(url: URL, time: Date) {
+    init(url: URL, time: Date, metadata: [String : Any]) {
         self.url = url
         self.captureTime = time
+        self.metadata = metadata
     }
  
     deinit {
@@ -32,5 +35,10 @@ class CaptureObject {
     
     func getCaptureTime() -> Date {
         return captureTime
+    }
+    
+    func toUIImage() -> UIImage {
+        let newImage = CIImage(contentsOf: url)!
+        return UIImage(cgImage: CIContext().createCGImage(newImage, from: newImage.extent)!, scale: 1.0, orientation: .right)
     }
 }

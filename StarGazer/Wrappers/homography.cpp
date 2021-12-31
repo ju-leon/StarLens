@@ -15,13 +15,12 @@ const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
 
 
-void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement) {
+void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, int numImages) {
     Mat imReg, h;
-    
     alignImages(imageNew, movement, imageBase, imReg, h);
     std::cout << "Finished alignment" << std::endl;
     
-    addWeighted(imageBase, 0.5, imReg, 0.5, 0.0, imageBase);
+    addWeighted(imageBase, 1, imReg, 1 / numImages, 0.0, imageBase);
 }
 
 void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
@@ -30,7 +29,13 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
   Mat im1Gray, im2Gray;
   cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
   cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
+
+    //im1Gray *= 255;
+  //im1Gray.convertTo(im1Gray, CV_8UC1);
+   // im2Gray *= 255;
+  //im2Gray.convertTo(im2Gray, CV_8UC1);
     
+    std::cout << "Converted" << std::endl;
   // Only compare moving parts of the orginal image
   //bitwise_and(im2Gray, movement, im2Gray);
 
@@ -42,12 +47,14 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
   Ptr<Feature2D> orb = ORB::create(MAX_FEATURES);
   orb->detectAndCompute(im1Gray, Mat(), keypoints1, descriptors1);
   orb->detectAndCompute(im2Gray, Mat(), keypoints2, descriptors2);
-
+    
+    std::cout << "Detected orbs" << std::endl;
   // Match features.
   std::vector<DMatch> matches;
   Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
   matcher->match(descriptors1, descriptors2, matches, Mat());
 
+    std::cout << "matched" << std::endl;
   // Sort matches by score
   std::sort(matches.begin(), matches.end());
 
@@ -56,10 +63,10 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
   matches.erase(matches.begin()+numGoodMatches, matches.end());
 
   // Draw top matches
-  Mat imMatches;
-  drawMatches(im1, keypoints1, im2, keypoints2, matches, imMatches);
+  //Mat imMatches;
+  //drawMatches(im1, keypoints1, im2, keypoints2, matches, imMatches);
   //imwrite("matches.jpg", imMatches);
-
+    std::cout << "draw" << std::endl;
   // Extract location of good matches
   std::vector<Point2f> points1, points2;
 
@@ -71,7 +78,7 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
 
   // Find homography
   h = findHomography( points1, points2, RANSAC );
-
+    std::cout << "homo" << std::endl;
   // Use homography to warp image
   warpPerspective(im1, im1Reg, h, im2.size());
 }
