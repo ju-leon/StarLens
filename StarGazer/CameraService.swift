@@ -130,7 +130,7 @@ public class CameraService : NSObject {
     private let isoRotation: [Float] = [200, 400, 800, 1600]
     private var isoRotationIndex = 0
 
-    public static let biasRotation: [Float] = [0, 0, 0.5, 1.0, 1.5]
+    public static let biasRotation: [Float] = [-1, -0.5] // 0, 0.5, 1.0, 1.5]
     private var biasRotationIndex = 0
     
     public func configure() {

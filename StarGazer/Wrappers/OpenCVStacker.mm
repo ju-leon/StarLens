@@ -28,20 +28,17 @@ vector<Mat> hdrImages;
 
 
 #pragma mark Public
-/*
-+ (UIImage *)toGray:(UIImage *)source {
-    cout << "OpenCV: ";
-    return [OpenCVWrapper imageFrom:[OpenCVWrapper _grayFrom:[OpenCVWrapper matFrom:source]]];
-}
-*/
+
 + (UIImage *)stackImages:(NSArray *)images onImage:(UIImage *)image{
+    /*
     if ([images count]==0){
         NSLog (@"imageArray is empty");
         return 0;
     }
     
     cv::Mat combinedImage = [[image rotateToImageOrientation] CVMat3];
-    
+    // Preserve as much data to the end as possible
+    combinedImage.convertTo(combinedImage, CV_32FC3);
     
     std::vector<cv::Mat> matImages;
     
@@ -63,22 +60,38 @@ vector<Mat> hdrImages;
         combine(combinedImage, matImages[i], movement, matImages.size());
     }
     
-
+    NSLog(@"Done combining");
+    // UIImage only supports 8bit color depth
+    combinedImage *= 255;
+    combinedImage.convertTo(combinedImage, CV_8UC3);
+    
+    NSLog(@"Done converting");
     UIImage* result =  [UIImage imageWithCVMat:combinedImage];
     return result;
+     */
+    return 0;
 }
 
 - (UIImage *)composeStack {
+    NSLog (@"Composing stack");
     Mat movement;
-    findForeground(movement, hdrImages);
+    //findForeground(movement, hdrImages);
     NSLog (@"Movement computed");
-    cv::Mat combinedImage = hdrImages[0];
+    cv::Mat baseImage = hdrImages[0];
+    cv::Mat combinedImage;
+    baseImage.convertTo(combinedImage, CV_32FC3);
+    
+    
     for (int i = 1; i < hdrImages.size(); i++) {
         NSLog (@"Stacking...");
-        combine(combinedImage, hdrImages[i], movement, hdrImages.size());
+        combine(baseImage, hdrImages[i], movement, hdrImages.size(), combinedImage);
         NSLog (@"Stacked");
     }
     NSLog (@"Computing result");
+    
+    // UIImage only supports 8bit color depth
+    combinedImage.convertTo(combinedImage, CV_8UC3);
+    
     //combinedImage = combinedImage * 255;
     //combinedImage.convertTo(combinedImage, CV_8UC3);
     UIImage* result =  [UIImage imageWithCVMat:combinedImage];
@@ -87,11 +100,17 @@ vector<Mat> hdrImages;
 
 
 - (UIImage *)hdrMerge:(NSArray *)images{
-    NSLog (@"Called");
     if ([images count]==0){
         NSLog (@"imageArray is empty");
         return 0;
     }
+    
+    if ([images count]==1){
+        NSLog (@"Only one left. cannot merge");
+        //hdrImages.emplace_back(images[0]);
+        return images[0];
+    }
+    
     std::vector<cv::Mat> matImages;
     for (id image in images) {
         NSLog (@"Iterating");
@@ -115,48 +134,6 @@ vector<Mat> hdrImages;
     UIImage* result =  [UIImage imageWithCVMat:merged];
     return result;
 }
-
-/*
-#pragma mark Private
-
-+ (Mat)matFrom:(UIImage *)source {
-    cout << "matFrom ->";
-    CGImageRef image = CGImageCreateCopy(source.CGImage);
-    CGFloat cols = CGImageGetWidth(image);
-    CGFloat rows = CGImageGetHeight(image);
-    Mat result(rows, cols, CV_8UC4);
-    CGBitmapInfo bitmapFlags = kCGImageAlphaNoneSkipLast | kCGBitmapByteOrderDefault;
-    size_t bitsPerComponent = 8;
-    size_t bytesPerRow = result.step[0];
-    CGColorSpaceRef colorSpace = CGImageGetColorSpace(image);
-    CGContextRef context = CGBitmapContextCreate(result.data, cols, rows, bitsPerComponent, bytesPerRow, colorSpace, bitmapFlags);
-    CGContextDrawImage(context, CGRectMake(0.0f, 0.0f, cols, rows), image);
-    CGContextRelease(context);
-    return result;
-}
-+ (UIImage *)imageFrom:(Mat)source {
-    cout << "-> imageFrom\n";
-    NSData *data = [NSData dataWithBytes:source.data length:source.elemSize() * source.total()];
-    CGDataProviderRef provider = CGDataProviderCreateWithCFData((__bridge CFDataRef)data);
-    CGBitmapInfo bitmapFlags = kCGImageAlphaNone | kCGBitmapByteOrderDefault;
-    size_t bitsPerComponent = 8;
-    size_t bytesPerRow = source.step[0];
-    CGColorSpaceRef colorSpace = (source.elemSize() == 1 ? CGColorSpaceCreateDeviceGray() : CGColorSpaceCreateDeviceRGB());
-    CGImageRef image = CGImageCreate(source.cols, source.rows, bitsPerComponent, bitsPerComponent * source.elemSize(), bytesPerRow, colorSpace, bitmapFlags, provider, NULL, false, kCGRenderingIntentDefault);
-    UIImage *result = [UIImage imageWithCGImage:image];
-    CGImageRelease(image);
-    CGDataProviderRelease(provider);
-    CGColorSpaceRelease(colorSpace);
-    return result;
-}
-
-+ (Mat)_grayFrom:(Mat)source {
-    cout << "-> grayFrom ->";
-    Mat result;
-    cvtColor(source, result, COLOR_BGR2GRAY);
-    return result;
-}
- */
 
 
 @end

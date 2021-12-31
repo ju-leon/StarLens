@@ -15,12 +15,20 @@ const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
 
 
-void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, int numImages) {
+void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
     alignImages(imageNew, movement, imageBase, imReg, h);
     std::cout << "Finished alignment" << std::endl;
     
-    addWeighted(imageBase, 1, imReg, 1 / numImages, 0.0, imageBase);
+    imReg.convertTo(imReg, CV_32FC3);
+    
+    std::cout << "Base type: " << imageBase.type() << std::endl;
+    std::cout << "Reg type:  " << imageBase.type() << std::endl;
+    
+    addWeighted(result, 1, imReg, 1 / numImages, 0.0, result, CV_32FC3);
+    //imageBase = imageBase + imReg;
+    
+    std::cout << "Added" << std::endl;
 }
 
 void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)

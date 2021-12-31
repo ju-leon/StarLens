@@ -42,7 +42,5 @@ void findForeground(cv::Mat &foreground, std::vector<cv::Mat> &sequence) {
 
     auto kernel = getStructuringElement(MORPH_RECT, Size(10,10));
     morphologyEx(foreground, foreground, MORPH_ERODE, kernel);
-    
     threshold(foreground, foreground, 30, 255, THRESH_BINARY);
-
 }

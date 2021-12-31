@@ -153,8 +153,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 return
             }
             
-            print(self.metadata)
-            
             //self.saveToPhotoLibrary(data)
             let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
             
