@@ -26,6 +26,8 @@ class PhotoStack {
     private var captureObjects: [CaptureObject] = []
     private var stacker: OpenCVStacker = OpenCVStacker()
     
+    private var dispatch: DispatchQueue = DispatchQueue(label: "StarStacker.stackingQueue")
+    
     //TODO: Init with actual size
     init(location: CLLocationCoordinate2D) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -56,7 +58,7 @@ class PhotoStack {
     
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
         var images: [UIImage] = []
-        for captureObject in self.captureObjects {
+        for captureObject in fromCaptureArray {
             let image = captureObject.toUIImage()
             print(image)
             images.append(image)
@@ -68,10 +70,17 @@ class PhotoStack {
         self.captureObjects.append(captureObject)
         
         if (self.captureObjects.count == CameraService.biasRotation.count) {
-            let images = toUIImageArray(fromCaptureArray: self.captureObjects)
-            print(images)
-            coverPhoto = self.stacker.hdrMerge(images)
+            let copiedStack = self.captureObjects
             captureObjects = []
+            self.dispatch.async {
+                autoreleasepool {
+                    let images = self.toUIImageArray(fromCaptureArray: copiedStack)
+                    self.coverPhoto = self.stacker.hdrMerge(images)
+                }
+                for object in copiedStack {
+                    object.deleteReference()
+                }
+            }
         }
         /*
         let image = UIImage(data: preview)!
@@ -170,17 +179,27 @@ class PhotoStack {
         
         */
         
-        let images = toUIImageArray(fromCaptureArray: self.captureObjects)
-        coverPhoto = self.stacker.hdrMerge(images)
-        captureObjects = []
-        
-        let image = self.stacker.composeStack()
-        savePhoto(image: image)
-        
-        self.coverPhoto = image
-        
-        let progress = 1.0 //Double(i + 1) / Double(captureObjects.count - 1)
-        statusUpdateCallback?(progress)
+        print("Sceduled merge")
+        self.dispatch.async {
+            print("Merging")
+            let images = self.toUIImageArray(fromCaptureArray: self.captureObjects)
+            self.coverPhoto = self.stacker.hdrMerge(images)
+            
+            for captureObject in self.captureObjects {
+                captureObject.deleteReference()
+            }
+            self.captureObjects = []
+            
+            statusUpdateCallback?(0.5)
+            
+            let image = self.stacker.composeStack()
+            
+            self.savePhoto(image: image)
+            self.coverPhoto = image
+            
+            statusUpdateCallback?(1.0)
+                
+        }
         /*
         for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
             print("Stacking \(captureObject.getURL())")

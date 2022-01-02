@@ -47,6 +47,7 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h)
 
   // Detect ORB features and compute descriptors.
   Ptr<Feature2D> orb = ORB::create(MAX_FEATURES);
+  //Ptr<Feature2D> star = XFEA
   orb->detectAndCompute(im1Gray, Mat(), keypoints1, descriptors1);
   orb->detectAndCompute(im2Gray, Mat(), keypoints2, descriptors2);
     

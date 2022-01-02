@@ -21,14 +21,6 @@ class CaptureObject {
         self.metadata = metadata
     }
  
-    deinit {
-        do {
-            try FileManager.default.removeItem(at: url)
-        } catch let error as NSError {
-            print("Error - Couldn't delte file: \(error.domain)")
-        }
-    }
-    
     func getURL() -> URL{
         return url
     }
@@ -40,5 +32,13 @@ class CaptureObject {
     func toUIImage() -> UIImage {
         let newImage = CIImage(contentsOf: url)!
         return UIImage(cgImage: CIContext().createCGImage(newImage, from: newImage.extent)!, scale: 1.0, orientation: .right)
+    }
+    
+    func deleteReference() {
+        do {
+            try FileManager.default.removeItem(at: url)
+        } catch let error as NSError {
+            print("Error - Couldn't delete file: \(error.domain)")
+        }
     }
 }

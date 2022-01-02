@@ -130,7 +130,7 @@ public class CameraService : NSObject {
     private let isoRotation: [Float] = [200, 400, 800, 1600]
     private var isoRotationIndex = 0
 
-    public static let biasRotation: [Float] = [-1, -0.5] // 0, 0.5, 1.0, 1.5]
+    public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
     private var biasRotationIndex = 0
     
     public func configure() {
@@ -344,24 +344,25 @@ public class CameraService : NSObject {
         do {
             try device.lockForConfiguration()
             
-            //device.setFocusModeLocked(lensPosition: 1.0)
+            device.setFocusModeLocked(lensPosition: 0.78)
             
-            /*
+            
             device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
                                          iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
                                          completionHandler: { (val: CMTime) -> Void in
                                             print("Captre duration: \(val)")
                                             self.capturePhoto()
                                         })
-            */
+            
             
             print(CameraService.biasRotation[biasRotationIndex])
+            /*
             device.setExposureTargetBias(CameraService.biasRotation[biasRotationIndex], completionHandler: { (val: CMTime) -> Void in
                 print("Captre duration: \(val)")
                 
                 self.capturePhoto()
             })
-            
+            */
             device.unlockForConfiguration()
             
             isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count

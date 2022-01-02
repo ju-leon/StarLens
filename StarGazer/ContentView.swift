@@ -93,7 +93,7 @@ final class CameraModel: ObservableObject {
 
     func stopTimelapse() {
         service.isCaptureRunning = false
-        UIApplication.shared.isIdleTimerDisabled = false
+        //UIApplication.shared.isIdleTimerDisabled = false
     }
     
     func switchFlash() {

@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		051F0A7E276F981B0015C507 /* NextLevel in Frameworks */ = {isa = PBXBuildFile; productRef = 051F0A7D276F981B0015C507 /* NextLevel */; };
 		051F0A80276FBA370015C507 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A7F276FBA370015C507 /* CameraService.swift */; };
 		051F0A82276FBBB30015C507 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A81276FBBB30015C507 /* CaptureView.swift */; };
 		051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */; };
@@ -39,6 +38,14 @@
 		05DE225F277DB711007A90DE /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE225D277DB711007A90DE /* homography.cpp */; };
 		05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2260277DC3FC007A90DE /* foreground.cpp */; };
 		05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2263277E3E3A007A90DE /* hdrmerge.cpp */; };
+		05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE226B2781CA20007A90DE /* UIKit.framework */; };
+		05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE226D2781CAC9007A90DE /* AVFoundation.framework */; };
+		05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE226F2781CAE2007A90DE /* CoreImage.framework */; };
+		05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22712781CAF1007A90DE /* CoreVideo.framework */; };
+		05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22732781CAFA007A90DE /* QuartzCore.framework */; };
+		05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22752781CB0A007A90DE /* Foundation.framework */; };
+		05DE22782781CC3D007A90DE /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22772781CC3D007A90DE /* opencv2.framework */; };
+		05DE227A2781CCB5007A90DE /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22792781CCB2007A90DE /* opencv2.framework */; };
 		6948A4D8FA4A8EA88A4AC16E /* Pods_StarGazer_StarGazerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */; };
 		8A13B089EC51684D47BE9933 /* Pods_StarGazer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */; };
 		FA125E79CB9AAAB183440C2D /* Pods_StarGazerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7642934E6E17F28421A5B9C /* Pods_StarGazerTests.framework */; };
@@ -86,7 +93,6 @@
 		05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITests.swift; sourceTree = "<group>"; };
 		05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
-		05DE222F277C727C007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = opencv2.framework; path = ../../Downloads/opencv2.framework; sourceTree = "<group>"; };
 		05DE2231277C728C007A90DE /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		05DE2233277C7294007A90DE /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		05DE2235277C729E007A90DE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -106,6 +112,14 @@
 		05DE2261277DC3FC007A90DE /* foreground.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = foreground.hpp; sourceTree = "<group>"; };
 		05DE2263277E3E3A007A90DE /* hdrmerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hdrmerge.cpp; sourceTree = "<group>"; };
 		05DE2264277E3E3A007A90DE /* hdrmerge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hdrmerge.hpp; sourceTree = "<group>"; };
+		05DE226B2781CA20007A90DE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
+		05DE226D2781CAC9007A90DE /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		05DE226F2781CAE2007A90DE /* CoreImage.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreImage.framework; path = System/Library/Frameworks/CoreImage.framework; sourceTree = SDKROOT; };
+		05DE22712781CAF1007A90DE /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
+		05DE22732781CAFA007A90DE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
+		05DE22752781CB0A007A90DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
+		05DE22772781CC3D007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
+		05DE22792781CCB2007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		2D82E9966AD2135A50A7F875 /* Pods-StarGazer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer/Pods-StarGazer.debug.xcconfig"; sourceTree = "<group>"; };
 		426CCD848BF90E192F8C2927 /* Pods-StarGazer-StarGazerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer-StarGazerUITests.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer-StarGazerUITests/Pods-StarGazer-StarGazerUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBB33ED430F0F1CAAB6B88B /* Pods-StarGazerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazerTests.release.xcconfig"; path = "Target Support Files/Pods-StarGazerTests/Pods-StarGazerTests.release.xcconfig"; sourceTree = "<group>"; };
@@ -122,12 +136,19 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05DE22782781CC3D007A90DE /* opencv2.framework in Frameworks */,
+				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
+				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
+				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
+				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
+				05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */,
+				05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */,
 				05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */,
+				05DE227A2781CCB5007A90DE /* opencv2.framework in Frameworks */,
 				05DE2238277C72A8007A90DE /* AssetsLibrary.framework in Frameworks */,
 				05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */,
 				05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */,
 				05DE2232277C728C007A90DE /* CoreGraphics.framework in Frameworks */,
-				051F0A7E276F981B0015C507 /* NextLevel in Frameworks */,
 				8A13B089EC51684D47BE9933 /* Pods_StarGazer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -165,6 +186,7 @@
 		05B9B8AF276BDBAF00FF442F = {
 			isa = PBXGroup;
 			children = (
+				05DE22792781CCB2007A90DE /* opencv2.framework */,
 				05B9B8BA276BDBAF00FF442F /* StarGazer */,
 				05B9B8CB276BDBB100FF442F /* StarGazerTests */,
 				05B9B8D5276BDBB100FF442F /* StarGazerUITests */,
@@ -235,12 +257,18 @@
 		05DE222E277C727C007A90DE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				05DE22772781CC3D007A90DE /* opencv2.framework */,
+				05DE22752781CB0A007A90DE /* Foundation.framework */,
+				05DE22732781CAFA007A90DE /* QuartzCore.framework */,
+				05DE22712781CAF1007A90DE /* CoreVideo.framework */,
+				05DE226F2781CAE2007A90DE /* CoreImage.framework */,
+				05DE226D2781CAC9007A90DE /* AVFoundation.framework */,
+				05DE226B2781CA20007A90DE /* UIKit.framework */,
 				05DE2239277C72B2007A90DE /* Accelerate.framework */,
 				05DE2237277C72A8007A90DE /* AssetsLibrary.framework */,
 				05DE2235277C729E007A90DE /* CoreFoundation.framework */,
 				05DE2233277C7294007A90DE /* CoreMedia.framework */,
 				05DE2231277C728C007A90DE /* CoreGraphics.framework */,
-				05DE222F277C727C007A90DE /* opencv2.framework */,
 				E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */,
 				E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */,
 				A7642934E6E17F28421A5B9C /* Pods_StarGazerTests.framework */,
@@ -308,7 +336,6 @@
 			);
 			name = StarGazer;
 			packageProductDependencies = (
-				051F0A7D276F981B0015C507 /* NextLevel */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -385,7 +412,6 @@
 			);
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
-				051F0A7C276F981B0015C507 /* XCRemoteSwiftPackageReference "NextLevel" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -689,6 +715,10 @@
 				DEVELOPMENT_ASSET_PATHS = "\"StarGazer/Preview Content\"";
 				DEVELOPMENT_TEAM = K45E9YCK62;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/Wrappers/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -707,7 +737,7 @@
 				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/Wrappers/StarGazer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Debug;
 		};
@@ -723,6 +753,10 @@
 				DEVELOPMENT_ASSET_PATHS = "\"StarGazer/Preview Content\"";
 				DEVELOPMENT_TEAM = K45E9YCK62;
 				ENABLE_PREVIEWS = YES;
+				FRAMEWORK_SEARCH_PATHS = (
+					"$(inherited)",
+					"$(PROJECT_DIR)",
+				);
 				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/Wrappers/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
@@ -740,7 +774,7 @@
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/Wrappers/StarGazer-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
-				TARGETED_DEVICE_FAMILY = "1,2";
+				TARGETED_DEVICE_FAMILY = 1;
 			};
 			name = Release;
 		};
@@ -864,25 +898,6 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
-
-/* Begin XCRemoteSwiftPackageReference section */
-		051F0A7C276F981B0015C507 /* XCRemoteSwiftPackageReference "NextLevel" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/NextLevel/NextLevel";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 0.9.8;
-			};
-		};
-/* End XCRemoteSwiftPackageReference section */
-
-/* Begin XCSwiftPackageProductDependency section */
-		051F0A7D276F981B0015C507 /* NextLevel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 051F0A7C276F981B0015C507 /* XCRemoteSwiftPackageReference "NextLevel" */;
-			productName = NextLevel;
-		};
-/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 05B9B8B0276BDBAF00FF442F /* Project object */;
 }
