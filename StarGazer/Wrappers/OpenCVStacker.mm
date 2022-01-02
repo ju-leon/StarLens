@@ -10,7 +10,6 @@
 #import "UIImageOpenCV.h"
 #import "UIImageRotate.h"
 #import "homography.hpp"
-#import "foreground.hpp"
 #import "hdrmerge.hpp"
 
 using namespace std;
@@ -21,15 +20,14 @@ using namespace cv;
 
 vector<Mat> hdrImages;
 
-- (NSString *) openCVVersionString
-{
+- (NSString *)openCVVersionString {
     return [NSString stringWithFormat:@"OpenCV Version %s", CV_VERSION];
 }
 
 
 #pragma mark Public
 
-+ (UIImage *)stackImages:(NSArray *)images onImage:(UIImage *)image{
++ (UIImage *)stackImages:(NSArray *)images onImage:(UIImage *)image {
     /*
     if ([images count]==0){
         NSLog (@"imageArray is empty");
@@ -78,52 +76,52 @@ vector<Mat> hdrImages;
     cv::Mat baseImage = hdrImages[0];
     cv::Mat combinedImage;
     baseImage.convertTo(combinedImage, CV_32FC3);
-    
-    
+
+
     for (int i = 1; i < hdrImages.size(); i++) {
         combine(baseImage, hdrImages[i], movement, hdrImages.size(), combinedImage);
     }
     // UIImage only supports 8bit color depth
     combinedImage.convertTo(combinedImage, CV_8UC3);
-    
+
     //combinedImage = combinedImage * 255;
     //combinedImage.convertTo(combinedImage, CV_8UC3);
-    UIImage* result =  [UIImage imageWithCVMat:combinedImage];
+    UIImage *result = [UIImage imageWithCVMat:combinedImage];
     return result;
 }
 
 
-- (UIImage *)hdrMerge:(NSArray *)images{
-    if ([images count]==0){
-        NSLog (@"imageArray is empty");
+- (UIImage *)hdrMerge:(NSArray *)images {
+    if ([images count] == 0) {
+        NSLog(@"imageArray is empty");
         return 0;
     }
-    
-    if ([images count]==1){
-        NSLog (@"Only one left. cannot merge");
+
+    if ([images count] == 1) {
+        NSLog(@"Only one left. cannot merge");
         //hdrImages.emplace_back(images[0]);
         return images[0];
     }
-    
+
     std::vector<cv::Mat> matImages;
     for (id image in images) {
-        if ([image isKindOfClass: [UIImage class]]) {
-            UIImage* rotatedImage = [image rotateToImageOrientation];
+        if ([image isKindOfClass:[UIImage class]]) {
+            UIImage *rotatedImage = [image rotateToImageOrientation];
             cv::Mat matImage = [rotatedImage CVMat3];
             matImages.push_back(matImage);
         } else {
             return 0;
         }
     }
-    
+
     cv::Mat merged;
     hdrMerge(matImages, merged);
-    
+
     merged = merged * 255;
     merged.convertTo(merged, CV_8UC3);
-    
+
     hdrImages.emplace_back(merged);
-    UIImage* result =  [UIImage imageWithCVMat:merged];
+    UIImage *result = [UIImage imageWithCVMat:merged];
     return result;
 }
 

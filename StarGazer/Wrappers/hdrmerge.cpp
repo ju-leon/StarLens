@@ -6,7 +6,6 @@
 //
 
 #include "hdrmerge.hpp"
-#include <iostream>
 #include <fstream>
 
 using namespace cv;
@@ -27,8 +26,8 @@ void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result) {
     */
     Ptr<AlignMTB> alignMTB = createAlignMTB();
     //alignMTB->process(images, images);
-    
+
     Ptr<MergeMertens> merge_mertens = createMergeMertens();
     merge_mertens->process(images, result);
-        
+
 }

@@ -7,6 +7,7 @@
 
 #ifndef foreground_hpp
 #define foreground_hpp
+
 #include <opencv2/opencv.hpp>
 
 void findForeground(cv::Mat &foreground, std::vector<cv::Mat> &sequence);

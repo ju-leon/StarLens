@@ -7,7 +7,6 @@
 
 import Foundation
 import Photos
-import NextLevel
 import UIKit
 
 class PhotoCaptureProcessor: NSObject {

@@ -7,6 +7,7 @@
 
 #ifndef hdrmerge_hpp
 #define hdrmerge_hpp
+
 #include <opencv2/opencv.hpp>
 
 void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result);
