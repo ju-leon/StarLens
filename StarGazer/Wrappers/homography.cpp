@@ -21,7 +21,7 @@ void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size
 
     imReg.convertTo(imReg, CV_32FC3);
 
-    addWeighted(result, 1, imReg, 1 / numImages, 0.0, result, CV_32FC3);
+    addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
     //imageBase = imageBase + imReg;
 
 }
@@ -32,30 +32,25 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h) {
     cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
     cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
 
-    //im1Gray *= 255;
-    //im1Gray.convertTo(im1Gray, CV_8UC1);
-    // im2Gray *= 255;
-    //im2Gray.convertTo(im2Gray, CV_8UC1);
-
-    // Only compare moving parts of the orginal image
-    //bitwise_and(im2Gray, movement, im2Gray);
-
-    // Variables to store keypoints and descriptors
+    // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(100,10,10,8,2);
+    star->detect(im1Gray, keypoints1);
+    star->detect(im2Gray, keypoints2);
+
+    std::cout << "Num Keypoints 1: " << keypoints1.size() << std::endl;
+    std::cout << "Num Keypoints 2: " << keypoints2.size() << std::endl;
+
+    // Find descriptors for stars
     Mat descriptors1, descriptors2;
-
-    // Detect ORB features and compute descriptors.
-    Ptr<Feature2D> orb = ORB::create(MAX_FEATURES);
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create();
-
-    star->detectAndCompute(im1Gray, Mat(), keypoints1, descriptors1);
-    star->detectAndCompute(im2Gray, Mat(), keypoints2, descriptors2);
+    Ptr<Feature2D> brief = xfeatures2d::BriefDescriptorExtractor::create();
+    brief->compute(im1Gray, keypoints1, descriptors1);
+    brief->compute(im2Gray, keypoints2, descriptors2);
 
     // Match features.
     std::vector<DMatch> matches;
     Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
     matcher->match(descriptors1, descriptors2, matches, Mat());
-
 
     // Sort matches by score
     std::sort(matches.begin(), matches.end());
@@ -63,11 +58,6 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h) {
     // Remove not so good matches
     const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
     matches.erase(matches.begin() + numGoodMatches, matches.end());
-
-    // Draw top matches
-    //Mat imMatches;
-    //drawMatches(im1, keypoints1, im2, keypoints2, matches, imMatches);
-    //imwrite("matches.jpg", imMatches);
 
     // Extract location of good matches
     std::vector<Point2f> points1, points2;
@@ -77,6 +67,9 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h) {
         points2.push_back(keypoints2[matches[i].trainIdx].pt);
     }
 
+    std::cout << "Num Points 1: " << points1.size() << std::endl;
+    std::cout << "Num Points 2: " << points2.size() << std::endl;
+    
     // Find homography
     h = findHomography(points1, points2, RANSAC);
 
