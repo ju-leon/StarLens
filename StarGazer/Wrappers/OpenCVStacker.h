@@ -10,6 +10,8 @@
 #import <Foundation/Foundation.h>
 //#import "OpenCVWrapper.hpp"
 #import <UIKit/UIKit.h>
+#import <CoreML/CoreML.h>
+#import <Vision/Vision.h>
 //#import <opencv2/opencv.hpp>
 
 NS_ASSUME_NONNULL_BEGIN
@@ -17,15 +19,11 @@ NS_ASSUME_NONNULL_BEGIN
 @interface OpenCVStacker : NSObject
 - (NSString *)openCVVersionString;
 
-//    +(UIImage *)toGray:(UIImage *)source;
-+ (UIImage *)stackImages:(NSArray *)images onImage:(UIImage *)image;
-
 - (UIImage *)composeStack;
 
 - (UIImage *)hdrMerge:(NSArray *)images;
-//    +(Mat)matFrom:(UIImage *)source;
-//    +(UIImage *)imageFrom:(Mat)source;
 
+- (void)addSegmentationMask: (UIImage *)mask;
 
 @end
 

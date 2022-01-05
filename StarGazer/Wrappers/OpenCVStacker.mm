@@ -19,6 +19,8 @@ using namespace cv;
 @implementation OpenCVStacker
 
 vector<Mat> hdrImages;
+vector<Mat> segmentationMasks;
+Mat foregroundMask;
 
 - (NSString *)openCVVersionString {
     return [NSString stringWithFormat:@"OpenCV Version %s", CV_VERSION];
@@ -27,65 +29,21 @@ vector<Mat> hdrImages;
 
 #pragma mark Public
 
-+ (UIImage *)stackImages:(NSArray *)images onImage:(UIImage *)image {
-    /*
-    if ([images count]==0){
-        NSLog (@"imageArray is empty");
-        return 0;
-    }
-    
-    cv::Mat combinedImage = [[image rotateToImageOrientation] CVMat3];
-    // Preserve as much data to the end as possible
-    combinedImage.convertTo(combinedImage, CV_32FC3);
-    
-    std::vector<cv::Mat> matImages;
-    
-    for (id image in images) {
-        if ([image isKindOfClass: [UIImage class]]) {
-            UIImage* rotatedImage = [image rotateToImageOrientation];
-            cv::Mat matImage = [rotatedImage CVMat3];
-            matImages.push_back(matImage);
-        } else {
-            NSLog(@"Unsupported image type");
-            return 0;
-        }
-    } 
-    
-    Mat movement;
-    findForeground(movement, matImages);
-    
-    for (int i = 0; i < matImages.size(); i++) {
-        combine(combinedImage, matImages[i], movement, matImages.size());
-    }
-    
-    NSLog(@"Done combining");
-    // UIImage only supports 8bit color depth
-    combinedImage *= 255;
-    combinedImage.convertTo(combinedImage, CV_8UC3);
-    
-    NSLog(@"Done converting");
-    UIImage* result =  [UIImage imageWithCVMat:combinedImage];
-    return result;
-     */
-    return 0;
-}
-
 - (UIImage *)composeStack {
-    Mat movement;
     //findForeground(movement, hdrImages);
     cv::Mat baseImage = hdrImages[0];
     cv::Mat combinedImage;
+
+    resize(segmentationMasks[0], foregroundMask, baseImage.size(), INTER_AREA);
+    createTrackingMask(foregroundMask, foregroundMask);
+
     baseImage.convertTo(combinedImage, CV_32FC3);
-
-
     for (int i = 1; i < hdrImages.size(); i++) {
-        combine(baseImage, hdrImages[i], movement, hdrImages.size(), combinedImage);
+        combine(baseImage, hdrImages[i], foregroundMask, hdrImages.size(), combinedImage);
     }
-    // UIImage only supports 8bit color depth
+
     combinedImage.convertTo(combinedImage, CV_8UC3);
 
-    //combinedImage = combinedImage * 255;
-    //combinedImage.convertTo(combinedImage, CV_8UC3);
     UIImage *result = [UIImage imageWithCVMat:combinedImage];
     return result;
 }
@@ -125,5 +83,9 @@ vector<Mat> hdrImages;
     return result;
 }
 
+- (void)addSegmentationMask:(UIImage *)mask {
+    cv::Mat matMask = [mask CVGrayscaleMat];
+    segmentationMasks.emplace_back(matMask);
+}
 
 @end

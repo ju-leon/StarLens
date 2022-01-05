@@ -127,7 +127,7 @@ public class CameraService : NSObject {
     private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0))
     private var location : CLLocationCoordinate2D?
     
-    private let isoRotation: [Float] = [200, 400, 800, 1600]
+    private let isoRotation: [Float] = [200, 400] //, 800, 1600]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -223,7 +223,7 @@ public class CameraService : NSObject {
         do {
             var defaultVideoDevice: AVCaptureDevice?
             
-            if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
+            if let backCameraDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back) {
                 // If a rear dual camera is not available, default to the rear wide angle camera.
                 defaultVideoDevice = backCameraDevice
             } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
@@ -344,18 +344,21 @@ public class CameraService : NSObject {
         do {
             try device.lockForConfiguration()
             
-            device.setFocusModeLocked(lensPosition: 0.78)
-            
-            
+            //device.setFocusModeLocked(lensPosition: 0.78)
+
+
+
+            /*
             device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
                                          iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
                                          completionHandler: { (val: CMTime) -> Void in
-                                            print("Captre duration: \(val)")
+                                            print("Exposure duration: \(val.seconds)")
                                             self.capturePhoto()
                                         })
-            
-            
-            print(CameraService.biasRotation[biasRotationIndex])
+
+            */
+            self.capturePhoto()
+
             /*
             device.setExposureTargetBias(CameraService.biasRotation[biasRotationIndex], completionHandler: { (val: CMTime) -> Void in
                 print("Captre duration: \(val)")

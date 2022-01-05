@@ -15,31 +15,58 @@ const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
 
 
-void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size_t numImages, cv::Mat &result) {
+void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
-    alignImages(imageNew, movement, imageBase, imReg, h);
+    if (alignImages(imageNew, mask, imageBase, imReg, h)) {
+        std::cout << "Successfully aligned" << std::endl;
 
-    imReg.convertTo(imReg, CV_32FC3);
+        imReg.convertTo(imReg, CV_32FC3);
 
-    addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
-    //imageBase = imageBase + imReg;
+        //addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
+        addWeighted(result, 1.0, imReg, 1 / numImages, 0.0, result, CV_32FC3);
+        //imageBase = imageBase + imReg;
+    } else {
 
+    }
 }
 
-void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h) {
+void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
+    resize(segmentation, mask, cv::Size(segmentation.cols, segmentation.rows), INTER_LINEAR);
+    mask.setTo(255, mask == 3);
+    mask.setTo(255, mask == 22);
+    mask.setTo(255, mask == 27);
+    threshold(mask, mask, 254, 255, THRESH_BINARY);
+
+    Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(20, 20), cv::Point(10, 10));
+    erode(mask, mask, element);
+
+    GaussianBlur(mask, mask, cv::Size(101, 101), 0);
+
+    mask.convertTo(mask, CV_16FC1);
+    mask /= 255;
+}
+
+bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     // Convert images to grayscale
     Mat im1Gray, im2Gray;
     cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
     cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
 
+    //Temporarily convert images to float to allow soft masking
+    im1Gray.convertTo(im1Gray, CV_16FC1);
+    im2Gray.convertTo(im2Gray, CV_16FC1);
+
+    im1Gray.mul(mask);
+    im2Gray.mul(mask);
+
+    im1Gray.convertTo(im1Gray, CV_8UC1);
+    im2Gray.convertTo(im2Gray, CV_8UC1);
+
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(100,10,10,8,2);
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(100, 10, 10, 8, 2);
     star->detect(im1Gray, keypoints1);
     star->detect(im2Gray, keypoints2);
-
-    std::cout << "Num Keypoints 1: " << keypoints1.size() << std::endl;
-    std::cout << "Num Keypoints 2: " << keypoints2.size() << std::endl;
 
     // Find descriptors for stars
     Mat descriptors1, descriptors2;
@@ -61,18 +88,23 @@ void alignImages(Mat &im1, Mat &movement, Mat &im2, Mat &im1Reg, Mat &h) {
 
     // Extract location of good matches
     std::vector<Point2f> points1, points2;
-
     for (size_t i = 0; i < matches.size(); i++) {
         points1.push_back(keypoints1[matches[i].queryIdx].pt);
         points2.push_back(keypoints2[matches[i].trainIdx].pt);
     }
 
-    std::cout << "Num Points 1: " << points1.size() << std::endl;
-    std::cout << "Num Points 2: " << points2.size() << std::endl;
-    
+
+    if (points1.size() < 10) {
+        std::cout << "Not enough features to track found" << std::endl;
+        return false;
+    }
+
+    std::cout << "Found " << points1.size() << " features to track" << std::endl;
+
     // Find homography
     h = findHomography(points1, points2, RANSAC);
 
     // Use homography to warp image
     warpPerspective(im1, im1Reg, h, im2.size());
+    return true;
 }

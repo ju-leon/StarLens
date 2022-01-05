@@ -12,6 +12,9 @@
 		051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */; };
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
 		051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A89276FC0630015C507 /* CameraPreview.swift */; };
+		0555FF0F2785CCF50077B7A8 /* DeepLabClean.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF0E2785CCF50077B7A8 /* DeepLabClean.mlmodel */; };
+		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
+		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
@@ -75,6 +78,9 @@
 		051F0A85276FBCBB0015C507 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		051F0A89276FC0630015C507 /* CameraPreview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0555FF0E2785CCF50077B7A8 /* DeepLabClean.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = DeepLabClean.mlmodel; sourceTree = "<group>"; };
+		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
+		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
 		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
 		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
@@ -172,6 +178,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0555FF102785D5670077B7A8 /* Extensions */ = {
+			isa = PBXGroup;
+			children = (
+				0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */,
+				0555FF132785D61A0077B7A8 /* CGImageExtension.swift */,
+			);
+			path = Extensions;
+			sourceTree = "<group>";
+		};
 		056CBBC927790DE700538E2E /* Filters */ = {
 			isa = PBXGroup;
 			children = (
@@ -209,6 +224,8 @@
 		05B9B8BA276BDBAF00FF442F /* StarGazer */ = {
 			isa = PBXGroup;
 			children = (
+				0555FF0E2785CCF50077B7A8 /* DeepLabClean.mlmodel */,
+				0555FF102785D5670077B7A8 /* Extensions */,
 				05DE223C277D0799007A90DE /* Wrappers */,
 				056CBBC927790DE700538E2E /* Filters */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
@@ -531,12 +548,15 @@
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */,
+				0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */,
 				05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */,
 				05DE2244277D08C6007A90DE /* OpenCVStacker.mm in Sources */,
+				0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
 				051F0A8A276FC0630015C507 /* CameraPreview.swift in Sources */,
 				05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */,
+				0555FF0F2785CCF50077B7A8 /* DeepLabClean.mlmodel in Sources */,
 				056CBBCF277A678600538E2E /* ProcessingView.swift in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
 				056CBBD1277B1AA600538E2E /* NavigationView.swift in Sources */,

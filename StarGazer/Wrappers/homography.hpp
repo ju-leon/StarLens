@@ -12,6 +12,8 @@
 
 void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size_t numImages, cv::Mat &result);
 
-void alignImages(cv::Mat &im1, cv::Mat &movement, cv::Mat &im2, cv::Mat &im1Reg, cv::Mat &h);
+void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask);
+
+bool alignImages(cv::Mat &im1, cv::Mat &movement, cv::Mat &im2, cv::Mat &im1Reg, cv::Mat &h);
 
 #endif /* homography_hpp */

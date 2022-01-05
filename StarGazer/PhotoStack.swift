@@ -11,6 +11,7 @@ import Photos
 import Accelerate
 import CoreImage
 import Vision
+import CoreML
 
 class PhotoStack {
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
@@ -28,6 +29,9 @@ class PhotoStack {
     
     private var dispatch: DispatchQueue = DispatchQueue(label: "StarStacker.stackingQueue")
     
+    private let segmentationModel: DeepLabClean
+    private let modelInputDimension = [513, 513]
+    
     //TODO: Init with actual size
     init(location: CLLocationCoordinate2D) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -40,6 +44,8 @@ class PhotoStack {
         }
         
         self.location = location
+        
+        self.segmentationModel = DeepLabClean()
         
         // Init the photo to a black photo
         let imageSize = CGSize(width: 300, height: 400)
@@ -66,6 +72,44 @@ class PhotoStack {
         return images
     }
     
+    func resizeImage(_ image: UIImage, _ targetSize: [Int]) -> UIImage? {
+
+        // Actually do the resizing to the rect using the ImageContext stuff
+        UIGraphicsBeginImageContextWithOptions(CGSize(width: targetSize[0], height: targetSize[1]), false, 1.0)
+        image.draw(in: CGRect(x: 0, y: 0, width: targetSize[0], height: targetSize[1]))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        return newImage
+    }
+    
+    func predict(_ image: UIImage) -> MLMultiArray? {
+        let resizedImage = resizeImage(image, modelInputDimension)!
+
+        let ciImage = CIImage(cgImage: resizedImage.cgImage!)
+        
+        var pixelBuffer: CVPixelBuffer?
+        let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
+                     kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
+
+        CVPixelBufferCreate(kCFAllocatorDefault,
+                            modelInputDimension[0],
+                            modelInputDimension[1],
+                            kCVPixelFormatType_32ARGB,
+                            attrs,
+                            &pixelBuffer)
+        let context = CIContext()
+        context.render(ciImage, to: pixelBuffer!)
+
+        if (pixelBuffer != nil) {
+            let out = try? self.segmentationModel.prediction(image: pixelBuffer!)
+            return out!.output
+        } else {
+            print("PixelBufferGeneration failed")
+            return nil;
+        }
+    }
+    
     func add(captureObject: CaptureObject, preview: Data) -> UIImage {
         self.captureObjects.append(captureObject)
         
@@ -76,6 +120,12 @@ class PhotoStack {
                 autoreleasepool {
                     let images = self.toUIImageArray(fromCaptureArray: copiedStack)
                     self.coverPhoto = self.stacker.hdrMerge(images)
+                    
+                    let prediction = self.predict(self.coverPhoto)
+                    let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+
+                    //self.savePhoto(image: self.coverPhoto)
+                    self.stacker.addSegmentationMask(maskImage)
                 }
                 for object in copiedStack {
                     object.deleteReference()
@@ -154,31 +204,6 @@ class PhotoStack {
 
     
     func stackPhotos(_ statusUpdateCallback: ((Double)->())?) {
-        /*
-        let firstImage = CIImage(contentsOf: captureObjects[0].getURL())!
-        let scaled = scale(image: firstImage, factor: 0.5)
-        let firstImageLow = CIImage(cgImage: CIContext().createCGImage(scaled, from: scaled.extent)!)
-        
-        
-        var finalImage = CIImage(cgImage: CIContext().createCGImage(firstImage, from: firstImage.extent)!)
-        let filter = AverageStackingFilter()
-        
-        var image = UIImage(cgImage: CIContext().createCGImage(firstImage, from: firstImage.extent)!)
-        
-        var images = toUIImageArray(fromCaptureArray: self.captureObjects)
-        /*
-        for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
-            images.append(captureObject.toUIImage())
-            
-            let progress = Double(i + 1) / Double(captureObjects.count - 1)
-            statusUpdateCallback?(progress)
-            
-        }*/
-        
-        image = self.stacker.stackImages(images, on: image)
-        
-        */
-        
         print("Sceduled merge")
         self.dispatch.async {
             print("Merging")
@@ -200,50 +225,6 @@ class PhotoStack {
             statusUpdateCallback?(1.0)
                 
         }
-        /*
-        for (i, captureObject) in self.captureObjects.dropFirst(1).enumerated(){
-            print("Stacking \(captureObject.getURL())")
-            
-            autoreleasepool {
-                let context = CIContext()
-                let newImage = CIImage(contentsOf: captureObject.getURL())!
-                
-                let newImageLow = scale(image: newImage, factor: 0.5)
-                let newCGImg = context.createCGImage(newImageLow, from: newImageLow.extent)!
-                context.clearCaches()
-                
-                
-                print(newImageLow.extent)
-                
-                let opticalFlowImage = makeOpticalFlowImage(baseImage: firstImageLow, newImage: newCGImg)
-                
-                let request = VNHomographicImageRegistrationRequest(targetedCIImage: firstImage)
-                filter.inputNewImage = alignImage(request: request, frame: newImage)
-                filter.inputStackCount = Double(i + 1)
-                filter.inputCurrentStack = finalImage
-            
-                // Prepare for create CGImage
-                let cgimg = context.createCGImage(filter.outputImage()!, from: finalImage.extent)!
-                context.clearCaches()
-                finalImage = CIImage(cgImage: cgimg)
-                
-                print("Final Image:")
-                print(finalImage.extent)
-            }
-            
-            let progress = Double(i + 1) / Double(captureObjects.count - 1)
-            statusUpdateCallback?(progress)
-        }
-
-        captureObjects = []
-  
-        let context = CIContext() // Prepare for create CGImage
-        let cgimg = context.createCGImage(finalImage, from: finalImage.extent)
-        let output = UIImage(cgImage: cgimg!)
-        
-        self.coverPhoto = output
-        self.stacked = cgimg
-     */
     }
     
     func saveStack() {
