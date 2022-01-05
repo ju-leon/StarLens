@@ -95,3 +95,6 @@ iOSInjectionProject/
 Pods/*
 OpenCVPlaygound.playground/
 opencv2.framework
+
+.idea
+*.mlmodel
