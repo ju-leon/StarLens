@@ -120,6 +120,13 @@ final class CameraModel: ObservableObject {
         service.changeCamera(backCameraDevice!)
     }
 
+    func tapToFocus(_ point: CGPoint, _ size: CGSize) {
+        let x = point.y / size.height
+        let y = 1.0 - point.x / size.width
+        let focusPoint = CGPoint(x: x, y: y)
+        
+        self.service.focus(focusPoint)
+    }
 
 }
 
@@ -208,26 +215,32 @@ struct CameraView: View {
 
             if !model.isRecording {
 
-                ZStack(alignment: .bottom) {
-                    CameraPreview(session: model.session)
-                            .onAppear {
-                                model.configure()
-                            }
-                            .alert(isPresented: $model.showAlertError, content: {
-                                Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                    model.alertError.primaryAction?()
-                                }))
-                            })
-                            .overlay(
-                                    Group {
-                                        if model.willCapturePhoto {
-                                            Color.black
-                                        }
+                GeometryReader {
+                    geometry in
+                    ZStack(alignment: .bottom) {
+                        CameraPreview(tappedCallback: {point in
+                                model.tapToFocus(point, geometry.size)
+                            }, session: model.session)
+                                    .onAppear {
+                                        model.configure()
                                     }
-                            )
-                            .animation(.easeInOut)
-
-                    zoomSelector.padding()
+                                    .alert(isPresented: $model.showAlertError, content: {
+                                        Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                                            model.alertError.primaryAction?()
+                                        }))
+                                    })
+                                    
+                                    .overlay(
+                                            Group {
+                                                if model.willCapturePhoto {
+                                                    Color.black
+                                                }
+                                            }
+                                    )
+                                    .animation(.easeInOut)
+                        zoomSelector.padding()
+                    }
+                    
                 }
             } else {
                 Image(uiImage: model.photo)

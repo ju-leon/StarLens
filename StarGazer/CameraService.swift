@@ -349,10 +349,7 @@ public class CameraService : NSObject {
             try device.lockForConfiguration()
             
             //device.setFocusModeLocked(lensPosition: 0.78)
-
-
-
-            /*
+            
             device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
                                          iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
                                          completionHandler: { (val: CMTime) -> Void in
@@ -360,8 +357,8 @@ public class CameraService : NSObject {
                                             self.capturePhoto()
                                         })
 
-            */
-            self.capturePhoto()
+            
+            //self.capturePhoto()
 
             /*
             device.setExposureTargetBias(CameraService.biasRotation[biasRotationIndex], completionHandler: { (val: CMTime) -> Void in
@@ -400,7 +397,22 @@ public class CameraService : NSObject {
     }
     
     
-    
+    public func focus(_ point: CGPoint) {
+        let device = self.videoDeviceInput.device
+        do {
+        try device.lockForConfiguration()
+
+            device.focusPointOfInterest = point
+            //device.focusMode = .continuousAutoFocus
+            device.focusMode = .autoFocus
+            //device.focusMode = .locked
+            device.unlockForConfiguration()
+        }
+        catch {
+        // just ignore
+        }
+        
+    }
     
     /// - Tag: CapturePhoto
     public func capturePhoto() {
