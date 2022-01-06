@@ -223,10 +223,10 @@ public class CameraService : NSObject {
         do {
             var defaultVideoDevice: AVCaptureDevice?
             
-            if let backCameraDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back) {
+            if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
                 // If a rear dual camera is not available, default to the rear wide angle camera.
                 defaultVideoDevice = backCameraDevice
-            } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .front) {
+            } else if let frontCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
                 // If the rear wide angle camera isn't available, default to the front wide angle camera.
                 defaultVideoDevice = frontCameraDevice
             }
@@ -377,6 +377,26 @@ public class CameraService : NSObject {
         }
     }
     
+    public func changeCamera(_ device: AVCaptureDevice) {
+        
+        do {
+            let videoDevice = try AVCaptureDeviceInput(device: device)
+            
+            self.session.removeInput(self.videoDeviceInput)
+
+            if self.session.canAddInput(videoDevice) {
+                self.session.addInput(videoDevice)
+                self.videoDeviceInput = videoDevice
+            } else {
+                self.session.addInput(self.videoDeviceInput)
+            }
+        } catch {
+            print("Camera config failed")
+        }
+    }
+    
+    
+    
     
     /// - Tag: CapturePhoto
     public func capturePhoto() {
@@ -416,8 +436,6 @@ public class CameraService : NSObject {
                     if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
                         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
                     }
-                    
-                    photoSettings.photoQualityPrioritization = .quality
                     
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.

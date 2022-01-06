@@ -27,6 +27,8 @@ final class CameraModel: ObservableObject {
     @Published var isProcessing = false
     @Published var processingProgress = 0.0
 
+    @Published var zoomLevel: Float = 1.0
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -101,8 +103,42 @@ final class CameraModel: ObservableObject {
     func switchFlash() {
         service.flashMode = service.flashMode == .on ? .off : .on
     }
+    
+    func switchCamera(level: Float) {
+        var backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
+        if (level < 1.0) {
+            backCameraDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
+        } else if (level > 1.0) {
+            backCameraDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back)
+        }
+        
+        if (backCameraDevice == nil) {
+            print("Illegal camera config")
+            return
+        }
+        self.zoomLevel = level
+        service.changeCamera(backCameraDevice!)
+    }
 
 
+}
+
+struct ZoomButton: View {
+    @StateObject var model = CameraModel()
+    @State var zoom: Float = 1.0
+    
+    var body: some View {
+        Button(action: {
+            model.switchCamera(level: zoom)
+        }, label: {
+            Circle()
+                    .foregroundColor(zoom == model.zoomLevel ? .white.opacity(0.4) : .white.opacity(0.1))
+                    .frame(width: 30, height: 30, alignment: .center)
+                    .overlay(Text(String(zoom)).foregroundColor(
+                        .yellow
+                    ).font(.system(size: 10).bold()))
+        })
+    }
 }
 
 struct CameraView: View {
@@ -148,16 +184,7 @@ struct CameraView: View {
         })
     }
 
-    var zoomButton: some View {
-        Button(action: {
-            print("Zoooooom")
-        }, label: {
-            Circle()
-                    .foregroundColor(.white.opacity(0.1))
-                    .frame(width: 30, height: 30, alignment: .center)
-                    .overlay(Text("2").foregroundColor(.yellow).font(.system(size: 15)))
-        })
-    }
+
 
     var zoomSelector: some View {
         ZStack {
@@ -167,9 +194,9 @@ struct CameraView: View {
                     .frame(width: 120, height: 40, alignment: .center)
 
             HStack {
-                zoomButton
-                zoomButton
-                zoomButton
+                ZoomButton(model: model, zoom: 0.5)
+                ZoomButton(model: model, zoom: 1.0)
+                ZoomButton(model: model, zoom: 3.0)
             }
         }
     }
@@ -181,7 +208,7 @@ struct CameraView: View {
 
             if !model.isRecording {
 
-                ZStack {
+                ZStack(alignment: .bottom) {
                     CameraPreview(session: model.session)
                             .onAppear {
                                 model.configure()
@@ -200,7 +227,7 @@ struct CameraView: View {
                             )
                             .animation(.easeInOut)
 
-                    zoomSelector
+                    zoomSelector.padding()
                 }
             } else {
                 Image(uiImage: model.photo)

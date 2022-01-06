@@ -755,7 +755,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/Wrappers/PrefixHeader.pch";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/ImageProcessing/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -770,7 +770,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jungemeyer.com.StarGazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/Wrappers/StarGazer-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/ImageProcessing/StarGazer-Bridging-Header.h";
 				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
@@ -793,7 +793,7 @@
 					"$(inherited)",
 					"$(PROJECT_DIR)",
 				);
-				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/Wrappers/PrefixHeader.pch";
+				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/ImageProcessing/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
@@ -808,7 +808,7 @@
 				PRODUCT_BUNDLE_IDENTIFIER = jungemeyer.com.StarGazer;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_EMIT_LOC_STRINGS = YES;
-				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/Wrappers/StarGazer-Bridging-Header.h";
+				SWIFT_OBJC_BRIDGING_HEADER = "StarGazer/ImageProcessing/StarGazer-Bridging-Header.h";
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = 1;
 			};
