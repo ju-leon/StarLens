@@ -88,4 +88,9 @@ Mat foregroundMask;
     segmentationMasks.emplace_back(matMask);
 }
 
+- (void)reset {
+    hdrImages = vector<Mat>();
+    segmentationMasks = vector<Mat>();
+}
+
 @end

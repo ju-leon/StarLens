@@ -58,6 +58,10 @@ class PhotoStack {
         UIGraphicsEndImageContext()
     }
     
+    deinit {
+        self.stacker.reset()
+    }
+    
     func setLocation(location: CLLocationCoordinate2D) {
         self.location = location
     }

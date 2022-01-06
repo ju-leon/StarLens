@@ -214,6 +214,10 @@ public class CameraService : NSObject {
             return
         }
         
+        if self.isConfigured {
+            return
+        }
+        
         session.beginConfiguration()
         
         session.sessionPreset = .photo
@@ -472,22 +476,30 @@ public class CameraService : NSObject {
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
                     self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
                 }
-            }
-        } else {
-            print("Config failed")
-            
-            self.stop()
-            
-            self.isProcessing = true
-            
-            sessionQueue.async {
+            } else {
                 self.stop()
-                self.photoStack.stackPhotos({(x: Double) -> () in
-                    DispatchQueue.main.async {
-                        self.processingProgress = x
-                    }
-                })
-                self.photoStack.saveStack()
+                
+                self.isProcessing = true
+                
+                sessionQueue.async {
+                    self.stop()
+                    self.photoStack.stackPhotos({(x: Double) -> () in
+                        DispatchQueue.main.async {
+                            self.processingProgress = x
+                            
+                            if (x == 1) {
+                                self.start()
+                                self.isCaptureRunning = false
+                                self.processingProgress = 0.0
+                                self.numPicures = 0
+                                self.photoStack = PhotoStack(location: self.location!)
+                                self.isProcessing = false
+                            }
+                            
+                        }
+                    })
+                    self.photoStack.saveStack()
+                }
             }
         }
     }
