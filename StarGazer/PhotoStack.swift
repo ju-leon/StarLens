@@ -221,10 +221,15 @@ class PhotoStack {
             
             statusUpdateCallback?(0.5)
             
-            let image = self.stacker.composeStack()
+            let imageStacked = self.stacker.composeStack()
+            self.savePhoto(image: imageStacked)
             
-            self.savePhoto(image: image)
-            self.coverPhoto = image
+            statusUpdateCallback?(0.75)
+            
+            let imageTrailing = self.stacker.composeTrailing()
+            self.savePhoto(image: imageTrailing)
+            
+            self.coverPhoto = imageStacked
             
             statusUpdateCallback?(1.0)
                 

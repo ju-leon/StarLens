@@ -127,7 +127,7 @@ public class CameraService : NSObject {
     private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0))
     private var location : CLLocationCoordinate2D?
     
-    private let isoRotation: [Float] = [200, 400] //, 800, 1600]
+    private let isoRotation: [Float] = [200, 400, 800, 1600]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -350,14 +350,16 @@ public class CameraService : NSObject {
             
             //device.setFocusModeLocked(lensPosition: 0.78)
             
+            
             device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
                                          iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
                                          completionHandler: { (val: CMTime) -> Void in
                                             print("Exposure duration: \(val.seconds)")
+                                            device.unlockForConfiguration()
                                             self.capturePhoto()
                                         })
-
             
+             
             //self.capturePhoto()
 
             /*
@@ -367,7 +369,7 @@ public class CameraService : NSObject {
                 self.capturePhoto()
             })
             */
-            device.unlockForConfiguration()
+
             
             isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count
             biasRotationIndex = (biasRotationIndex + 1) % CameraService.biasRotation.count
@@ -443,7 +445,6 @@ public class CameraService : NSObject {
                     if self.videoDeviceInput.device.isFlashAvailable {
                         photoSettings.flashMode = self.flashMode
                     }
-                    
                     
                     photoSettings.isHighResolutionPhotoEnabled = true
                     

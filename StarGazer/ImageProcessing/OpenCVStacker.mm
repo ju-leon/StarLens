@@ -29,6 +29,10 @@ Mat foregroundMask;
 
 #pragma mark Public
 
+/**
+Align images by tracking the positions of the stars.
+All images with enough features are stacked.
+ */
 - (UIImage *)composeStack {
     //findForeground(movement, hdrImages);
     cv::Mat baseImage = hdrImages[0];
@@ -48,6 +52,25 @@ Mat foregroundMask;
     return result;
 }
 
+/**
+ Stack all images withou aligning to create star trailing images.
+ */
+- (UIImage *)composeTrailing {
+    cv::Mat baseImage = hdrImages[0];
+    
+    cv::Mat combinedImage;
+    baseImage.convertTo(combinedImage, CV_32FC3);
+    for (int i = 1; i < hdrImages.size(); i++) {
+        cv::Mat imReg;
+        hdrImages[i].convertTo(imReg, CV_32FC3);
+        addWeighted(combinedImage, 1.0, imReg, 1 / hdrImages.size(), 0.0, combinedImage, CV_32FC3);
+    }
+    
+    combinedImage.convertTo(combinedImage, CV_8UC3);
+    
+    UIImage *result = [UIImage imageWithCVMat:combinedImage];
+    return result;
+}
 
 - (UIImage *)hdrMerge:(NSArray *)images {
     if ([images count] == 0) {
