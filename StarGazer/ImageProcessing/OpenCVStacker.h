@@ -27,6 +27,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void)addSegmentationMask: (UIImage *)mask;
 
+- (void)addImageToStack: (UIImage *)image;
+    
 - (void)reset;
 
 @end

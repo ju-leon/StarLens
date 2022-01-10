@@ -17,12 +17,14 @@ class PhotoStack {
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     public let STRING_ID : String
     
+    private let hdrEnabled : Bool
+    
     private var coverPhoto : UIImage
     
     private var stacked : CGImage?
     private var trailing : CGImage?
     
-    private var location: CLLocationCoordinate2D
+    private let location: CLLocationCoordinate2D?
     
     private var captureObjects: [CaptureObject] = []
     private var stacker: OpenCVStacker = OpenCVStacker()
@@ -33,7 +35,7 @@ class PhotoStack {
     private let modelInputDimension = [513, 513]
     
     //TODO: Init with actual size
-    init(location: CLLocationCoordinate2D) {
+    init(hdr: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
         
         let tempDir = FileManager.default.temporaryDirectory
@@ -43,6 +45,7 @@ class PhotoStack {
             print(error.localizedDescription)
         }
         
+        self.hdrEnabled = hdr
         self.location = location
         
         self.segmentationModel = DeepLabClean()
@@ -60,10 +63,6 @@ class PhotoStack {
     
     deinit {
         self.stacker.reset()
-    }
-    
-    func setLocation(location: CLLocationCoordinate2D) {
-        self.location = location
     }
     
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
@@ -114,32 +113,52 @@ class PhotoStack {
         }
     }
     
-    func add(captureObject: CaptureObject, preview: Data) -> UIImage {
-        self.captureObjects.append(captureObject)
-        
-        if (self.captureObjects.count == CameraService.biasRotation.count) {
-            let copiedStack = self.captureObjects
-            captureObjects = []
-            self.dispatch.async {
-                autoreleasepool {
-                    let images = self.toUIImageArray(fromCaptureArray: copiedStack)
-                    self.coverPhoto = self.stacker.hdrMerge(images)
-                    
-                    let prediction = self.predict(self.coverPhoto)
-                    let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+    func stackHdr() {
+        let copiedStack = self.captureObjects
+        captureObjects = []
+        self.dispatch.async {
+            autoreleasepool {
+                let images = self.toUIImageArray(fromCaptureArray: copiedStack)
+                let previewImage = self.stacker.hdrMerge(images)
+                
+                let prediction = self.predict(self.coverPhoto)
+                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
 
-                    //self.savePhoto(image: self.coverPhoto)
-                    self.stacker.addSegmentationMask(maskImage)
+                //self.savePhoto(image: self.coverPhoto)
+                self.stacker.addSegmentationMask(maskImage)
+                
+                DispatchQueue.main.async {
+                    self.coverPhoto = previewImage
                 }
-                for object in copiedStack {
-                    object.deleteReference()
+            }
+            for object in copiedStack {
+                object.deleteReference()
+            }
+        }
+    }
+    
+    func add(captureObject: CaptureObject, preview: Data) -> UIImage {
+        if (hdrEnabled) {
+            self.captureObjects.append(captureObject)
+            if (self.captureObjects.count == CameraService.biasRotation.count) {
+                stackHdr()
+            }
+        } else {
+            self.dispatch.async {
+                let image = captureObject.toUIImage()
+                self.stacker.addImage(toStack: image)
+                
+                let prediction = self.predict(image)
+                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+                self.stacker.addSegmentationMask(maskImage)
+                
+                let previewImage = self.blendPreview(image1: self.coverPhoto, image2: image)
+                
+                DispatchQueue.main.async {
+                    self.coverPhoto = previewImage
                 }
             }
         }
-        /*
-        let image = UIImage(data: preview)!
-        coverPhoto = blendPreview(image1: coverPhoto, image2: image)
-        */
         return coverPhoto
     }
     

@@ -29,6 +29,8 @@ final class CameraModel: ObservableObject {
 
     @Published var zoomLevel: Float = 1.0
     
+    @Published var hdr: Bool = true
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -91,6 +93,7 @@ final class CameraModel: ObservableObject {
 
     func startTimelapse() {
         UIApplication.shared.isIdleTimerDisabled = true
+        //service.blackOutCamera = true
         service.isCaptureRunning = true
         service.startTimelapse()
     }
@@ -132,6 +135,11 @@ final class CameraModel: ObservableObject {
         
         self.service.focus(focusPoint)
     }
+    
+    func toogleHdr() {
+        self.hdr = !self.hdr
+        service.toogleHdr(enabled: self.hdr)
+    }
 
 }
 
@@ -157,8 +165,6 @@ struct ZoomButton: View {
 
 struct OptionsBar: View {
     @StateObject var model = CameraModel()
-    @State var hdrEnabled: Bool = true
-    @State var flashEnabled: Bool = true
     
     var body: some View {
         HStack {
@@ -166,9 +172,9 @@ struct OptionsBar: View {
             Spacer()
             
             Button(action: {
-                hdrEnabled = !hdrEnabled
+                model.toogleHdr()
             }, label: {
-                if hdrEnabled {
+                if model.hdr {
                     //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
                     Image(systemName: "square.stack.3d.up.fill").foregroundColor(.white)
                 } else {
@@ -180,9 +186,9 @@ struct OptionsBar: View {
             Spacer()
             
             Button(action: {
-                flashEnabled = !flashEnabled
+                print("Flash")
             }, label: {
-                if flashEnabled {
+                if true {
                     //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
                     Image(systemName: "bolt.fill").foregroundColor(.white)
                 } else {

@@ -85,7 +85,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        // Take a new photo as soon as the old photo is processed
         //TODO: WHY??
         DispatchQueue.main.async {
             self.photoProcessingHandler(false)
@@ -126,10 +125,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     
     /// - Tag: DidFinishCapture
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
-        // Capture next photo
-        self.service.setupCameraProperties()
-        
-        
         if let error = error {
             print("Error capturing photo: \(error)")
             DispatchQueue.main.async {
@@ -164,7 +159,10 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             }
         }
         
-
+        DispatchQueue.main.async {
+            // Capture next photo
+            self.service.setupCameraProperties()
+        }
         
     }
 }

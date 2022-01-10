@@ -106,12 +106,25 @@ All images with enough features are stacked.
     return result;
 }
 
+- (void)addImageToStack: (UIImage *)image {
+    NSLog(@"Called");
+    if ([image isKindOfClass:[UIImage class]]) {
+        UIImage *rotatedImage = [image rotateToImageOrientation];
+        cv::Mat matImage = [rotatedImage CVMat3];
+        hdrImages.push_back(matImage);
+        NSLog(@"Added image");
+    } else {
+        return;
+    }
+}
+
 - (void)addSegmentationMask:(UIImage *)mask {
     cv::Mat matMask = [mask CVGrayscaleMat];
     segmentationMasks.emplace_back(matMask);
 }
 
 - (void)reset {
+    NSLog(@"Reset");
     hdrImages = vector<Mat>();
     segmentationMasks = vector<Mat>();
 }

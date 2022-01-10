@@ -90,6 +90,8 @@ public class CameraService : NSObject {
     
     @Published public var processingProgress = 0.0
     
+    private var hdrEnabled = true
+    
 //    MARK: Alert properties
     public var alertError: AlertError = AlertError()
     
@@ -117,14 +119,14 @@ public class CameraService : NSObject {
     // MARK: Capturing Photos
     
     private let photoOutput = AVCapturePhotoOutput()
-    
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
+    private var captureQueue: DispatchQueue = DispatchQueue(label: "StarStacker.captureQueue")
     
     // MARK: KVO and Notifications Properties
     
     private var keyValueObservations = [NSKeyValueObservation]()
     
-    private var photoStack : PhotoStack = PhotoStack(location: CLLocationCoordinate2D(latitude: 0, longitude: 0))
+    private var photoStack : PhotoStack?
     private var location : CLLocationCoordinate2D?
     
     private let isoRotation: [Float] = [200, 400, 800, 1600]
@@ -286,7 +288,7 @@ public class CameraService : NSObject {
     
     /// - Tag: Stop capture session
     public func stop(completion: (() -> ())? = nil) {
-        sessionQueue.async {
+        self.captureQueue.async {
             if self.isSessionRunning {
                 if self.setupResult == .success {
                     self.session.stopRunning()
@@ -307,7 +309,7 @@ public class CameraService : NSObject {
     /// - Tag: Start capture session
     public func start(completion: (() -> ())? = nil) {
 //        We use our capture session queue to ensure our UI runs smoothly on the main thread.
-        sessionQueue.async {
+        self.captureQueue.async {
             if !self.isSessionRunning && self.isConfigured {
                 switch self.setupResult {
                 case .success:
@@ -336,11 +338,18 @@ public class CameraService : NSObject {
         }
     }
     
+    public func toogleHdr(enabled: Bool) {
+        self.hdrEnabled = enabled
+    }
+    
     //    MARK: Capture Photo
     
     public func startTimelapse() {
         self.isCaptureRunning = true
-        self.setupCameraProperties()
+        self.captureQueue.async {
+            self.photoStack = PhotoStack(hdr: self.hdrEnabled, location: self.location)
+            self.setupCameraProperties()
+        }
     }
     
     func setupCameraProperties() {
@@ -348,31 +357,29 @@ public class CameraService : NSObject {
         do {
             try device.lockForConfiguration()
             
-            //device.setFocusModeLocked(lensPosition: 0.78)
-            
-            
-            device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                         iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
-                                         completionHandler: { (val: CMTime) -> Void in
-                                            print("Exposure duration: \(val.seconds)")
-                                            device.unlockForConfiguration()
-                                            self.capturePhoto()
-                                        })
+            if (self.hdrEnabled) {
+                device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
+                                             iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
+                                             completionHandler: { (val: CMTime) -> Void in
+                                                print("Exposure duration: \(val.seconds)")
+                                                device.unlockForConfiguration()
+                                                self.capturePhoto()
+                                            })
+                
+                isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count
+                biasRotationIndex = (biasRotationIndex + 1) % CameraService.biasRotation.count
+            } else {
+                device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
+                                             iso: AVCaptureDevice.currentISO,
+                                             completionHandler: { (val: CMTime) -> Void in
+                                                print("Exposure duration: \(val.seconds)")
+                                                device.unlockForConfiguration()
+                                                self.capturePhoto()
+                                            })
+            }
             
              
             //self.capturePhoto()
-
-            /*
-            device.setExposureTargetBias(CameraService.biasRotation[biasRotationIndex], completionHandler: { (val: CMTime) -> Void in
-                print("Captre duration: \(val)")
-                
-                self.capturePhoto()
-            })
-            */
-
-            
-            isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count
-            biasRotationIndex = (biasRotationIndex + 1) % CameraService.biasRotation.count
 
         }
         catch {
@@ -382,7 +389,7 @@ public class CameraService : NSObject {
     
     public func changeCamera(_ device: AVCaptureDevice) {
         self.blackOutCamera = true
-        sessionQueue.async {
+        self.captureQueue.async {
 
             do {
                 let videoDevice = try AVCaptureDeviceInput(device: device)
@@ -408,29 +415,30 @@ public class CameraService : NSObject {
     
     
     public func focus(_ point: CGPoint) {
-        let device = self.videoDeviceInput.device
-        do {
-        try device.lockForConfiguration()
+        self.captureQueue.async {
+            let device = self.videoDeviceInput.device
+            do {
+            try device.lockForConfiguration()
 
-            device.focusPointOfInterest = point
-            //device.focusMode = .continuousAutoFocus
-            device.focusMode = .autoFocus
-            //device.focusMode = .locked
-            device.unlockForConfiguration()
+                device.focusPointOfInterest = point
+                //device.focusMode = .continuousAutoFocus
+                device.focusMode = .autoFocus
+                //device.focusMode = .locked
+                device.unlockForConfiguration()
+            }
+            catch {
+            // just ignore
+            }
+
         }
-        catch {
-        // just ignore
-        }
-        
     }
     
     /// - Tag: CapturePhoto
     public func capturePhoto() {
         if self.setupResult != .configurationFailed {
             if self.isCaptureRunning {
-                //self.isCameraButtonDisabled = true
-                
-                sessionQueue.async {
+                self.captureQueue.async {
+                    //self.isCameraButtonDisabled = true
                     if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                         photoOutputConnection.videoOrientation = .portrait
                     }
@@ -491,7 +499,7 @@ public class CameraService : NSObject {
                         } else {
                             self?.shouldShowSpinner = false
                         }
-                    }, service: self, photoStack: self.photoStack )
+                    }, service: self, photoStack: self.photoStack! )
                     
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
@@ -504,7 +512,7 @@ public class CameraService : NSObject {
                 
                 sessionQueue.async {
                     self.stop()
-                    self.photoStack.stackPhotos({(x: Double) -> () in
+                    self.photoStack!.stackPhotos({(x: Double) -> () in
                         DispatchQueue.main.async {
                             self.processingProgress = x
                             
@@ -513,13 +521,13 @@ public class CameraService : NSObject {
                                 self.isCaptureRunning = false
                                 self.processingProgress = 0.0
                                 self.numPicures = 0
-                                self.photoStack = PhotoStack(location: self.location!)
+                                self.photoStack = nil
                                 self.isProcessing = false
                             }
                             
                         }
                     })
-                    self.photoStack.saveStack()
+                    self.photoStack!.saveStack()
                 }
             }
         }
@@ -541,7 +549,6 @@ extension CameraService : CLLocationManagerDelegate {
         self.location = locValue
         print("location = \(locValue.latitude) \(locValue.longitude)")
         
-        self.photoStack.setLocation(location: locValue)
     }
     
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
