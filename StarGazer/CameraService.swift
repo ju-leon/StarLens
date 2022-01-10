@@ -72,7 +72,7 @@ public class CameraService : NSObject {
 //    3.
     @Published public var shouldShowSpinner = false
 //    4.
-    @Published public var willCapturePhoto = false
+    @Published public var blackOutCamera = false
 //    5.
     @Published public var isCameraButtonDisabled = true
 //    6.
@@ -381,21 +381,29 @@ public class CameraService : NSObject {
     }
     
     public func changeCamera(_ device: AVCaptureDevice) {
-        
-        do {
-            let videoDevice = try AVCaptureDeviceInput(device: device)
-            
-            self.session.removeInput(self.videoDeviceInput)
+        self.blackOutCamera = true
+        sessionQueue.async {
 
-            if self.session.canAddInput(videoDevice) {
-                self.session.addInput(videoDevice)
-                self.videoDeviceInput = videoDevice
-            } else {
-                self.session.addInput(self.videoDeviceInput)
+            do {
+                let videoDevice = try AVCaptureDeviceInput(device: device)
+                
+                self.session.removeInput(self.videoDeviceInput)
+
+                if self.session.canAddInput(videoDevice) {
+                    self.session.addInput(videoDevice)
+                    self.videoDeviceInput = videoDevice
+                } else {
+                    self.session.addInput(self.videoDeviceInput)
+                }
+            } catch {
+                print("Camera config failed")
             }
-        } catch {
-            print("Camera config failed")
+            
+            DispatchQueue.main.async {
+                self.blackOutCamera = false
+            }
         }
+
     }
     
     
@@ -457,11 +465,11 @@ public class CameraService : NSObject {
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.
                         DispatchQueue.main.async {
-                            self?.willCapturePhoto = true
+                            self?.blackOutCamera = true
                         }
                         
                         DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            self?.willCapturePhoto = false
+                            self?.blackOutCamera = false
                         }
                         
                     }, completionHandler: { [weak self] (photoCaptureProcessor) in

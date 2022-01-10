@@ -57,7 +57,7 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
 
-        service.$willCapturePhoto.sink { [weak self] (val) in
+        service.$blackOutCamera.sink { [weak self] (val) in
                     self?.willCapturePhoto = val
                 }
                 .store(in: &self.subscriptions)
@@ -105,6 +105,10 @@ final class CameraModel: ObservableObject {
     }
     
     func switchCamera(level: Float) {
+        if (level == self.zoomLevel) {
+            return
+        }
+        
         var backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
         if (level < 1.0) {
             backCameraDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
@@ -117,6 +121,7 @@ final class CameraModel: ObservableObject {
             return
         }
         self.zoomLevel = level
+
         service.changeCamera(backCameraDevice!)
     }
 
@@ -140,11 +145,55 @@ struct ZoomButton: View {
         }, label: {
             Circle()
                     .foregroundColor(zoom == model.zoomLevel ? .white.opacity(0.4) : .white.opacity(0.1))
-                    .frame(width: 30, height: 30, alignment: .center)
+                    .frame(width: zoom == model.zoomLevel ? 40 : 30, height: zoom == model.zoomLevel ? 40 : 30, alignment: .center)
                     .overlay(Text(String(zoom)).foregroundColor(
                         .yellow
                     ).font(.system(size: 10).bold()))
+                    .animation(.easeInOut)
         })
+    }
+}
+
+
+struct OptionsBar: View {
+    @StateObject var model = CameraModel()
+    @State var hdrEnabled: Bool = true
+    @State var flashEnabled: Bool = true
+    
+    var body: some View {
+        HStack {
+            
+            Spacer()
+            
+            Button(action: {
+                hdrEnabled = !hdrEnabled
+            }, label: {
+                if hdrEnabled {
+                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
+                    Image(systemName: "square.stack.3d.up.fill").foregroundColor(.white)
+                } else {
+                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "square.stack.3d.up.slash").foregroundColor(.white).opacity(0.5)
+                }
+            }).animation(.easeInOut(duration: 0.2))
+            
+            Spacer()
+            
+            Button(action: {
+                flashEnabled = !flashEnabled
+            }, label: {
+                if flashEnabled {
+                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
+                    Image(systemName: "bolt.fill").foregroundColor(.white)
+                } else {
+                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "bolt.slash").foregroundColor(.white).opacity(0.5)
+                }
+            }).animation(.easeInOut(duration: 0.2))
+            
+            
+            Spacer()
+        }
     }
 }
 
@@ -197,8 +246,8 @@ struct CameraView: View {
         ZStack {
             Rectangle()
                     .foregroundColor(.white.opacity(0.1))
-                    .cornerRadius(20)
-                    .frame(width: 120, height: 40, alignment: .center)
+                    .cornerRadius(25)
+                    .frame(width: 130, height: 50, alignment: .center)
 
             HStack {
                 ZoomButton(model: model, zoom: 0.5)
@@ -211,13 +260,12 @@ struct CameraView: View {
 
     var captureView: some View {
         VStack {
-            Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
-
             if !model.isRecording {
 
                 GeometryReader {
                     geometry in
-                    ZStack(alignment: .bottom) {
+                    VStack(alignment: .center) {
+                        OptionsBar(model: model).padding()
                         CameraPreview(tappedCallback: {point in
                                 model.tapToFocus(point, geometry.size)
                             }, session: model.session)
@@ -243,6 +291,7 @@ struct CameraView: View {
                     
                 }
             } else {
+                Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
                 Image(uiImage: model.photo)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
@@ -253,13 +302,14 @@ struct CameraView: View {
             HStack {
                 //capturedPhotoThumbnail
 
-                Spacer()
+                Spacer().frame(maxWidth: .infinity)
+                
+                
 
-                captureButton
-
-                //Spacer()
-
-                Spacer()
+                captureButton.frame(maxWidth: .infinity)
+                
+                Image(systemName: "dial.max").font(.system(size: 40)).frame(maxWidth: .infinity)
+                
                 //flipCameraButton
 
             }

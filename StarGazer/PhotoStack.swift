@@ -205,8 +205,6 @@ class PhotoStack {
         return scaleDownFilter.outputImage!
     }
     
-
-    
     func stackPhotos(_ statusUpdateCallback: ((Double)->())?) {
         print("Sceduled merge")
         self.dispatch.async {
@@ -224,10 +222,19 @@ class PhotoStack {
             let imageStacked = self.stacker.composeStack()
             self.savePhoto(image: imageStacked)
             
+            // Enhance the image with Apples predefined filters
+            let ciImageStacked = self.autoEnhance(CIImage(cgImage: imageStacked.cgImage!))
+            self.savePhoto(image: UIImage(ciImage: ciImageStacked))
+            
             statusUpdateCallback?(0.75)
             
             let imageTrailing = self.stacker.composeTrailing()
             self.savePhoto(image: imageTrailing)
+
+            // Enhance the image with Apples predefined filters
+            let ciImageTrailing = self.autoEnhance(CIImage(cgImage: imageStacked.cgImage!))
+            self.savePhoto(image: UIImage(ciImage: ciImageTrailing))
+
             
             self.coverPhoto = imageStacked
             
