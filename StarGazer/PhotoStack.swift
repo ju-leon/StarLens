@@ -132,9 +132,7 @@ class PhotoStack {
                 //self.savePhoto(image: self.coverPhoto)
                 self.stacker.addSegmentationMask(maskImage)
 
-                DispatchQueue.main.async {
-                    self.coverPhoto = images[2]
-                }
+                self.coverPhoto = previewImage
             }
             for object in copiedStack {
                 object.deleteReference()
@@ -142,7 +140,7 @@ class PhotoStack {
         }
     }
 
-    func add(captureObject: CaptureObject, preview: Data) -> UIImage {
+    func add(captureObject: CaptureObject) -> UIImage {
         if (hdrEnabled) {
             self.captureObjects.append(captureObject)
             if (self.captureObjects.count == CameraService.biasRotation.count) {
@@ -151,6 +149,8 @@ class PhotoStack {
         } else {
             self.dispatch.async {
                 let image = captureObject.toUIImage()
+                self.savePhoto(image: image)
+
                 self.stacker.addImage(toStack: image)
 
                 let prediction = self.predict(image)
@@ -159,12 +159,10 @@ class PhotoStack {
 
                 let previewImage = self.blendPreview(image1: self.coverPhoto, image2: image)
 
-                DispatchQueue.main.async {
-                    self.coverPhoto = previewImage
-                }
+                self.coverPhoto = previewImage
             }
         }
-        return coverPhoto
+        return self.coverPhoto
     }
 
     func addPhoto(photo: Data) -> UIImage {

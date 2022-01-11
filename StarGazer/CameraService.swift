@@ -95,8 +95,8 @@ public class CameraService: NSObject {
     @Published public var processingProgress = 0.0
 
     private var hdrEnabled = true
-    private var alignEnabled = true
-    private var enhanceEnabled = true
+    private var alignEnabled = false
+    private var enhanceEnabled = false
 
 //    MARK: Alert properties
     public var alertError: AlertError = AlertError()
@@ -252,7 +252,6 @@ public class CameraService: NSObject {
             if session.canAddInput(videoDeviceInput) {
                 session.addInput(videoDeviceInput)
                 self.videoDeviceInput = videoDeviceInput
-
             } else {
                 print("Couldn't add video device input to the session.")
                 setupResult = .configurationFailed
@@ -359,7 +358,7 @@ public class CameraService: NSObject {
         self.isCaptureRunning = true
 
         self.isoRotation = []
-        for x in 1...5 {
+        for x in 3...6 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
         }
 
@@ -374,46 +373,11 @@ public class CameraService: NSObject {
                     enhance: self.enhanceEnabled,
                     location: self.location
             )
-            self.setupCameraProperties()
+            self.lockFocus()
+            self.capturePhoto()
         }
     }
 
-    func setupCameraProperties() {
-        let device = self.videoDeviceInput.device
-        do {
-            try device.lockForConfiguration()
-
-            device.exposureMode = .custom
-
-            if (self.hdrEnabled) {
-                device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                        iso: self.isoRotation[self.isoRotationIndex], //self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
-                        completionHandler: { (val: CMTime) -> Void in
-                            print("Exposure duration: \(val.seconds)")
-                            print("ISO: \(self.isoRotation[self.isoRotationIndex])")
-                            //device.unlockForConfiguration()
-                            self.isoRotationIndex = (self.isoRotationIndex + 1) % self.isoRotation.count
-                            self.capturePhoto()
-                        })
-
-
-            } else {
-                device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                        iso: 1600,
-                        completionHandler: { (val: CMTime) -> Void in
-                            print("Exposure duration: \(val.seconds)")
-                            //device.unlockForConfiguration()
-                            self.capturePhoto()
-                        })
-            }
-
-
-            //self.capturePhoto()
-
-        } catch {
-            print(error.localizedDescription)
-        }
-    }
 
     public func changeCamera(_ device: AVCaptureDevice) {
         self.blackOutCamera = true
@@ -438,6 +402,7 @@ public class CameraService: NSObject {
 
             DispatchQueue.main.async {
                 self.blackOutCamera = false
+                self.adjustViewfinderSettings()
             }
         }
 
@@ -454,6 +419,20 @@ public class CameraService: NSObject {
                 //device.focusMode = .continuousAutoFocus
                 device.focusMode = .autoFocus
                 //device.focusMode = .locked
+                device.unlockForConfiguration()
+            } catch {
+                // just ignore
+            }
+
+        }
+    }
+
+    public func lockFocus() {
+        self.captureQueue.async {
+            let device = self.videoDeviceInput.device
+            do {
+                try device.lockForConfiguration()
+                device.focusMode = .locked
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -487,8 +466,21 @@ public class CameraService: NSObject {
 
                     let processedFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
 
-                    let photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawFormat, processedFormat: processedFormat)
+                    //let photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawFormat, processedFormat: processedFormat)
 
+
+                    let manualExpSetting = AVCaptureManualExposureBracketedStillImageSettings.manualExposureSettings
+                    let maxExposure = self.videoDeviceInput.device.activeFormat.maxExposureDuration
+
+                    let photoSettings = AVCapturePhotoBracketSettings(
+                            rawPixelFormatType: rawFormat,
+                            processedFormat: nil,
+                            bracketedSettings: self.isoRotation.map {
+                                manualExpSetting(maxExposure, $0)
+                            }
+                    )
+
+                    /*
                     photoSettings.isHighResolutionPhotoEnabled = true
 
 
@@ -496,6 +488,8 @@ public class CameraService: NSObject {
                     if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
                         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
                     }
+
+                    */
 
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.
@@ -505,7 +499,9 @@ public class CameraService: NSObject {
 
 
                     }, completionHandler: { [weak self] (photoCaptureProcessor) in
-                        // Allowsettings to the camera again
+                        self?.capturePhoto()
+
+                        // Allow settings to the camera again
                         self!.videoDeviceInput.device.unlockForConfiguration()
 
                         // Update the preview
@@ -518,11 +514,6 @@ public class CameraService: NSObject {
 
                         self?.sessionQueue.async {
                             self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
-                        }
-
-                        DispatchQueue.main.async {
-                            // Capture next photo
-                            self!.setupCameraProperties()
                         }
 
                     }, photoProcessingHandler: { [weak self] animate in
@@ -540,15 +531,12 @@ public class CameraService: NSObject {
                     //let current_exposure_duration : CMTime = (self.videoDeviceInput.device.exposureDuration)
                     //let current_exposure_ISO : Float = (self.videoDeviceInput.device.iso)
 
-                    self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
-
-                    //print(self.inProgressPhotoCaptureDelegates)
-                    //print("Applied ISO: \(current_exposure_ISO), Applied Duration: \(current_exposure_duration)")
+                    DispatchQueue.main.async {
+                        self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
+                    }
                 }
             } else {
-                DispatchQueue.main.async {
-                    self.isProcessing = true
-                }
+                self.isProcessing = true
 
                 self.stop()
 
@@ -584,7 +572,7 @@ public class CameraService: NSObject {
                 try device.lockForConfiguration()
                 device.exposureMode = .continuousAutoExposure
 
-                device.setExposureTargetBias(1.0, completionHandler: { _ in
+                device.setExposureTargetBias(1.5, completionHandler: { _ in
                     device.unlockForConfiguration()
                 })
             } catch {
