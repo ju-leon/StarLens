@@ -23,7 +23,7 @@ void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
         imReg.convertTo(imReg, CV_32FC3);
 
         //addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
-        addWeighted(result, 1.0, imReg, 1 / numImages, 0.0, result, CV_32FC3);
+        addWeighted(result, 1.0, imReg, 1.0, 0.0, result, CV_32FC3);
         //imageBase = imageBase + imReg;
     } else {
 
@@ -64,7 +64,7 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
 
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(100, 10, 10, 8, 2);
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(50, 20, 10, 8, 5);
     star->detect(im1Gray, keypoints1);
     star->detect(im2Gray, keypoints2);
 

@@ -129,7 +129,7 @@ public class CameraService : NSObject {
     private var photoStack : PhotoStack?
     private var location : CLLocationCoordinate2D?
     
-    private let isoRotation: [Float] = [200, 400, 800, 1600]
+    private var isoRotation: [Float] = [800, 1600, 3200, 6400]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -170,7 +170,6 @@ public class CameraService : NSObject {
     
     //        MARK: Checks for user's permisions
     public func checkForPermissions() {
-        
         self.locationManager.requestWhenInUseAuthorization()
         
       
@@ -211,7 +210,6 @@ public class CameraService : NSObject {
     
     //  MARK: Session Management
     public func configureCaptureSession() {
-        
         if setupResult != .success {
             return
         }
@@ -221,10 +219,8 @@ public class CameraService : NSObject {
         }
         
         session.beginConfiguration()
-        
         session.sessionPreset = .photo
 
-        
         // Add video input.
         do {
             var defaultVideoDevice: AVCaptureDevice?
@@ -292,7 +288,7 @@ public class CameraService : NSObject {
             if self.isSessionRunning {
                 if self.setupResult == .success {
                     self.session.stopRunning()
-                    self.isSessionRunning = self.session.isRunning
+                    self.isSessionRunning = self.session.isInterrupted
                     
                     if !self.session.isRunning {
                         DispatchQueue.main.async {
@@ -321,6 +317,7 @@ public class CameraService : NSObject {
                             self.isCameraButtonDisabled = false
                             self.isCameraUnavailable = false
                             completion?()
+                            self.adjustViewfinderSettings()
                         }
                     }
                     
@@ -346,6 +343,16 @@ public class CameraService : NSObject {
     
     public func startTimelapse() {
         self.isCaptureRunning = true
+        
+        self.isoRotation = []
+        for x in 1...5 {
+            self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
+        }
+        
+        print(self.isoRotation)
+        
+        self.videoDeviceInput.device.activeFormat.maxISO
+        
         self.captureQueue.async {
             self.photoStack = PhotoStack(hdr: self.hdrEnabled, location: self.location)
             self.setupCameraProperties()
@@ -353,27 +360,32 @@ public class CameraService : NSObject {
     }
     
     func setupCameraProperties() {
+        print(" ---- Setup called")
+        
         let device = self.videoDeviceInput.device
         do {
             try device.lockForConfiguration()
             
+            device.exposureMode = .custom
+            
             if (self.hdrEnabled) {
                 device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                             iso: self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
+                                             iso: self.isoRotation[self.isoRotationIndex],//self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
                                              completionHandler: { (val: CMTime) -> Void in
                                                 print("Exposure duration: \(val.seconds)")
-                                                device.unlockForConfiguration()
+                                                print("ISO: \(self.isoRotation[self.isoRotationIndex])")
+                                                //device.unlockForConfiguration()
+                                                self.isoRotationIndex = (self.isoRotationIndex + 1) % self.isoRotation.count
                                                 self.capturePhoto()
                                             })
                 
-                isoRotationIndex = (isoRotationIndex + 1) % isoRotation.count
-                biasRotationIndex = (biasRotationIndex + 1) % CameraService.biasRotation.count
+
             } else {
                 device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                             iso: AVCaptureDevice.currentISO,
+                                             iso: 1600,
                                              completionHandler: { (val: CMTime) -> Void in
                                                 print("Exposure duration: \(val.seconds)")
-                                                device.unlockForConfiguration()
+                                                //device.unlockForConfiguration()
                                                 self.capturePhoto()
                                             })
             }
@@ -402,6 +414,8 @@ public class CameraService : NSObject {
                 } else {
                     self.session.addInput(self.videoDeviceInput)
                 }
+                
+                
             } catch {
                 print("Camera config failed")
             }
@@ -456,12 +470,6 @@ public class CameraService : NSObject {
                     
                     let photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawFormat, processedFormat: processedFormat)
                     
-                    
-                    // Sets the flash option for this capture.
-                    if self.videoDeviceInput.device.isFlashAvailable {
-                        photoSettings.flashMode = self.flashMode
-                    }
-                    
                     photoSettings.isHighResolutionPhotoEnabled = true
                     
                     
@@ -476,15 +484,15 @@ public class CameraService : NSObject {
                             self?.blackOutCamera = true
                         }
                         
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.25) {
-                            self?.blackOutCamera = false
-                        }
                         
                     }, completionHandler: { [weak self] (photoCaptureProcessor) in
+                        // Allowsettings to the camera again
+                        self!.videoDeviceInput.device.unlockForConfiguration()
+                        
                         // Update the preview
                         self?.previewPhoto =  photoCaptureProcessor.previewPhoto
                         
-                        // Let the main thread knoq there's another photo
+                        // Let the main thread know there's another photo
                         self?.numPicures += 1
                         
                         self?.isCameraButtonDisabled = false
@@ -492,6 +500,12 @@ public class CameraService : NSObject {
                         self?.sessionQueue.async {
                             self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
                         }
+                        
+                        DispatchQueue.main.async {
+                            // Capture next photo
+                            self!.setupCameraProperties()
+                        }
+                        
                     }, photoProcessingHandler: { [weak self] animate in
                         // Animates a spinner while photo is processing
                         if animate {
@@ -503,7 +517,14 @@ public class CameraService : NSObject {
                     
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
+                    
+                    //let current_exposure_duration : CMTime = (self.videoDeviceInput.device.exposureDuration)
+                    //let current_exposure_ISO : Float = (self.videoDeviceInput.device.iso)
+                    
                     self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
+                    
+                    //print(self.inProgressPhotoCaptureDelegates)
+                    //print("Applied ISO: \(current_exposure_ISO), Applied Duration: \(current_exposure_duration)")
                 }
             } else {
                 self.stop()
@@ -511,13 +532,13 @@ public class CameraService : NSObject {
                 self.isProcessing = true
                 
                 sessionQueue.async {
-                    self.stop()
                     self.photoStack!.stackPhotos({(x: Double) -> () in
                         DispatchQueue.main.async {
                             self.processingProgress = x
                             
                             if (x == 1) {
                                 self.start()
+                                self.blackOutCamera = false
                                 self.isCaptureRunning = false
                                 self.processingProgress = 0.0
                                 self.numPicures = 0
@@ -525,11 +546,30 @@ public class CameraService : NSObject {
                                 self.isProcessing = false
                             }
                             
+                            self.start()
                         }
                     })
                     self.photoStack!.saveStack()
                 }
             }
+        }
+    }
+    
+    public func adjustViewfinderSettings() {
+        self.captureQueue.async {
+            let device = self.videoDeviceInput.device
+            do {
+            try device.lockForConfiguration()
+                device.exposureMode = .continuousAutoExposure
+                
+                device.setExposureTargetBias(1.0, completionHandler: {_ in
+                    device.unlockForConfiguration()
+                })
+            }
+            catch {
+            // just ignore
+            }
+
         }
     }
     

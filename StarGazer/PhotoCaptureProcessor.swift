@@ -147,8 +147,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 return
             }
             
-            print(data)
-            
             //self.saveToPhotoLibrary(data)
             let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
             
@@ -157,11 +155,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             DispatchQueue.main.async {
                 self.completionHandler(self)
             }
-        }
-        
-        DispatchQueue.main.async {
-            // Capture next photo
-            self.service.setupCameraProperties()
         }
         
     }

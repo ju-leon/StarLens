@@ -24,8 +24,10 @@ void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result) {
     Ptr<Tonemap> tonemap = createTonemap(2.2f);
     tonemap->process(hdr, ldr);
     */
+    std::cout << "Merging " << images.size() << " images" << std::endl;
+    
     Ptr<AlignMTB> alignMTB = createAlignMTB();
-    //alignMTB->process(images, images);
+    alignMTB->process(images, images);
 
     Ptr<MergeMertens> merge_mertens = createMergeMertens();
     merge_mertens->process(images, result);

@@ -46,6 +46,7 @@ All images with enough features are stacked.
         combine(baseImage, hdrImages[i], foregroundMask, hdrImages.size(), combinedImage);
     }
 
+    combinedImage /= hdrImages.size();
     combinedImage.convertTo(combinedImage, CV_8UC3);
 
     UIImage *result = [UIImage imageWithCVMat:combinedImage];
@@ -63,9 +64,10 @@ All images with enough features are stacked.
     for (int i = 1; i < hdrImages.size(); i++) {
         cv::Mat imReg;
         hdrImages[i].convertTo(imReg, CV_32FC3);
-        addWeighted(combinedImage, 1.0, imReg, 1 / hdrImages.size(), 0.0, combinedImage, CV_32FC3);
+        addWeighted(combinedImage, 1.0, imReg, 1.0, 0.0, combinedImage, CV_32FC3);
     }
     
+    combinedImage /= hdrImages.size();
     combinedImage.convertTo(combinedImage, CV_8UC3);
     
     UIImage *result = [UIImage imageWithCVMat:combinedImage];

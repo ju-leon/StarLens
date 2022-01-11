@@ -128,7 +128,7 @@ class PhotoStack {
                 self.stacker.addSegmentationMask(maskImage)
                 
                 DispatchQueue.main.async {
-                    self.coverPhoto = previewImage
+                    self.coverPhoto = images[2]
                 }
             }
             for object in copiedStack {
@@ -251,7 +251,7 @@ class PhotoStack {
             self.savePhoto(image: imageTrailing)
 
             // Enhance the image with Apples predefined filters
-            let ciImageTrailing = self.autoEnhance(CIImage(cgImage: imageStacked.cgImage!))
+            let ciImageTrailing = self.autoEnhance(CIImage(cgImage: imageTrailing.cgImage!))
             self.savePhoto(image: UIImage(ciImage: ciImageTrailing))
 
             
