@@ -19,7 +19,7 @@ public struct Photo: Identifiable, Equatable {
     public var id: String
 //    Data representation of the captured photo
     public var originalData: Data
-    
+
     public init(id: String = UUID().uuidString, originalData: Data) {
         self.id = id
         self.originalData = originalData
@@ -33,7 +33,7 @@ public struct AlertError {
     public var secondaryButtonTitle: String?
     public var primaryAction: (() -> ())?
     public var secondaryAction: (() -> ())?
-    
+
     public init(title: String = "", message: String = "", primaryButtonTitle: String = "Accept", secondaryButtonTitle: String? = nil, primaryAction: (() -> ())? = nil, secondaryAction: (() -> ())? = nil) {
         self.title = title
         self.message = message
@@ -51,20 +51,24 @@ extension Photo {
         ImageResizer(targetWidth: 100).resize(data: originalData)?.jpegData(compressionQuality: 0.5)
     }
     public var thumbnailImage: UIImage? {
-        guard let data = thumbnailData else { return nil }
+        guard let data = thumbnailData else {
+            return nil
+        }
         return UIImage(data: data)
     }
     public var image: UIImage? {
-        guard let data = compressedData else { return nil }
+        guard let data = compressedData else {
+            return nil
+        }
         return UIImage(data: data)
     }
 }
 
-public class CameraService : NSObject {
+public class CameraService: NSObject {
     typealias PhotoCaptureSessionID = String
-    
+
 //    MARK: Observed Properties UI must react to
-    
+
 //    1.
     @Published public var flashMode: AVCaptureDevice.FlashMode = .off
 //    2.
@@ -79,24 +83,26 @@ public class CameraService : NSObject {
     @Published public var isCameraUnavailable = true
 //    8.
     @Published public var isCaptureRunning = false
-    
+
     @Published public var photo: Photo?
-    
+
     @Published public var previewPhoto: UIImage?
-    
+
     @Published public var numPicures = 0
 
     @Published public var isProcessing = false
-    
+
     @Published public var processingProgress = 0.0
-    
+
     private var hdrEnabled = true
-    
+    private var alignEnabled = true
+    private var enhanceEnabled = true
+
 //    MARK: Alert properties
     public var alertError: AlertError = AlertError()
-    
+
 // MARK: Session Management Properties
-    
+
 //    9
     public let session = AVCaptureSession()
     public let locationManager = CLLocationManager()
@@ -110,31 +116,31 @@ public class CameraService : NSObject {
 //    14
     // Communicate with the session and other session objects on this queue.
     private let sessionQueue = DispatchQueue(label: "session queue")
-    
+
     @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
-    
+
     // MARK: Device Configuration Properties
     private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera], mediaType: .video, position: .unspecified)
-    
+
     // MARK: Capturing Photos
-    
+
     private let photoOutput = AVCapturePhotoOutput()
     private var inProgressPhotoCaptureDelegates = [Int64: PhotoCaptureProcessor]()
     private var captureQueue: DispatchQueue = DispatchQueue(label: "StarStacker.captureQueue")
-    
+
     // MARK: KVO and Notifications Properties
-    
+
     private var keyValueObservations = [NSKeyValueObservation]()
-    
-    private var photoStack : PhotoStack?
-    private var location : CLLocationCoordinate2D?
-    
+
+    private var photoStack: PhotoStack?
+    private var location: CLLocationCoordinate2D?
+
     private var isoRotation: [Float] = [800, 1600, 3200, 6400]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
     private var biasRotationIndex = 0
-    
+
     public func configure() {
         /*
          Setup the capture session.
@@ -146,7 +152,7 @@ public class CameraService : NSObject {
          take a long time. Dispatch session setup to the sessionQueue, so
          that the main queue isn't blocked, which keeps the UI responsive.
          */
-        
+
         let imageSize = CGSize(width: 300, height: 400)
         let color: UIColor = .black
         UIGraphicsBeginImageContextWithOptions(imageSize, true, 0)
@@ -155,24 +161,24 @@ public class CameraService : NSObject {
         context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
         self.previewPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-        
-        
+
+
         // Start updating the users location
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
             locationManager.requestLocation()
         }
-        
+
         self.configureCaptureSession()
-        
+
     }
-    
+
     //        MARK: Checks for user's permisions
     public func checkForPermissions() {
         self.locationManager.requestWhenInUseAuthorization()
-        
-      
+
+
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             // The user has previously granted access to the camera.
@@ -190,16 +196,16 @@ public class CameraService : NSObject {
                 }
                 self.sessionQueue.resume()
             })
-            
+
         default:
             // The user has previously denied access.
             setupResult = .notAuthorized
-            
+
             DispatchQueue.main.async {
                 self.alertError = AlertError(title: "Camera Access", message: "SwiftCamera doesn't have access to use your camera, please update your privacy settings.", primaryButtonTitle: "Settings", secondaryButtonTitle: nil, primaryAction: {
-                        UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
-                                                  options: [:], completionHandler: nil)
-                    
+                    UIApplication.shared.open(URL(string: UIApplication.openSettingsURLString)!,
+                            options: [:], completionHandler: nil)
+
                 }, secondaryAction: nil)
                 self.shouldShowAlertView = true
                 self.isCameraUnavailable = true
@@ -207,24 +213,24 @@ public class CameraService : NSObject {
             }
         }
     }
-    
+
     //  MARK: Session Management
     public func configureCaptureSession() {
         if setupResult != .success {
             return
         }
-        
+
         if self.isConfigured {
             return
         }
-        
+
         session.beginConfiguration()
         session.sessionPreset = .photo
 
         // Add video input.
         do {
             var defaultVideoDevice: AVCaptureDevice?
-            
+
             if let backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back) {
                 // If a rear dual camera is not available, default to the rear wide angle camera.
                 defaultVideoDevice = backCameraDevice
@@ -232,21 +238,21 @@ public class CameraService : NSObject {
                 // If the rear wide angle camera isn't available, default to the front wide angle camera.
                 defaultVideoDevice = frontCameraDevice
             }
-            
-            
+
+
             guard let videoDevice = defaultVideoDevice else {
                 print("Default video device is unavailable.")
                 setupResult = .configurationFailed
                 session.commitConfiguration()
                 return
             }
-            
+
             let videoDeviceInput = try AVCaptureDeviceInput(device: videoDevice)
-            
+
             if session.canAddInput(videoDeviceInput) {
                 session.addInput(videoDeviceInput)
                 self.videoDeviceInput = videoDeviceInput
-                
+
             } else {
                 print("Couldn't add video device input to the session.")
                 setupResult = .configurationFailed
@@ -259,11 +265,11 @@ public class CameraService : NSObject {
             session.commitConfiguration()
             return
         }
-        
+
         // Add the photo output.
         if session.canAddOutput(photoOutput) {
             session.addOutput(photoOutput)
-            
+
             photoOutput.isLivePhotoCaptureEnabled = false
             photoOutput.isHighResolutionCaptureEnabled = true
             photoOutput.maxPhotoQualityPrioritization = .quality
@@ -274,14 +280,14 @@ public class CameraService : NSObject {
             session.commitConfiguration()
             return
         }
-        
+
         session.commitConfiguration()
-        
+
         self.isConfigured = true
-        
+
         self.start()
     }
-    
+
     /// - Tag: Stop capture session
     public func stop(completion: (() -> ())? = nil) {
         self.captureQueue.async {
@@ -289,7 +295,7 @@ public class CameraService : NSObject {
                 if self.setupResult == .success {
                     self.session.stopRunning()
                     self.isSessionRunning = self.session.isInterrupted
-                    
+
                     if !self.session.isRunning {
                         DispatchQueue.main.async {
                             self.isCameraButtonDisabled = true
@@ -301,7 +307,7 @@ public class CameraService : NSObject {
             }
         }
     }
-    
+
     /// - Tag: Start capture session
     public func start(completion: (() -> ())? = nil) {
 //        We use our capture session queue to ensure our UI runs smoothly on the main thread.
@@ -311,7 +317,7 @@ public class CameraService : NSObject {
                 case .success:
                     self.session.startRunning()
                     self.isSessionRunning = self.session.isRunning
-                    
+
                     if self.session.isRunning {
                         DispatchQueue.main.async {
                             self.isCameraButtonDisabled = false
@@ -320,7 +326,7 @@ public class CameraService : NSObject {
                             self.adjustViewfinderSettings()
                         }
                     }
-                    
+
                 case .configurationFailed, .notAuthorized:
                     print("Application not authorized to use camera")
 
@@ -334,78 +340,88 @@ public class CameraService : NSObject {
             }
         }
     }
-    
-    public func toogleHdr(enabled: Bool) {
+
+    public func toggleHdr(enabled: Bool) {
         self.hdrEnabled = enabled
     }
-    
+
+    public func toggleAlign(enabled: Bool) {
+        self.alignEnabled = enabled
+    }
+
+    public func toggleEnhance(enabled: Bool) {
+        self.enhanceEnabled = enabled
+    }
+
     //    MARK: Capture Photo
-    
+
     public func startTimelapse() {
         self.isCaptureRunning = true
-        
+
         self.isoRotation = []
         for x in 1...5 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
         }
-        
+
         print(self.isoRotation)
-        
+
         self.videoDeviceInput.device.activeFormat.maxISO
-        
+
         self.captureQueue.async {
-            self.photoStack = PhotoStack(hdr: self.hdrEnabled, location: self.location)
+            self.photoStack = PhotoStack(
+                    hdr: self.hdrEnabled,
+                    align: self.alignEnabled,
+                    enhance: self.enhanceEnabled,
+                    location: self.location
+            )
             self.setupCameraProperties()
         }
     }
-    
+
     func setupCameraProperties() {
-        print(" ---- Setup called")
-        
         let device = self.videoDeviceInput.device
         do {
             try device.lockForConfiguration()
-            
+
             device.exposureMode = .custom
-            
+
             if (self.hdrEnabled) {
                 device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                             iso: self.isoRotation[self.isoRotationIndex],//self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
-                                             completionHandler: { (val: CMTime) -> Void in
-                                                print("Exposure duration: \(val.seconds)")
-                                                print("ISO: \(self.isoRotation[self.isoRotationIndex])")
-                                                //device.unlockForConfiguration()
-                                                self.isoRotationIndex = (self.isoRotationIndex + 1) % self.isoRotation.count
-                                                self.capturePhoto()
-                                            })
-                
+                        iso: self.isoRotation[self.isoRotationIndex], //self.isoRotation[self.isoRotationIndex], // AVCaptureDevice.currentISO,
+                        completionHandler: { (val: CMTime) -> Void in
+                            print("Exposure duration: \(val.seconds)")
+                            print("ISO: \(self.isoRotation[self.isoRotationIndex])")
+                            //device.unlockForConfiguration()
+                            self.isoRotationIndex = (self.isoRotationIndex + 1) % self.isoRotation.count
+                            self.capturePhoto()
+                        })
+
 
             } else {
                 device.setExposureModeCustom(duration: device.activeFormat.maxExposureDuration,
-                                             iso: 1600,
-                                             completionHandler: { (val: CMTime) -> Void in
-                                                print("Exposure duration: \(val.seconds)")
-                                                //device.unlockForConfiguration()
-                                                self.capturePhoto()
-                                            })
+                        iso: 1600,
+                        completionHandler: { (val: CMTime) -> Void in
+                            print("Exposure duration: \(val.seconds)")
+                            //device.unlockForConfiguration()
+                            self.capturePhoto()
+                        })
             }
-            
-             
+
+
             //self.capturePhoto()
 
-        }
-        catch {
+        } catch {
             print(error.localizedDescription)
         }
     }
-    
+
     public func changeCamera(_ device: AVCaptureDevice) {
         self.blackOutCamera = true
         self.captureQueue.async {
 
             do {
                 let videoDevice = try AVCaptureDeviceInput(device: device)
-                
+
                 self.session.removeInput(self.videoDeviceInput)
 
                 if self.session.canAddInput(videoDevice) {
@@ -414,39 +430,38 @@ public class CameraService : NSObject {
                 } else {
                     self.session.addInput(self.videoDeviceInput)
                 }
-                
-                
+
+
             } catch {
                 print("Camera config failed")
             }
-            
+
             DispatchQueue.main.async {
                 self.blackOutCamera = false
             }
         }
 
     }
-    
-    
+
+
     public func focus(_ point: CGPoint) {
         self.captureQueue.async {
             let device = self.videoDeviceInput.device
             do {
-            try device.lockForConfiguration()
+                try device.lockForConfiguration()
 
                 device.focusPointOfInterest = point
                 //device.focusMode = .continuousAutoFocus
                 device.focusMode = .autoFocus
                 //device.focusMode = .locked
                 device.unlockForConfiguration()
-            }
-            catch {
-            // just ignore
+            } catch {
+                // just ignore
             }
 
         }
     }
-    
+
     /// - Tag: CapturePhoto
     public func capturePhoto() {
         if self.setupResult != .configurationFailed {
@@ -456,56 +471,60 @@ public class CameraService : NSObject {
                     if let photoOutputConnection = self.photoOutput.connection(with: .video) {
                         photoOutputConnection.videoOrientation = .portrait
                     }
-                    
+
                     let query = self.photoOutput.isAppleProRAWEnabled ?
-                        { AVCapturePhotoOutput.isAppleProRAWPixelFormat($0) } :
-                        { AVCapturePhotoOutput.isBayerRAWPixelFormat($0) }
-                    
+                            {
+                                AVCapturePhotoOutput.isAppleProRAWPixelFormat($0)
+                            } :
+                            {
+                                AVCapturePhotoOutput.isBayerRAWPixelFormat($0)
+                            }
+
                     guard let rawFormat =
-                            self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query) else {
+                    self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query) else {
                         fatalError("No RAW format found.")
                     }
-                    
+
                     let processedFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
-                    
+
                     let photoSettings = AVCapturePhotoSettings(rawPixelFormatType: rawFormat, processedFormat: processedFormat)
-                    
+
                     photoSettings.isHighResolutionPhotoEnabled = true
-                    
-                    
+
+
                     // Sets the preview thumbnail pixel format
                     if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
                         photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
                     }
-                    
+
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.
                         DispatchQueue.main.async {
                             self?.blackOutCamera = true
                         }
-                        
-                        
+
+
                     }, completionHandler: { [weak self] (photoCaptureProcessor) in
                         // Allowsettings to the camera again
                         self!.videoDeviceInput.device.unlockForConfiguration()
-                        
+
                         // Update the preview
-                        self?.previewPhoto =  photoCaptureProcessor.previewPhoto
-                        
+                        self?.previewPhoto = photoCaptureProcessor.previewPhoto
+
                         // Let the main thread know there's another photo
                         self?.numPicures += 1
-                        
+
                         self?.isCameraButtonDisabled = false
-                        
+
                         self?.sessionQueue.async {
                             self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
                         }
-                        
+
                         DispatchQueue.main.async {
                             // Capture next photo
                             self!.setupCameraProperties()
                         }
-                        
+
                     }, photoProcessingHandler: { [weak self] animate in
                         // Animates a spinner while photo is processing
                         if animate {
@@ -513,16 +532,16 @@ public class CameraService : NSObject {
                         } else {
                             self?.shouldShowSpinner = false
                         }
-                    }, photoStack: self.photoStack! )
-                    
+                    }, photoStack: self.photoStack!)
+
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
-                    
+
                     //let current_exposure_duration : CMTime = (self.videoDeviceInput.device.exposureDuration)
                     //let current_exposure_ISO : Float = (self.videoDeviceInput.device.iso)
-                    
+
                     self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
-                    
+
                     //print(self.inProgressPhotoCaptureDelegates)
                     //print("Applied ISO: \(current_exposure_ISO), Applied Duration: \(current_exposure_duration)")
                 }
@@ -530,14 +549,14 @@ public class CameraService : NSObject {
                 DispatchQueue.main.async {
                     self.isProcessing = true
                 }
-                
+
                 self.stop()
-                
+
                 sessionQueue.async {
-                    self.photoStack!.stackPhotos({(x: Double) -> () in
+                    self.photoStack!.stackPhotos({ (x: Double) -> () in
                         DispatchQueue.main.async {
                             self.processingProgress = x
-                            
+
                             if (x == 1) {
 
                                 self.start()
@@ -548,7 +567,7 @@ public class CameraService : NSObject {
                                 self.photoStack = nil
                                 self.isProcessing = false
                             }
-                            
+
                             self.start()
                         }
                     })
@@ -557,43 +576,42 @@ public class CameraService : NSObject {
             }
         }
     }
-    
+
     public func adjustViewfinderSettings() {
         self.captureQueue.async {
             let device = self.videoDeviceInput.device
             do {
-            try device.lockForConfiguration()
+                try device.lockForConfiguration()
                 device.exposureMode = .continuousAutoExposure
-                
-                device.setExposureTargetBias(1.0, completionHandler: {_ in
+
+                device.setExposureTargetBias(1.0, completionHandler: { _ in
                     device.unlockForConfiguration()
                 })
-            }
-            catch {
-            // just ignore
+            } catch {
+                // just ignore
             }
 
         }
     }
-    
+
     public func updatePreview(photo: UIImage) {
         self.previewPhoto = photo
     }
-    
+
 }
 
-extension CameraService : CLLocationManagerDelegate {
+extension CameraService: CLLocationManagerDelegate {
     public func locationManager(_ manager: CLLocationManager, didUpdateLocations locations: [CLLocation]) {
         guard let locValue: CLLocationCoordinate2D = manager.location?.coordinate else {
             locationManager.requestLocation()
             return
         }
-        
+
         self.location = locValue
         print("location = \(locValue.latitude) \(locValue.longitude)")
-        
+
     }
-    
+
     public func locationManager(_ manager: CLLocationManager, didFailWithError error: Error) {
         print("Failed to find user's location: \(error.localizedDescription)")
         locationManager.requestLocation()
@@ -606,23 +624,23 @@ extension CameraService {
         case on
         case off
     }
-    
+
     enum DepthDataDeliveryMode {
         case on
         case off
     }
-    
+
     enum PortraitEffectsMatteDeliveryMode {
         case on
         case off
     }
-    
+
     enum SessionSetupResult {
         case success
         case notAuthorized
         case configurationFailed
     }
-    
+
     enum CaptureMode: Int {
         case photo = 0
         case movie = 1

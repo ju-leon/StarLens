@@ -28,9 +28,11 @@ final class CameraModel: ObservableObject {
     @Published var processingProgress = 0.0
 
     @Published var zoomLevel: Float = 1.0
-    
+
     @Published var hdr: Bool = true
-    
+    @Published var align: Bool = true
+    @Published var enhance: Bool = false
+
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -106,19 +108,19 @@ final class CameraModel: ObservableObject {
     func switchFlash() {
         service.flashMode = service.flashMode == .on ? .off : .on
     }
-    
+
     func switchCamera(level: Float) {
         if (level == self.zoomLevel) {
             return
         }
-        
+
         var backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
         if (level < 1.0) {
             backCameraDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
         } else if (level > 1.0) {
             backCameraDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back)
         }
-        
+
         if (backCameraDevice == nil) {
             print("Illegal camera config")
             return
@@ -132,13 +134,23 @@ final class CameraModel: ObservableObject {
         let x = point.y / size.height
         let y = 1.0 - point.x / size.width
         let focusPoint = CGPoint(x: x, y: y)
-        
+
         self.service.focus(focusPoint)
     }
-    
-    func toogleHdr() {
+
+    func toggleHdr() {
         self.hdr = !self.hdr
-        service.toogleHdr(enabled: self.hdr)
+        service.toggleHdr(enabled: self.hdr)
+    }
+
+    func toggleAlign() {
+        self.align = !self.align
+        service.toggleAlign(enabled: self.align)
+    }
+
+    func toggleEnhance() {
+        self.enhance = !self.enhance
+        service.toggleEnhance(enabled: self.enhance)
     }
 
 }
@@ -146,7 +158,7 @@ final class CameraModel: ObservableObject {
 struct ZoomButton: View {
     @StateObject var model = CameraModel()
     @State var zoom: Float = 1.0
-    
+
     var body: some View {
         Button(action: {
             model.switchCamera(level: zoom)
@@ -155,7 +167,7 @@ struct ZoomButton: View {
                     .foregroundColor(zoom == model.zoomLevel ? .white.opacity(0.4) : .white.opacity(0.1))
                     .frame(width: zoom == model.zoomLevel ? 40 : 30, height: zoom == model.zoomLevel ? 40 : 30, alignment: .center)
                     .overlay(Text(String(zoom)).foregroundColor(
-                        .yellow
+                            .yellow
                     ).font(.system(size: 10).bold()))
                     .animation(.easeInOut)
         })
@@ -165,14 +177,14 @@ struct ZoomButton: View {
 
 struct OptionsBar: View {
     @StateObject var model = CameraModel()
-    
+
     var body: some View {
         HStack {
-            
+
             Spacer()
-            
+
             Button(action: {
-                model.toogleHdr()
+                model.toggleHdr()
             }, label: {
                 if model.hdr {
                     //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
@@ -182,22 +194,37 @@ struct OptionsBar: View {
                     Image(systemName: "square.stack.3d.up.slash").foregroundColor(.white).opacity(0.5)
                 }
             }).animation(.easeInOut(duration: 0.2))
-            
+
             Spacer()
-            
+
             Button(action: {
-                print("Flash")
+                model.toggleAlign()
             }, label: {
-                if true {
+                if model.align {
                     //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "bolt.fill").foregroundColor(.white)
+                    Image(systemName: "trapezoid.and.line.horizontal.fill").foregroundColor(.white)
                 } else {
                     //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "bolt.slash").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "perspective").foregroundColor(.white).opacity(0.5)
                 }
             }).animation(.easeInOut(duration: 0.2))
-            
-            
+
+
+            Spacer()
+
+            Button(action: {
+                model.toggleEnhance()
+            }, label: {
+                if model.enhance {
+                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
+                    Image(systemName: "wand.and.stars").foregroundColor(.white)
+                } else {
+                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "wand.and.stars.inverse").foregroundColor(.white).opacity(0.5)
+                }
+            }).animation(.easeInOut(duration: 0.2))
+
+
             Spacer()
         }
     }
@@ -247,7 +274,6 @@ struct CameraView: View {
     }
 
 
-
     var zoomSelector: some View {
         ZStack {
             Rectangle()
@@ -272,29 +298,29 @@ struct CameraView: View {
                     geometry in
                     VStack(alignment: .center) {
                         OptionsBar(model: model).padding()
-                        CameraPreview(tappedCallback: {point in
-                                model.tapToFocus(point, geometry.size)
-                            }, session: model.session)
-                                    .onAppear {
-                                        model.configure()
-                                    }
-                                    .alert(isPresented: $model.showAlertError, content: {
-                                        Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                            model.alertError.primaryAction?()
-                                        }))
-                                    })
-                                    
-                                    .overlay(
-                                            Group {
-                                                if model.willCapturePhoto {
-                                                    Color.black
-                                                }
+                        CameraPreview(tappedCallback: { point in
+                            model.tapToFocus(point, geometry.size)
+                        }, session: model.session)
+                                .onAppear {
+                                    model.configure()
+                                }
+                                .alert(isPresented: $model.showAlertError, content: {
+                                    Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                                        model.alertError.primaryAction?()
+                                    }))
+                                })
+
+                                .overlay(
+                                        Group {
+                                            if model.willCapturePhoto {
+                                                Color.black
                                             }
-                                    )
-                                    .animation(.easeInOut)
+                                        }
+                                )
+                                .animation(.easeInOut)
                         zoomSelector.padding()
                     }
-                    
+
                 }
             } else {
                 Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
@@ -309,13 +335,12 @@ struct CameraView: View {
                 //capturedPhotoThumbnail
 
                 Spacer().frame(maxWidth: .infinity)
-                
-                
+
 
                 captureButton.frame(maxWidth: .infinity)
-                
+
                 Image(systemName: "dial.max").font(.system(size: 40)).frame(maxWidth: .infinity)
-                
+
                 //flipCameraButton
 
             }

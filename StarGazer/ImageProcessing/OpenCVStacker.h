@@ -23,12 +23,12 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIImage *)composeTrailing;
 
-- (UIImage *)hdrMerge:(NSArray *)images;
+- (UIImage *)hdrMerge:(NSArray *)images: (bool)align;
 
-- (void)addSegmentationMask: (UIImage *)mask;
+- (void)addSegmentationMask:(UIImage *)mask;
 
-- (void)addImageToStack: (UIImage *)image;
-    
+- (void)addImageToStack:(UIImage *)image;
+
 - (void)reset;
 
 @end

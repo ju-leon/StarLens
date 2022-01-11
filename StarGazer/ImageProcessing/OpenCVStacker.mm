@@ -47,13 +47,13 @@ All images with enough features are stacked.
     }
 
     combinedImage /= hdrImages.size();
-    
+
     combinedImage.convertTo(combinedImage, CV_8UC3);
 
     std::cout << "Stacked Size: " << combinedImage.size() << std::endl;
 
     UIImage *result = [UIImage imageWithCVMat:combinedImage];
-    
+
     return result;
 }
 
@@ -94,7 +94,7 @@ All images with enough features are stacked.
     return result;
 }
 
-- (UIImage *)hdrMerge:(NSArray *)images {
+- (UIImage *)hdrMerge:(NSArray *)images :(bool)align {
     if ([images count] == 0) {
         NSLog(@"imageArray is empty");
         return 0;
@@ -118,7 +118,7 @@ All images with enough features are stacked.
     }
 
     cv::Mat merged;
-    hdrMerge(matImages, merged);
+    hdrMerge(matImages, merged, align);
 
     merged = merged * 255;
     merged.convertTo(merged, CV_8UC3);
@@ -128,7 +128,7 @@ All images with enough features are stacked.
     return result;
 }
 
-- (void)addImageToStack: (UIImage *)image {
+- (void)addImageToStack:(UIImage *)image {
     if ([image isKindOfClass:[UIImage class]]) {
         UIImage *rotatedImage = [image rotateToImageOrientation];
         cv::Mat matImage = [rotatedImage CVMat3];

@@ -10,6 +10,6 @@
 
 #include <opencv2/opencv.hpp>
 
-void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result);
+void hdrMerge(std::vector<cv::Mat> &images, cv::Mat &result, bool align = true);
 
 #endif /* hdrmerge_hpp */
