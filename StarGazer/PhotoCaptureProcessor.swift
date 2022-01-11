@@ -21,8 +21,6 @@ class PhotoCaptureProcessor: NSObject {
     
     private let photoProcessingHandler: (Bool) -> Void
     
-    private let service : CameraService
-    
     private var photoStack : PhotoStack
     
     private var intrinsicMatrix = simd_float3x3(0)
@@ -39,8 +37,8 @@ class PhotoCaptureProcessor: NSObject {
     private var maxPhotoProcessingTime: CMTime?
         
 //    Init takes multiple closures to be called in each step of the photco capture process
-    init(with requestedPhotoSettings: AVCapturePhotoSettings, willCapturePhotoAnimation: @escaping () -> Void, completionHandler: @escaping (PhotoCaptureProcessor) -> Void, photoProcessingHandler: @escaping (Bool) -> Void,
-         service: CameraService,
+    init(with requestedPhotoSettings: AVCapturePhotoSettings, willCapturePhotoAnimation: @escaping () -> Void, completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
+         photoProcessingHandler: @escaping (Bool) -> Void,
          photoStack : PhotoStack) {
         
         self.requestedPhotoSettings = requestedPhotoSettings
@@ -48,7 +46,6 @@ class PhotoCaptureProcessor: NSObject {
         self.completionHandler = completionHandler
         self.photoProcessingHandler = photoProcessingHandler
         
-        self.service = service
         self.photoStack = photoStack
     }
 }

@@ -513,7 +513,7 @@ public class CameraService : NSObject {
                         } else {
                             self?.shouldShowSpinner = false
                         }
-                    }, service: self, photoStack: self.photoStack! )
+                    }, photoStack: self.photoStack! )
                     
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
@@ -527,9 +527,11 @@ public class CameraService : NSObject {
                     //print("Applied ISO: \(current_exposure_ISO), Applied Duration: \(current_exposure_duration)")
                 }
             } else {
-                self.stop()
+                DispatchQueue.main.async {
+                    self.isProcessing = true
+                }
                 
-                self.isProcessing = true
+                self.stop()
                 
                 sessionQueue.async {
                     self.photoStack!.stackPhotos({(x: Double) -> () in
@@ -537,6 +539,7 @@ public class CameraService : NSObject {
                             self.processingProgress = x
                             
                             if (x == 1) {
+
                                 self.start()
                                 self.blackOutCamera = false
                                 self.isCaptureRunning = false

@@ -47,29 +47,49 @@ All images with enough features are stacked.
     }
 
     combinedImage /= hdrImages.size();
+    
     combinedImage.convertTo(combinedImage, CV_8UC3);
 
+    std::cout << "Stacked Size: " << combinedImage.size() << std::endl;
+
     UIImage *result = [UIImage imageWithCVMat:combinedImage];
+    
     return result;
 }
 
 /**
- Stack all images withou aligning to create star trailing images.
+ Stack all images without aligning to create star trailing images.
  */
 - (UIImage *)composeTrailing {
     cv::Mat baseImage = hdrImages[0];
-    
+
+    // HDR will crop the images slightly differently
+    // Find the smallest sizes to combine the images
+    int min_cols = baseImage.cols;
+    int min_rows = baseImage.rows;
+    for (int i = 1; i < hdrImages.size(); i++) {
+        if (hdrImages[i].cols < min_cols) {
+            min_cols = hdrImages[i].cols;
+        }
+        if (hdrImages[i].rows < min_rows) {
+            min_rows = hdrImages[i].rows;
+        }
+    }
+
     cv::Mat combinedImage;
     baseImage.convertTo(combinedImage, CV_32FC3);
+    combinedImage = combinedImage(cv::Rect(0, 0, min_cols, min_rows));
     for (int i = 1; i < hdrImages.size(); i++) {
         cv::Mat imReg;
         hdrImages[i].convertTo(imReg, CV_32FC3);
+        imReg = imReg(cv::Rect(0, 0, min_cols, min_rows));
         addWeighted(combinedImage, 1.0, imReg, 1.0, 0.0, combinedImage, CV_32FC3);
     }
-    
     combinedImage /= hdrImages.size();
     combinedImage.convertTo(combinedImage, CV_8UC3);
-    
+
+    std::cout << "Trailing Size: " << combinedImage.size() << std::endl;
+
     UIImage *result = [UIImage imageWithCVMat:combinedImage];
     return result;
 }
@@ -109,12 +129,10 @@ All images with enough features are stacked.
 }
 
 - (void)addImageToStack: (UIImage *)image {
-    NSLog(@"Called");
     if ([image isKindOfClass:[UIImage class]]) {
         UIImage *rotatedImage = [image rotateToImageOrientation];
         cv::Mat matImage = [rotatedImage CVMat3];
         hdrImages.push_back(matImage);
-        NSLog(@"Added image");
     } else {
         return;
     }
