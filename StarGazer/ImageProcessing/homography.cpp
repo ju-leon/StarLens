@@ -14,7 +14,6 @@ using namespace cv;
 const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
 
-
 void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
     if (alignImages(imageNew, mask, imageBase, imReg, h)) {
@@ -22,8 +21,9 @@ void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
 
         imReg.convertTo(imReg, CV_32FC3);
 
+        double weight = 1.0 / numImages;
         //addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
-        addWeighted(result, 1.0, imReg, 1.0, 0.0, result, CV_32FC3);
+        addWeighted(imageBase, 1 - weight, imReg, weight, 0.0, result, CV_32FC3);
         //imageBase = imageBase + imReg;
     } else {
 
@@ -46,6 +46,69 @@ void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     mask /= 255;
 }
 
+void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {
+    cv::Mat_<float> features(0, 2);
+    for (auto &&point: points) {
+        //Fill matrix
+        cv::Mat row = (cv::Mat_<float>(1, 2) << point.x, point.y);
+        features.push_back(row);
+    }
+    mat = features;
+}
+
+void matchStars(std::vector<cv::Point2i> &points1,
+        std::vector<cv::Point2i> &points2,
+        std::vector<cv::DMatch> &matches,
+        int max_distance = 40) {
+    std::cout << "Matching stars" << std::endl;
+
+    cv::Mat features1, features2;
+    pointsToMat(points1, features1);
+    pointsToMat(points2, features2);
+
+    std::cout << "Features1: " << features1.rows << "x" << features1.cols << std::endl;
+
+
+    cv::flann::GenericIndex<cvflann::L2<float>> kdTree1(features1, cvflann::KDTreeIndexParams());
+    cv::flann::GenericIndex<cvflann::L2<float>> kdTree2(features2, cvflann::KDTreeIndexParams());
+
+    for (int index1 = 0; index1 < points1.size(); index1++) {
+        auto query_point1 = points1[index1];
+
+        // Find the closest point in the second image
+        std::vector<float> query2;
+        query2.push_back(query_point1.x);
+        query2.push_back(query_point1.y);
+        vector<int> indices2;
+        indices2.resize(2);
+        vector<float> distances2;
+        distances2.resize(2);
+        kdTree2.knnSearch(query2, indices2, distances2, 2, cvflann::SearchParams());
+        // Index of the closest star in the second image
+        auto index2 = indices2[0];
+        auto query_point2 = points2[index2];
+
+        // Find the closest point to the just discovered point in the first image
+        std::vector<float> query1;
+        query1.push_back(query_point2.x);
+        query1.push_back(query_point2.y);
+        vector<int> indices1;
+        indices1.resize(2);
+        vector<float> distances1;
+        distances1.resize(2);
+        kdTree1.knnSearch(query1, indices1, distances1, 2, cvflann::SearchParams());
+
+        // If the point in backwards directions equals the point in the first image,
+        // then the two points are a match.
+        if (index1 == indices1[0]) {
+            if (distances1[0] < max_distance) {
+                matches.push_back(DMatch(index1, index2, distances1[0]));
+            }
+            matches.push_back(DMatch(index1, index2, distances1[0]));
+        }
+    }
+}
+
 bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     // Convert images to grayscale
     Mat im1Gray, im2Gray;
@@ -64,45 +127,56 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
 
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(50, 20, 10, 8, 5);
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 13, 10, 8, 1);
     star->detect(im1Gray, keypoints1);
     star->detect(im2Gray, keypoints2);
 
-    // Find descriptors for stars
-    Mat descriptors1, descriptors2;
-    Ptr<Feature2D> brief = xfeatures2d::BriefDescriptorExtractor::create();
-    brief->compute(im1Gray, keypoints1, descriptors1);
-    brief->compute(im2Gray, keypoints2, descriptors2);
+    std::cout << "Found " << keypoints1.size() << " keypoints to track" << std::endl;
 
-    // Match features.
+    if (keypoints1.size() < 5 || keypoints2.size() < 5) {
+        std::cout << "Not enough keypoints to track" << std::endl;
+        return false;
+    }
+
+    // convert keypoints to points
+    std::vector<Point2i> points1, points2;
+    for (size_t i = 0; i < keypoints1.size(); i++) {
+        points1.push_back(keypoints1[i].pt);
+    }
+    for (size_t i = 0; i < keypoints2.size(); i++) {
+        points2.push_back(keypoints2[i].pt);
+    }
     std::vector<DMatch> matches;
-    Ptr<DescriptorMatcher> matcher = DescriptorMatcher::create("BruteForce-Hamming");
-    matcher->match(descriptors1, descriptors2, matches, Mat());
+    matchStars(points1, points2, matches);
 
+    //OPTIONAL: REMOVE BAD MATCHES. SEE HOW IT GOES FIRST
+    /*
     // Sort matches by score
     std::sort(matches.begin(), matches.end());
 
     // Remove not so good matches
     const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
     matches.erase(matches.begin() + numGoodMatches, matches.end());
+    */
 
-    // Extract location of good matches
-    std::vector<Point2f> points1, points2;
+    std::cout << "Found " << matches.size() << " good matches" << std::endl;
+
+    std::vector<Point2i> matched_points1, matched_points2;
     for (size_t i = 0; i < matches.size(); i++) {
-        points1.push_back(keypoints1[matches[i].queryIdx].pt);
-        points2.push_back(keypoints2[matches[i].trainIdx].pt);
+        matched_points1.push_back(points1[matches[i].queryIdx]);
+        matched_points2.push_back(points2[matches[i].trainIdx]);
     }
 
 
-    if (points1.size() < 10) {
-        std::cout << "Not enough features to track found" << std::endl;
+    if (matched_points1.size() < 10) {
+        std::cout << "Not enough features to match found" << std::endl;
         return false;
     }
 
-    std::cout << "Found " << points1.size() << " features to track" << std::endl;
+    std::cout << "Found " << matched_points1.size() << " points to match" << std::endl;
 
     // Find homography
-    h = findHomography(points1, points2, RANSAC);
+    h = findHomography(matched_points2, matched_points1, RANSAC);
 
     // Use homography to warp image
     warpPerspective(im1, im1Reg, h, im2.size());

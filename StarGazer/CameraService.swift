@@ -94,7 +94,7 @@ public class CameraService: NSObject {
 
     @Published public var processingProgress = 0.0
 
-    private var hdrEnabled = true
+    private var hdrEnabled = false
     private var alignEnabled = false
     private var enhanceEnabled = false
 
@@ -135,7 +135,7 @@ public class CameraService: NSObject {
     private var photoStack: PhotoStack?
     private var location: CLLocationCoordinate2D?
 
-    private var isoRotation: [Float] = [800, 1600, 3200, 6400]
+    private var isoRotation: [Float] = [800, 800, 800, 800]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -357,10 +357,11 @@ public class CameraService: NSObject {
     public func startTimelapse() {
         self.isCaptureRunning = true
 
+        /*
         self.isoRotation = []
-        for x in 3...6 {
+        for x in 4...7 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
-        }
+        }*/
 
         print(self.isoRotation)
 

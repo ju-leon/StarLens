@@ -22,6 +22,9 @@ vector<Mat> hdrImages;
 vector<Mat> segmentationMasks;
 Mat foregroundMask;
 
+Mat stackedImage;
+int numImages = 0;
+
 - (NSString *)openCVVersionString {
     return [NSString stringWithFormat:@"OpenCV Version %s", CV_VERSION];
 }
@@ -83,9 +86,10 @@ All images with enough features are stacked.
         cv::Mat imReg;
         hdrImages[i].convertTo(imReg, CV_32FC3);
         imReg = imReg(cv::Rect(0, 0, min_cols, min_rows));
-        addWeighted(combinedImage, 1.0, imReg, 1.0, 0.0, combinedImage, CV_32FC3);
+        cv::max(imReg, combinedImage, combinedImage);
+        //addWeighted(combinedImage, 1.0, imReg, 1.0, 0.0, combinedImage, CV_32FC3);
     }
-    combinedImage /= hdrImages.size();
+    //combinedImage /= hdrImages.size();
     combinedImage.convertTo(combinedImage, CV_8UC3);
 
     std::cout << "Trailing Size: " << combinedImage.size() << std::endl;
@@ -137,6 +141,48 @@ All images with enough features are stacked.
         return;
     }
 }
+
+- (UIImage *)addAndProcess:(UIImage *)image :(UIImage *)maskImage {
+    cv::Mat matImage;
+    cv::Mat mask;
+    if ([image isKindOfClass:[UIImage class]] && [maskImage isKindOfClass:[UIImage class]]) {
+        UIImage *rotatedImage = [image rotateToImageOrientation];
+        matImage = [rotatedImage CVMat3];
+
+        mask = [maskImage CVGrayscaleMat];
+    } else {
+        cv::Mat stackedLowRes;
+        stackedImage.convertTo(stackedLowRes, CV_8UC3);
+        return [UIImage imageWithCVMat:stackedLowRes];
+    }
+    numImages++;
+
+    // Init the stack
+    if (numImages == 1) {
+        stackedImage = matImage;
+        cv::Mat stackedLowRes;
+        stackedImage.convertTo(stackedLowRes, CV_8UC3);
+        return [UIImage imageWithCVMat:stackedLowRes];
+    }
+
+    // Stack the current stack onto the next image
+    matImage.convertTo(matImage, CV_32FC3);
+    combine(matImage, stackedImage, mask, numImages, stackedImage);
+    stackedImage = stackedImage / 2;
+
+
+    // Return a preview of the stack
+    cv::Mat stackedLowRes;
+    stackedImage.convertTo(stackedLowRes, CV_8UC3);
+    return [UIImage imageWithCVMat:stackedLowRes];
+}
+
+- (UIImage *)getProcessedImage {
+    cv::Mat stackedLowRes;
+    stackedImage.convertTo(stackedLowRes, CV_8UC3);
+    return [UIImage imageWithCVMat:stackedLowRes];
+}
+
 
 - (void)addSegmentationMask:(UIImage *)mask {
     cv::Mat matMask = [mask CVGrayscaleMat];

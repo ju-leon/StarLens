@@ -23,11 +23,29 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIImage *)composeTrailing;
 
-- (UIImage *)hdrMerge:(NSArray *)images: (bool)align;
+- (UIImage *)hdrMerge:(NSArray *)images :(bool)align;
 
 - (void)addSegmentationMask:(UIImage *)mask;
 
+/**
+ * Add a new image to the photo stack to be processed later.
+ * @param image
+ */
 - (void)addImageToStack:(UIImage *)image;
+
+/**
+ * Merges a new image onto the current stack.
+ * SLOW! ONLY CALL ASYNC!
+ * @param image
+ */
+- (UIImage *)addAndProcess:(UIImage *)image :(UIImage *)mask;
+
+/**
+ * Return the previously processed image.
+ * Can be called at any point to get a preview.
+ * @return
+ */
+- (UIImage *)getProcessedImage;
 
 - (void)reset;
 

@@ -29,7 +29,7 @@ final class CameraModel: ObservableObject {
 
     @Published var zoomLevel: Float = 1.0
 
-    @Published var hdr: Bool = true
+    @Published var hdr: Bool = false
     @Published var align: Bool = false
     @Published var enhance: Bool = false
 

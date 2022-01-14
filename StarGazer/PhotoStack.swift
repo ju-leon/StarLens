@@ -141,6 +141,7 @@ class PhotoStack {
     }
 
     func add(captureObject: CaptureObject) -> UIImage {
+        /*
         if (hdrEnabled) {
             self.captureObjects.append(captureObject)
             if (self.captureObjects.count == CameraService.biasRotation.count) {
@@ -162,6 +163,19 @@ class PhotoStack {
                 self.coverPhoto = previewImage
             }
         }
+        */
+        //TODO: ENABLE HDR AGAIN
+
+        self.dispatch.async {
+            let image = captureObject.toUIImage()
+            self.savePhoto(image: image)
+
+            let prediction = self.predict(image)
+            let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+
+            self.coverPhoto = self.stacker.addAndProcess(image, maskImage)
+        }
+
         return self.coverPhoto
     }
 
@@ -229,6 +243,7 @@ class PhotoStack {
 
     func stackPhotos(_ statusUpdateCallback: ((Double) -> ())?) {
         print("Sceduled merge")
+        /*
         self.dispatch.async {
             print("Merging")
             let images = self.toUIImageArray(fromCaptureArray: self.captureObjects)
@@ -266,6 +281,11 @@ class PhotoStack {
             statusUpdateCallback?(1.0)
 
         }
+      */
+
+        let imageStacked = self.stacker.getProcessedImage()
+        self.savePhoto(image: imageStacked)
+        statusUpdateCallback?(1.0)
     }
 
     func saveStack() {
