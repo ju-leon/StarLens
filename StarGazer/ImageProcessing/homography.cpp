@@ -11,10 +11,20 @@
 using namespace std;
 using namespace cv;
 
-const int MAX_FEATURES = 500;
-const float GOOD_MATCH_PERCENT = 0.15f;
-const float ROUNDNESS_THRESHOLD = 0.9;
+/**
+ Minimum roundnes required to be counted as a star.
+ */
+const float ROUNDNESS_THRESHOLD = 0.8;
 
+/**
+ Minimum area required to be counted as a star.
+ */
+const int AREA_THRESHOLD = 39;
+
+/**
+ Maxmium distance allowed to match 2 stars.
+ */
+const int DISTANCE_THRESHOLD = 50;
 
 bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
@@ -25,7 +35,7 @@ bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
 
         double weight = 1.0 / numImages;
         
-        addWeighted(imageBase, 1 - weight, imReg, weight, 0.0, result, CV_32FC3);
+        addWeighted(imageBase, 1, imReg, 1, 0.0, result, CV_32FC3);
         //cv::max(imageBase, imReg, result);
         return true;
         
@@ -93,7 +103,7 @@ void extractStars(cv::Mat &image,
         
         auto ratio = area / convexHullArea;
         
-        if (ratio >= ROUNDNESS_THRESHOLD) {
+        if (ratio >= ROUNDNESS_THRESHOLD && area > AREA_THRESHOLD) {
             Moments moment = cv::moments(contour);
             int cX = moment.m10 / moment.m00;
             int cY = moment.m01 / moment.m00;
@@ -109,7 +119,7 @@ void extractStars(cv::Mat &image,
 void matchStars(std::vector<cv::Point2i> &points1,
         std::vector<cv::Point2i> &points2,
         std::vector<cv::DMatch> &matches,
-        int max_distance = 40) {
+        int max_distance = DISTANCE_THRESHOLD) {
     std::cout << "Matching stars" << std::endl;
 
     cv::Mat features1, features2;
@@ -177,7 +187,7 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
 
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 16, 10, 8, 2);
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 16, 10, 8, 3);
     star->detect(im1Gray, keypoints1);
     star->detect(im2Gray, keypoints2);
 
@@ -200,17 +210,6 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
         return false;
     }
 
-    /*
-    // convert keypoints to points
-    std::vector<Point2i> points1, points2;
-    for (size_t i = 0; i < keypoints1.size(); i++) {
-        points1.push_back(keypoints1[i].pt);
-    }
-    for (size_t i = 0; i < keypoints2.size(); i++) {
-        points2.push_back(keypoints2[i].pt);
-    }
-    
-    */
     std::vector<DMatch> matches;
     matchStars(points1, points2, matches);
 

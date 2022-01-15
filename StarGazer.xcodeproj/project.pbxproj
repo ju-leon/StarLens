@@ -25,6 +25,7 @@
 		05B9B8D7276BDBB100FF442F /* StarGazerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */; };
 		05B9B8D9276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */; };
 		05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CEB59D27723D8800EDDE7D /* PhotoStack.swift */; };
+		05D4507F279378BF008DB81E /* blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05D4507D279378BF008DB81E /* blend.cpp */; };
 		05DE2232277C728C007A90DE /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2231277C728C007A90DE /* CoreGraphics.framework */; };
 		05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2233277C7294007A90DE /* CoreMedia.framework */; };
 		05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2235277C729E007A90DE /* CoreFoundation.framework */; };
@@ -94,6 +95,8 @@
 		05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITests.swift; sourceTree = "<group>"; };
 		05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
+		05D4507D279378BF008DB81E /* blend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blend.cpp; sourceTree = "<group>"; };
+		05D4507E279378BF008DB81E /* blend.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = blend.hpp; sourceTree = "<group>"; };
 		05DE2231277C728C007A90DE /* CoreGraphics.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreGraphics.framework; path = System/Library/Frameworks/CoreGraphics.framework; sourceTree = SDKROOT; };
 		05DE2233277C7294007A90DE /* CoreMedia.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreMedia.framework; path = System/Library/Frameworks/CoreMedia.framework; sourceTree = SDKROOT; };
 		05DE2235277C729E007A90DE /* CoreFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreFoundation.framework; path = System/Library/Frameworks/CoreFoundation.framework; sourceTree = SDKROOT; };
@@ -296,6 +299,8 @@
 				05DE2243277D08C6007A90DE /* OpenCVStacker.mm */,
 				05DE225E277DB711007A90DE /* homography.hpp */,
 				05DE225D277DB711007A90DE /* homography.cpp */,
+				05D4507E279378BF008DB81E /* blend.hpp */,
+				05D4507D279378BF008DB81E /* blend.cpp */,
 				05DE2261277DC3FC007A90DE /* foreground.hpp */,
 				05DE2260277DC3FC007A90DE /* foreground.cpp */,
 				05DE2264277E3E3A007A90DE /* hdrmerge.hpp */,
@@ -563,6 +568,7 @@
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */,
+				05D4507F279378BF008DB81E /* blend.cpp in Sources */,
 				0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */,
 				05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */,
 				05DE2244277D08C6007A90DE /* OpenCVStacker.mm in Sources */,

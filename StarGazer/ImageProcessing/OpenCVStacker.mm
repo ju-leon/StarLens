@@ -153,10 +153,10 @@ All images with enough features are stacked.
     } else {
         return nullptr;
     }
-    numImages++;
-
+    
     // Init the stack
-    if (numImages == 1) {
+    if (numImages == 0) {
+        numImages++;
         stackedImage = matImage;
         cv::Mat stackedLowRes;
         stackedImage.convertTo(stackedLowRes, CV_8UC3);
@@ -168,17 +168,17 @@ All images with enough features are stacked.
     if (!combine(matImage, stackedImage, mask, numImages, stackedImage)) {
         return nullptr;
     }
-    stackedImage = stackedImage / 2;
-
-
+    numImages++;
+    
     // Return a preview of the stack
     cv::Mat stackedLowRes;
+    stackedLowRes = stackedImage / numImages;
     stackedImage.convertTo(stackedLowRes, CV_8UC3);
     return [UIImage imageWithCVMat:stackedLowRes];
 }
 
 - (UIImage *)getProcessedImage {
-    cv::Mat stackedLowRes;
+    cv::Mat stackedLowRes = stackedImage / numImages;
     stackedImage.convertTo(stackedLowRes, CV_8UC3);
     //cv::putText(stackedLowRes, "FINAL", cv::Point(500, 500), cv::FONT_HERSHEY_PLAIN, 20, (255, 255, 255), 2);
     return [UIImage imageWithCVMat:stackedLowRes];
