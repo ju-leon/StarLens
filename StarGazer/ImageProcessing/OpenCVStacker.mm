@@ -142,7 +142,7 @@ All images with enough features are stacked.
     }
 }
 
-- (UIImage *)addAndProcess:(UIImage *)image :(UIImage *)maskImage {
+- (nullable UIImage *)addAndProcess:(UIImage *)image :(UIImage *)maskImage {
     cv::Mat matImage;
     cv::Mat mask;
     if ([image isKindOfClass:[UIImage class]] && [maskImage isKindOfClass:[UIImage class]]) {
@@ -151,9 +151,7 @@ All images with enough features are stacked.
 
         mask = [maskImage CVGrayscaleMat];
     } else {
-        cv::Mat stackedLowRes;
-        stackedImage.convertTo(stackedLowRes, CV_8UC3);
-        return [UIImage imageWithCVMat:stackedLowRes];
+        return nullptr;
     }
     numImages++;
 
@@ -167,7 +165,9 @@ All images with enough features are stacked.
 
     // Stack the current stack onto the next image
     matImage.convertTo(matImage, CV_32FC3);
-    combine(matImage, stackedImage, mask, numImages, stackedImage);
+    if (!combine(matImage, stackedImage, mask, numImages, stackedImage)) {
+        return nullptr;
+    }
     stackedImage = stackedImage / 2;
 
 

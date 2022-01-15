@@ -89,10 +89,12 @@ public class CameraService: NSObject {
     @Published public var previewPhoto: UIImage?
 
     @Published public var numPicures = 0
+    @Published public var numProcessed = 0
+    @Published public var numFailed = 0
 
     @Published public var isProcessing = false
 
-    @Published public var processingProgress = 0.0
+    @Published public var processingProgress = 0
 
     private var hdrEnabled = false
     private var alignEnabled = false
@@ -434,7 +436,7 @@ public class CameraService: NSObject {
             do {
                 try device.lockForConfiguration()
                 //device.focusMode = .locked
-                //device.setFocusModeLocked(lensPosition: 0.82)
+                device.setFocusModeLocked(lensPosition: 0.82)
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -512,7 +514,7 @@ public class CameraService: NSObject {
                         self?.previewPhoto = photoCaptureProcessor.previewPhoto
 
                         // Let the main thread know there's another photo
-                        self?.numPicures += 1
+                        self?.numPicures += self!.isoRotation.count
 
                         self?.isCameraButtonDisabled = false
 
@@ -527,7 +529,18 @@ public class CameraService: NSObject {
                         } else {
                             self?.shouldShowSpinner = false
                         }
-                    }, photoStack: self.photoStack!)
+                    }, photoStack: self.photoStack!, stackingResultsCallback: {
+                        // Notfies the UI about the processing progress
+                        (result) in
+                            DispatchQueue.main.async {
+                                switch result {
+                                case .SUCCESS:
+                                    self.numProcessed += 1
+                                case .FAILED:
+                                    self.numFailed += 1
+                                }
+                            }
+                    })
 
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
                     //TODO: WHY DOES THIS FAIL SOMETIMES???
@@ -546,16 +559,16 @@ public class CameraService: NSObject {
                 self.stop()
 
                 sessionQueue.async {
-                    self.photoStack!.stackPhotos({ (x: Double) -> () in
+                    self.photoStack!.stackPhotos({ (x: Int) -> () in
                         DispatchQueue.main.async {
                             self.processingProgress = x
 
-                            if (x == 1) {
+                            if (x == -1) {
 
                                 self.start()
                                 self.blackOutCamera = false
                                 self.isCaptureRunning = false
-                                self.processingProgress = 0.0
+                                self.processingProgress = 0
                                 self.numPicures = 0
                                 self.photoStack = nil
                                 self.isProcessing = false

@@ -233,10 +233,10 @@
 				056CBBCC2779C8AD00538E2E /* CaptureObject.swift */,
 				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
-				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
-				05B9B8C1276BDBB100FF442F /* Preview Content */,
-				051F0A8B276FC0C60015C507 /* Info.plist */,
 				3B2A07B712EAB45B4304C926 /* Views */,
+				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
+				051F0A8B276FC0C60015C507 /* Info.plist */,
+				05B9B8C1276BDBB100FF442F /* Preview Content */,
 				3B2A085D1DE3B259F9C0B6F3 /* MLModels */,
 			);
 			path = StarGazer;

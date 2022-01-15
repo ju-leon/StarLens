@@ -10,7 +10,7 @@
 
 #include <opencv2/opencv.hpp>
 
-void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size_t numImages, cv::Mat &result);
+bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &movement, std::size_t numImages, cv::Mat &result);
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask);
 

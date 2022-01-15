@@ -38,7 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
  * SLOW! ONLY CALL ASYNC!
  * @param image
  */
-- (UIImage *)addAndProcess:(UIImage *)image :(UIImage *)mask;
+- (nullable UIImage *)addAndProcess:(UIImage *)image :(UIImage *)mask;
 
 /**
  * Return the previously processed image.

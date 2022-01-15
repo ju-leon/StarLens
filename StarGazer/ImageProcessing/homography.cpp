@@ -14,7 +14,7 @@ using namespace cv;
 const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
 
-void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
+bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
     if (alignImages(imageNew, mask, imageBase, imReg, h)) {
         std::cout << "Successfully aligned" << std::endl;
@@ -25,9 +25,10 @@ void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
         
         addWeighted(imageBase, 1 - weight, imReg, weight, 0.0, result, CV_32FC3);
         //cv::max(imageBase, imReg, result);
+        return true;
         
     } else {
-
+        return false;
     }
 }
 

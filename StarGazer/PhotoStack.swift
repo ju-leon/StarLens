@@ -13,7 +13,13 @@ import CoreImage
 import Vision
 import CoreML
 
+
 class PhotoStack {
+    enum PhotoStackingResult: Int {
+        case SUCCESS = 0
+        case FAILED = 1
+    }
+    
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     public let STRING_ID: String
 
@@ -140,7 +146,7 @@ class PhotoStack {
         }
     }
 
-    func add(captureObject: CaptureObject) -> UIImage {
+    func add(captureObject: CaptureObject, statusUpdateCallback: ((PhotoStackingResult) -> ())?) -> UIImage {
         /*
         if (hdrEnabled) {
             self.captureObjects.append(captureObject)
@@ -169,12 +175,17 @@ class PhotoStack {
         self.dispatch.async {
             autoreleasepool {
                 let image = captureObject.toUIImage()
-                self.savePhoto(image: image)
+                //self.savePhoto(image: image)
 
                 let prediction = self.predict(image)
                 let maskImage = UIImage(cgImage: prediction!.cgImage()!)
 
-                self.coverPhoto = self.stacker.addAndProcess(image, maskImage)
+                if let stackedImage = self.stacker.addAndProcess(image, maskImage) {
+                    self.coverPhoto = stackedImage
+                    statusUpdateCallback?(.SUCCESS)
+                } else {
+                    statusUpdateCallback?(.FAILED)
+                }
             }
         }
 
@@ -243,7 +254,7 @@ class PhotoStack {
         return scaleDownFilter.outputImage!
     }
 
-    func stackPhotos(_ statusUpdateCallback: ((Double) -> ())?) {
+    func stackPhotos(_ statusUpdateCallback: ((Int) -> ())?) {
         print("Sceduled merge")
         /*
         self.dispatch.async {
@@ -285,11 +296,9 @@ class PhotoStack {
         }
       */
         self.dispatch.async {
-            statusUpdateCallback?(0.5)
-
             let imageStacked = self.stacker.getProcessedImage()
             self.savePhoto(image: imageStacked)
-            statusUpdateCallback?(1.0)
+            statusUpdateCallback?(-1)
         }
     }
 

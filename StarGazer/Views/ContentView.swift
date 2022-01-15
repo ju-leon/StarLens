@@ -23,6 +23,8 @@ final class CameraModel: ObservableObject {
 
     @Published var isRecording = false
     @Published var numPictures = 0
+    @Published var numProcessed = 0
+    @Published var numFailed = 0
 
     @Published var isProcessing = false
     @Published var processingProgress = 0.0
@@ -81,10 +83,17 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
 
-        service.$processingProgress.sink { [weak self] (val) in
-                    self?.processingProgress = val
+        service.$numProcessed.sink { [weak self] (val) in
+                    self?.numProcessed = val
                 }
                 .store(in: &self.subscriptions)
+
+        service.$numFailed.sink { [weak self] (val) in
+                    self?.numFailed = val
+                }
+                .store(in: &self.subscriptions)
+
+        
 
     }
 
@@ -323,12 +332,23 @@ struct CameraView: View {
 
                 }
             } else {
-                Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
+                Spacer()
+                HStack {
+                    Spacer()
+                    Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
+                    Spacer()
+                    Label(String(model.numProcessed), systemImage: "checkmark.circle").foregroundColor(.white)
+                    Spacer()
+                    Label(String(model.numFailed), systemImage: "xmark.circle").foregroundColor(.white)
+                    Spacer()
+                }
+                Spacer()
+                
                 Image(uiImage: model.photo)
                         .resizable()
                         .aspectRatio(contentMode: .fit)
                         .clipped()
-                        .frame(height: 600)
+                Spacer()
             }
 
             HStack {
@@ -350,21 +370,33 @@ struct CameraView: View {
     }
 
     var processingView: some View {
-        ZStack {
+        VStack {
+            Spacer()
+            HStack {
+                Spacer()
+                Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
+                Spacer()
+                Label(String(model.numProcessed), systemImage: "checkmark.circle").foregroundColor(.white)
+                Spacer()
+                Label(String(model.numFailed), systemImage: "xmark.circle").foregroundColor(.white)
+                Spacer()
+            }
+            
+            Spacer()
             Image(uiImage: model.photo)
                     .resizable()
+                    .aspectRatio(contentMode: .fit)
                     .clipped()
-
-            Color.black.edgesIgnoringSafeArea(.all).opacity(0.5)
-
-            VStack {
-                ProgressView("Processing…", value: model.processingProgress, total: 1)
-                        .foregroundColor(.white)
-                        .padding(.all)
-                        .animation(.easeInOut)
-            }
+            Spacer()
+            ProgressView("Stacking Images…", value: Float(model.numFailed + model.numProcessed) / Float(model.numPictures))
+                    .foregroundColor(.white)
+                    .padding(.all)
+                    .animation(.easeInOut)
+            Spacer()
+            
         }
     }
+    
 
     var body: some View {
         GeometryReader { reader in

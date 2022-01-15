@@ -35,11 +35,16 @@ class PhotoCaptureProcessor: NSObject {
     private var maxPhotoProcessingTime: CMTime?
 
     public var previewPhoto : UIImage?
+    
+    private let stackingResultsCallback : (PhotoStack.PhotoStackingResult) -> Void
 
 //    Init takes multiple closures to be called in each step of the photco capture process
-    init(with requestedPhotoSettings: AVCapturePhotoBracketSettings, willCapturePhotoAnimation: @escaping () -> Void, completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
+    init(with requestedPhotoSettings: AVCapturePhotoBracketSettings,
+         willCapturePhotoAnimation: @escaping () -> Void,
+         completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
          photoProcessingHandler: @escaping (Bool) -> Void,
-         photoStack: PhotoStack) {
+         photoStack: PhotoStack,
+         stackingResultsCallback: @escaping (PhotoStack.PhotoStackingResult) -> Void) {
 
         self.requestedPhotoSettings = requestedPhotoSettings
         self.willCapturePhotoAnimation = willCapturePhotoAnimation
@@ -47,6 +52,7 @@ class PhotoCaptureProcessor: NSObject {
         self.photoProcessingHandler = photoProcessingHandler
 
         self.photoStack = photoStack
+        self.stackingResultsCallback = stackingResultsCallback
     }
 }
 
@@ -147,7 +153,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             //self.saveToPhotoLibrary(data)
             for rawURL in rawFileURLs {
                 let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
-                self.previewPhoto = self.photoStack.add(captureObject: captureObject)
+                self.previewPhoto = self.photoStack.add(captureObject: captureObject, statusUpdateCallback: self.stackingResultsCallback)
             }
             DispatchQueue.main.async {
                 self.completionHandler(self)
