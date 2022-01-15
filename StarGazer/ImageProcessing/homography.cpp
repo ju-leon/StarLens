@@ -13,6 +13,8 @@ using namespace cv;
 
 const int MAX_FEATURES = 500;
 const float GOOD_MATCH_PERCENT = 0.15f;
+const float ROUNDNESS_THRESHOLD = 0.9;
+
 
 bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
@@ -56,6 +58,52 @@ void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {
         features.push_back(row);
     }
     mat = features;
+}
+
+void extractStars(cv::Mat &image,
+                  std::vector<KeyPoint> &keypoints,
+                  std::vector<cv::Point2i> &starCenters) {
+    
+    cv::Mat1b contourMat(image.size());
+    
+    for (auto keypoint: keypoints) {
+
+        std::cout << "Point: " << keypoint.pt << ", Size: " << keypoint.size << std::endl;
+
+        cv::circle(contourMat, keypoint.pt, keypoint.size / 2, 255, -1);
+    }
+    
+    vector<vector<Point> > contours;
+    vector<Vec4i> hierarchy;
+    cv::findContours(contourMat, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+    
+    for (vector<Point> contour : contours) {
+        if (contour.size() < 1) {
+            continue;
+        }
+        
+        auto area = cv::contourArea(contour);
+        std::vector<Point> convexHull;
+        cv::convexHull(contour, convexHull);
+        auto convexHullArea = cv::contourArea(convexHull);
+        
+        if (convexHullArea == 0) {
+            continue;
+        }
+        
+        auto ratio = area / convexHullArea;
+        
+        if (ratio >= ROUNDNESS_THRESHOLD) {
+            Moments moment = cv::moments(contour);
+            int cX = moment.m10 / moment.m00;
+            int cY = moment.m01 / moment.m00;
+
+            starCenters.emplace_back(Point2i(cX, cY));
+            std::cout << "Found star at: " << cX << ", " << cY << std::endl;
+        } else {
+            std::cout << "Not round enough" << std::endl;
+        }
+    }
 }
 
 void matchStars(std::vector<cv::Point2i> &points1,
@@ -129,7 +177,7 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
 
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 13, 10, 8, 1);
+    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 16, 10, 8, 2);
     star->detect(im1Gray, keypoints1);
     star->detect(im2Gray, keypoints2);
 
@@ -139,7 +187,20 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
         std::cout << "Not enough keypoints to track" << std::endl;
         return false;
     }
+    
+    std::vector<Point2i> points1, points2;
+    extractStars(im1Gray, keypoints1, points1);
+    extractStars(im2Gray, keypoints2, points2);
+    
+    std::cout << "Extracted " << points1.size() << " stars from keypoints1" << std::endl;
+    std::cout << "Extracted " << points2.size() << " stars from keypoints2" << std::endl;
 
+    if (points1.size() < 5 || points2.size() < 5) {
+        std::cout << "Not enough stars to track" << std::endl;
+        return false;
+    }
+
+    /*
     // convert keypoints to points
     std::vector<Point2i> points1, points2;
     for (size_t i = 0; i < keypoints1.size(); i++) {
@@ -148,6 +209,8 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     for (size_t i = 0; i < keypoints2.size(); i++) {
         points2.push_back(keypoints2[i].pt);
     }
+    
+    */
     std::vector<DMatch> matches;
     matchStars(points1, points2, matches);
 

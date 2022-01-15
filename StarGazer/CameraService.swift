@@ -137,7 +137,7 @@ public class CameraService: NSObject {
     private var photoStack: PhotoStack?
     private var location: CLLocationCoordinate2D?
 
-    private var isoRotation: [Float] = [50,50,50,50] //[800, 800, 800, 800]
+    private var isoRotation: [Float] = [40, 40, 40, 40] //[800, 800, 800, 800]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -435,7 +435,7 @@ public class CameraService: NSObject {
             do {
                 try device.lockForConfiguration()
                 //device.focusMode = .locked
-                device.setFocusModeLocked(lensPosition: 0.82)
+                //device.setFocusModeLocked(lensPosition: 0.82)
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
