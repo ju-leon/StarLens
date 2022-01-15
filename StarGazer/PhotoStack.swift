@@ -167,13 +167,15 @@ class PhotoStack {
         //TODO: ENABLE HDR AGAIN
 
         self.dispatch.async {
-            let image = captureObject.toUIImage()
-            self.savePhoto(image: image)
+            autoreleasepool {
+                let image = captureObject.toUIImage()
+                self.savePhoto(image: image)
 
-            let prediction = self.predict(image)
-            let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+                let prediction = self.predict(image)
+                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
 
-            self.coverPhoto = self.stacker.addAndProcess(image, maskImage)
+                self.coverPhoto = self.stacker.addAndProcess(image, maskImage)
+            }
         }
 
         return self.coverPhoto
@@ -282,10 +284,13 @@ class PhotoStack {
 
         }
       */
+        self.dispatch.async {
+            statusUpdateCallback?(0.5)
 
-        let imageStacked = self.stacker.getProcessedImage()
-        self.savePhoto(image: imageStacked)
-        statusUpdateCallback?(1.0)
+            let imageStacked = self.stacker.getProcessedImage()
+            self.savePhoto(image: imageStacked)
+            statusUpdateCallback?(1.0)
+        }
     }
 
     func saveStack() {

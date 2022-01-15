@@ -135,7 +135,7 @@ public class CameraService: NSObject {
     private var photoStack: PhotoStack?
     private var location: CLLocationCoordinate2D?
 
-    private var isoRotation: [Float] = [800, 800, 800, 800]
+    private var isoRotation: [Float] = [50,50,50,50] //[800, 800, 800, 800]
     private var isoRotationIndex = 0
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
@@ -433,7 +433,8 @@ public class CameraService: NSObject {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-                device.focusMode = .locked
+                //device.focusMode = .locked
+                //device.setFocusModeLocked(lensPosition: 0.82)
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -471,8 +472,10 @@ public class CameraService: NSObject {
 
 
                     let manualExpSetting = AVCaptureManualExposureBracketedStillImageSettings.manualExposureSettings
+                    
+                    //TODO: CHANGE BACK
                     let maxExposure = self.videoDeviceInput.device.activeFormat.maxExposureDuration
-
+                    
                     let photoSettings = AVCapturePhotoBracketSettings(
                             rawPixelFormatType: rawFormat,
                             processedFormat: nil,
@@ -513,7 +516,7 @@ public class CameraService: NSObject {
 
                         self?.isCameraButtonDisabled = false
 
-                        self?.sessionQueue.async {
+                        self?.captureQueue.async {
                             self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
                         }
 
@@ -527,6 +530,7 @@ public class CameraService: NSObject {
                     }, photoStack: self.photoStack!)
 
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
+                    //TODO: WHY DOES THIS FAIL SOMETIMES???
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
 
                     //let current_exposure_duration : CMTime = (self.videoDeviceInput.device.exposureDuration)

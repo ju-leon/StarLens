@@ -22,9 +22,10 @@ void combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
         imReg.convertTo(imReg, CV_32FC3);
 
         double weight = 1.0 / numImages;
-        //addWeighted(0.8 * result, 1, imReg, 0.3 * numImages, 0.0, result, CV_32FC3);
+        
         addWeighted(imageBase, 1 - weight, imReg, weight, 0.0, result, CV_32FC3);
-        //imageBase = imageBase + imReg;
+        //cv::max(imageBase, imReg, result);
+        
     } else {
 
     }

@@ -180,6 +180,7 @@ All images with enough features are stacked.
 - (UIImage *)getProcessedImage {
     cv::Mat stackedLowRes;
     stackedImage.convertTo(stackedLowRes, CV_8UC3);
+    cv::putText(stackedLowRes, "FINAL", cv::Point(500, 500), cv::FONT_HERSHEY_PLAIN, 20, (255, 255, 255), 2);
     return [UIImage imageWithCVMat:stackedLowRes];
 }
 
