@@ -77,9 +77,6 @@ void extractStars(cv::Mat &image,
     cv::Mat1b contourMat(image.size());
     
     for (auto keypoint: keypoints) {
-
-        std::cout << "Point: " << keypoint.pt << ", Size: " << keypoint.size << std::endl;
-
         cv::circle(contourMat, keypoint.pt, keypoint.size / 2, 255, -1);
     }
     
@@ -109,9 +106,6 @@ void extractStars(cv::Mat &image,
             int cY = moment.m01 / moment.m00;
 
             starCenters.emplace_back(Point2i(cX, cY));
-            std::cout << "Found star at: " << cX << ", " << cY << std::endl;
-        } else {
-            std::cout << "Not round enough" << std::endl;
         }
     }
 }
@@ -125,9 +119,6 @@ void matchStars(std::vector<cv::Point2i> &points1,
     cv::Mat features1, features2;
     pointsToMat(points1, features1);
     pointsToMat(points2, features2);
-
-    std::cout << "Features1: " << features1.rows << "x" << features1.cols << std::endl;
-
 
     cv::flann::GenericIndex<cvflann::L2<float>> kdTree1(features1, cvflann::KDTreeIndexParams());
     cv::flann::GenericIndex<cvflann::L2<float>> kdTree2(features2, cvflann::KDTreeIndexParams());
@@ -222,8 +213,6 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
     matches.erase(matches.begin() + numGoodMatches, matches.end());
     */
-
-    std::cout << "Found " << matches.size() << " good matches" << std::endl;
 
     std::vector<Point2i> matched_points1, matched_points2;
     for (size_t i = 0; i < matches.size(); i++) {

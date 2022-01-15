@@ -44,14 +44,10 @@
 {
     CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceGray();
 
-    NSLog(@"Created color space");
-
     CGFloat cols = self.size.width;
     CGFloat rows = self.size.height;
     
     cv::Mat cvMat(rows, cols, CV_8UC1); // 8 bits per component, 1 channels
-    NSLog(@"Created mat");
-
     CGContextRef contextRef = CGBitmapContextCreate(cvMat.data,                 // Pointer to data
                                                     cols,                       // Width of bitmap
                                                     rows,                       // Height of bitmap
@@ -60,18 +56,9 @@
                                                     colorSpace,                 // Colorspace
                                                     kCGImageAlphaNone |
                                                     kCGBitmapByteOrderDefault); // Bitmap info flags
-    NSLog(@"Created context ref");
-
     CGContextDrawImage(contextRef, CGRectMake(0, 0, cols, rows), self.CGImage);
-    NSLog(@"Draw image");
-
     CGContextRelease(contextRef);
-    NSLog(@"Realeased context ref");
-
-
     CGColorSpaceRelease(colorSpace);
-    NSLog(@"Released color space");
-    
     return cvMat;
 }
 
