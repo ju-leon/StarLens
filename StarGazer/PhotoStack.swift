@@ -22,7 +22,8 @@ class PhotoStack {
     
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     public let STRING_ID: String
-
+    public let EXIF_IDENTIFIER = "StarGazer"
+    
     private let hdrEnabled: Bool
     private let alignEnabled: Bool
     private let enhanceEnabled: Bool
@@ -41,7 +42,11 @@ class PhotoStack {
 
     private let segmentationModel: DeepLabClean
     private let modelInputDimension = [513, 513]
+    
+    private var metadata : [String : Any]?
 
+    private var captureStart: Date
+    private var captureEnd: Date?
     //TODO: Init with actual size
     init(hdr: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -70,12 +75,18 @@ class PhotoStack {
         context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
         coverPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
+        
+        captureStart = Date()
     }
 
     deinit {
         self.stacker.reset()
     }
 
+    func markEndCapture() {
+        self.captureEnd = Date()
+    }
+    
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
         var images: [UIImage] = []
         for captureObject in fromCaptureArray {
@@ -174,6 +185,10 @@ class PhotoStack {
 
         self.dispatch.async {
             autoreleasepool {
+                if (self.metadata == nil) {
+                    self.metadata = captureObject.metadata
+                }
+                
                 let image = captureObject.toUIImage()
                 //self.savePhoto(image: image)
 
@@ -306,6 +321,18 @@ class PhotoStack {
         //savePhoto(image: self.trailing!)
     }
 
+    func mergeImageData(imageData: Data, with metadata: NSDictionary) -> Data {
+        let source: CGImageSource = CGImageSourceCreateWithData(imageData as NSData, nil)!
+        let UTI: CFString = CGImageSourceGetType(source)!
+        let newImageData =  NSMutableData()
+        let cgImage = UIImage(data: imageData)!.cgImage
+        let imageDestination: CGImageDestination = CGImageDestinationCreateWithData((newImageData as CFMutableData), UTI, 1, nil)!
+        CGImageDestinationAddImage(imageDestination, cgImage!, metadata as CFDictionary)
+        CGImageDestinationFinalize(imageDestination)
+
+        return newImageData as Data
+    }
+    
     func savePhoto(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
 
@@ -314,15 +341,34 @@ class PhotoStack {
                 return
             }
 
+            var data = self.metadata!
+            
+            if var exifData = data["{Exif}"] as? [String : Any] {
+                exifData["ExposureTime"] = Int(self.captureEnd!.timeIntervalSince(self.captureStart))
+                data["{Exif}"] = exifData
+            }
+            
+            if let loc = self.location {
+                var locationData : [String: Any] = [:]
+                
+                locationData[kCGImagePropertyGPSLatitude as String] = abs(loc.latitude)
+                locationData[kCGImagePropertyGPSLongitude as String] = abs(loc.longitude)
+                locationData[kCGImagePropertyGPSLatitudeRef as String] = loc.latitude > 0 ? "N" : "S"
+                locationData[kCGImagePropertyGPSLongitudeRef as String] = loc.longitude > 0 ? "E" : "W"
+                data[kCGImagePropertyGPSDictionary as String] = locationData
+            }
+            
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo,
-                        data: image.jpegData(compressionQuality: 0.99)!,
+                                            data: self.mergeImageData(imageData: image.pngData()!, with: data as NSDictionary),
                         options: nil)
-
+                
+                
             } completionHandler: { success, error in
                 // Process the Photos library error.
             }
+            
         }
     }
 

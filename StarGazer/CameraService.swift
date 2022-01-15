@@ -554,7 +554,9 @@ public class CameraService: NSObject {
                 }
             } else {
                 self.isProcessing = true
-
+                
+                self.photoStack?.markEndCapture()
+                
                 self.stop()
 
                 sessionQueue.async {
@@ -569,6 +571,8 @@ public class CameraService: NSObject {
                                 self.isCaptureRunning = false
                                 self.processingProgress = 0
                                 self.numPicures = 0
+                                self.numProcessed = 0
+                                self.numFailed = 0
                                 self.photoStack = nil
                                 self.isProcessing = false
                             }
