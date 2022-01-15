@@ -206,6 +206,7 @@ struct OptionsBar: View {
 
             Spacer()
 
+            /*
             Button(action: {
                 model.toggleAlign()
             }, label: {
@@ -235,6 +236,7 @@ struct OptionsBar: View {
 
 
             Spacer()
+             */
         }
     }
 }

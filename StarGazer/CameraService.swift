@@ -359,13 +359,12 @@ public class CameraService: NSObject {
     public func startTimelapse() {
         self.isCaptureRunning = true
 
-        /*
-        self.isoRotation = []
-        for x in 4...7 {
-            self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
-        }*/
-
-        print(self.isoRotation)
+        if self.hdrEnabled {
+            self.isoRotation = []
+            for x in 4...7 {
+                self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
+            }
+        }
 
         self.videoDeviceInput.device.activeFormat.maxISO
 
