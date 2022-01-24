@@ -13,6 +13,7 @@ import UIKit
 enum Views {
     case camera
     case processing
+    case projects
 }
 
 final class NavigationModel : ObservableObject {
@@ -26,9 +27,12 @@ struct NavigationView : View {
     var body: some View {
         switch navigationModel.currentView {
             case .camera:
-                CameraView(navigationModel: navigationModel)
+            CameraView(navigationModel: navigationModel)
             case .processing:
                 ResultView(navigationModel: navigationModel)
+            case .projects:
+            ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom))
+        
         }
     }
     

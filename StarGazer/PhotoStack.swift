@@ -43,10 +43,8 @@ class PhotoStack {
     private let segmentationModel: DeepLabClean
     private let modelInputDimension = [513, 513]
     
-    private var metadata : [String : Any]?
-
-    private var captureStart: Date
-    private var captureEnd: Date?
+    private var captureProject: Project
+    
     //TODO: Init with actual size
     init(hdr: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -56,8 +54,10 @@ class PhotoStack {
             try FileManager.default.createDirectory(atPath: tempDir.appendingPathComponent(self.STRING_ID, isDirectory: true).path, withIntermediateDirectories: true, attributes: nil)
         } catch {
             print(error.localizedDescription)
+            print("OPEN FAILED??")
+            //TODO: HANDLE SOMEHOW
         }
-
+        
         self.hdrEnabled = hdr
         self.alignEnabled = align
         self.enhanceEnabled = enhance
@@ -76,7 +76,8 @@ class PhotoStack {
         coverPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
-        captureStart = Date()
+        self.captureProject = Project(url: tempDir.appendingPathComponent(self.STRING_ID),
+                                      captureStart: Date())
     }
 
     deinit {
@@ -84,7 +85,7 @@ class PhotoStack {
     }
 
     func markEndCapture() {
-        self.captureEnd = Date()
+        self.captureProject.setCaptureEnd(date: Date())
     }
     
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
@@ -185,9 +186,8 @@ class PhotoStack {
 
         self.dispatch.async {
             autoreleasepool {
-                if (self.metadata == nil) {
-                    self.metadata = captureObject.metadata
-                }
+                self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
+                self.captureProject.setMetadata(data: captureObject.metadata)
                 
                 let image = captureObject.toUIImage()
                 //self.savePhoto(image: image)
@@ -197,10 +197,14 @@ class PhotoStack {
 
                 if let stackedImage = self.stacker.addAndProcess(image, maskImage) {
                     self.coverPhoto = stackedImage
+                    self.savePhotoToFile(image: self.coverPhoto, url: self.captureProject.getUrl().appendingPathComponent(PREVIEW_FILE_NAME))
+                    
                     statusUpdateCallback?(.SUCCESS)
                 } else {
                     statusUpdateCallback?(.FAILED)
                 }
+                
+
             }
         }
 
@@ -311,6 +315,8 @@ class PhotoStack {
         }
       */
         self.dispatch.async {
+            self.captureProject.save()
+            
             let imageStacked = self.stacker.getProcessedImage()
             self.savePhoto(image: imageStacked)
             statusUpdateCallback?(-1)
@@ -341,10 +347,10 @@ class PhotoStack {
                 return
             }
 
-            var data = self.metadata!
+            var data = self.captureProject.getMetadata()!
             
             if var exifData = data["{Exif}"] as? [String : Any] {
-                exifData["ExposureTime"] = Int(self.captureEnd!.timeIntervalSince(self.captureStart))
+                exifData["ExposureTime"] = Int(self.captureProject.getCaptureEnd()!.timeIntervalSince(self.captureProject.getCaptureStart()))
                 data["{Exif}"] = exifData
             }
             
@@ -369,6 +375,20 @@ class PhotoStack {
                 // Process the Photos library error.
             }
             
+        }
+    }
+    
+    func savePhotoToFile(image: UIImage, url: URL) {
+        if let data = image.pngData() {
+            do {
+                try data.write(to: url)
+                print("Saved photo to \(url.path)")
+                
+            } catch {
+                print(error.localizedDescription)
+            }
+        } else {
+            print("Couldnt convert data")
         }
     }
 

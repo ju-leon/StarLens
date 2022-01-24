@@ -356,9 +356,16 @@ struct CameraView: View {
             HStack {
                 //capturedPhotoThumbnail
 
-                Spacer().frame(maxWidth: .infinity)
+                //Spacer().frame(maxWidth: .infinity)
 
-
+                Button(action: {
+                    withAnimation {
+                        self.navigationModel.currentView = .projects
+                    }
+                }, label:{
+                    Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40)).frame(maxWidth: .infinity).foregroundColor(.white)
+                })
+                
                 captureButton.frame(maxWidth: .infinity)
 
                 Image(systemName: "dial.max").font(.system(size: 40)).frame(maxWidth: .infinity)

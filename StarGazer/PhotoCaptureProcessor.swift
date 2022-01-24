@@ -122,9 +122,12 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
     private func makeUniqueDNGFileURL() -> URL {
         let tempDir = FileManager.default.temporaryDirectory
         let fileName = ProcessInfo.processInfo.globallyUniqueString
-        return tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
+        let dir = tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
                 .appendingPathComponent(fileName)
                 .appendingPathExtension("dng")
+        print(dir)
+        return dir
+        
     }
 
 

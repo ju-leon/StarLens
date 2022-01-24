@@ -169,13 +169,14 @@ public class CameraService: NSObject {
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestLocation()
+            locationManager.requestLocation() 
         }
 
         self.configureCaptureSession()
-
+       
     }
 
+    
     //        MARK: Checks for user's permisions
     public func checkForPermissions() {
         self.locationManager.requestWhenInUseAuthorization()
