@@ -9,14 +9,14 @@ import Foundation
 import SwiftUI
 
 class ResultModel : ObservableObject {
-    var navigation: NavigationModel?
+    var navigation: StateControlModel?
     
 }
 
 struct ResultView : View {
     @StateObject var model = ResultModel()
     
-    @StateObject var navigationModel: NavigationModel
+    @StateObject var navigationModel: StateControlModel
     
     var body: some View {
         GeometryReader { reader in

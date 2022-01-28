@@ -14,32 +14,37 @@ enum Views {
     case camera
     case processing
     case projects
+    case edit
 }
 
-final class NavigationModel : ObservableObject {
+final class StateControlModel : ObservableObject {
     @Published var currentView : Views = Views.camera
+    
+    @Published var currentProject : Project?
     
 }
 
-struct NavigationView : View {
-    @StateObject var navigationModel = NavigationModel()
+struct StateControlView : View {
+    @StateObject var navigationModel = StateControlModel()
     
     var body: some View {
         switch navigationModel.currentView {
-            case .camera:
+        case .camera:
             CameraView(navigationModel: navigationModel)
-            case .processing:
-                ResultView(navigationModel: navigationModel)
-            case .projects:
+        case .processing:
+            ResultView(navigationModel: navigationModel)
+        case .projects:
             ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom))
-        
+        case .edit:
+            ProjectEditView(navigationModel: navigationModel).transition(.move(edge: .trailing))
         }
+    
     }
     
 }
 
-struct NavigationView_Previews: PreviewProvider {
+struct StateControlView_Previews: PreviewProvider {
     static var previews: some View {
-        NavigationView()
+        StateControlView()
     }
 }

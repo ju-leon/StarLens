@@ -11,7 +11,7 @@ import SwiftUI
 struct StarGazerApp: App {
     var body: some Scene {
         WindowGroup {
-            NavigationView()
+            StateControlView()
         }
     }
 }

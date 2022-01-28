@@ -18,7 +18,7 @@ enum ProjectKeys : String {
     case unprocessedPhotoURLs = "photos"
 }
 
-class Project {
+class Project : NSObject {
     private var url: URL
     
     private var metadata : [String : Any]?

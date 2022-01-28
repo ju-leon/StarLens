@@ -243,7 +243,7 @@ struct OptionsBar: View {
 
 struct CameraView: View {
     @StateObject var model = CameraModel()
-    @StateObject var navigationModel: NavigationModel
+    @StateObject var navigationModel: StateControlModel
 
     @State var currentZoomFactor: CGFloat = 1.0
 
