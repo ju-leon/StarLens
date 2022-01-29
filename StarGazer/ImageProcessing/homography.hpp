@@ -16,4 +16,5 @@ void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask);
 
 bool alignImages(cv::Mat &im1, cv::Mat &movement, cv::Mat &im2, cv::Mat &im1Reg, cv::Mat &h);
 
+float getThreshold(Mat &img_grayscale);
 #endif /* homography_hpp */

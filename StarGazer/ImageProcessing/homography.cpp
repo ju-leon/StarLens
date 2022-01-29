@@ -26,8 +26,20 @@ const int AREA_THRESHOLD = 39;
  */
 const int DISTANCE_THRESHOLD = 50;
 
+/**
+ Minimum number of contours required to start a star detection.
+ */
+const int MIN_NUM_CONTOURS = 1000;
+
+/**
+ Minimum number of contours allowed  to start a star detection.
+ */
+const int MAX_NUM_CONTOURS = 10000;
+
+
 bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
     Mat imReg, h;
+    
     if (alignImages(imageNew, mask, imageBase, imReg, h)) {
         std::cout << "Successfully aligned" << std::endl;
 
@@ -160,6 +172,52 @@ void matchStars(std::vector<cv::Point2i> &points1,
     }
 }
 
+/**
+ Returns the threshold in the Laplacian of an image under which points are used in the contour detector.
+ Aims to get a number of contours(that will later be used as starts) between MIN_NUM_CONTOURS and MAX_NUM_CONTOURS
+ 
+ Returns infinity if no threshold could be found
+ */
+float getThreshold(Mat &img_grayscale) {
+    Mat laplacian;
+    GaussianBlur( img_grayscale, laplacian, Size(3, 3), 0, 0, BORDER_DEFAULT );
+    
+    int kernel_size = 3;
+    int scale = 1;
+    int delta = 0;
+    Laplacian( laplacian, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
+    
+    float threshold = -200;
+    while (true) {
+        Mat1i threshMat(laplacian.rows, laplacian.cols);
+        threshMat.setTo(255, laplacian < threshold);
+        threshMat.setTo(0, laplacian >= threshold);
+        
+        vector<vector<Point> > contours;
+        vector<Vec4i> hierarchy;
+        cv::findContours(threshMat, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
+        
+        if (contours.size() > MAX_NUM_CONTOURS) {
+            // To many contours, lower threshold
+            // All values we're interested in are negative -> *1.5 gives a lower value
+            threshold = threshold * 1.5;
+        } else if (contours.size() < MIN_NUM_CONTOURS) {
+            // To little contours, increase threshold
+            threshold = threshold * 0.8;
+        } else {
+            return threshold;
+        }
+        
+        
+        // Check if the threshold is still within an allowed range. If not, no star recognition is possible.
+        if (threshold >= 0 || threshold < -2000) {
+            return std::numeric_limits<float>::infinity();
+        }
+        
+    }
+    
+}
+
 bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     // Convert images to grayscale
     Mat im1Gray, im2Gray;
@@ -176,6 +234,7 @@ bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
     im1Gray.convertTo(im1Gray, CV_8UC1);
     im2Gray.convertTo(im2Gray, CV_8UC1);
 
+    
     // Detect stars in image
     std::vector<KeyPoint> keypoints1, keypoints2;
     Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 16, 10, 8, 3);
