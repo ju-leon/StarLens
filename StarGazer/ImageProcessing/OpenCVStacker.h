@@ -17,21 +17,8 @@
 NS_ASSUME_NONNULL_BEGIN
 
 @interface OpenCVStacker : NSObject
-- (NSString *)openCVVersionString;
 
-- (UIImage *)composeStack;
-
-- (UIImage *)composeTrailing;
-
-- (UIImage *)hdrMerge:(NSArray *)images :(bool)align;
-
-- (void)addSegmentationMask:(UIImage *)mask;
-
-/**
- * Add a new image to the photo stack to be processed later.
- * @param image
- */
-- (void)addImageToStack:(UIImage *)image;
+- (id) initWithImage:(UIImage *)image;
 
 /**
  * Merges a new image onto the current stack.
@@ -46,8 +33,6 @@ NS_ASSUME_NONNULL_BEGIN
  * @return
  */
 - (UIImage *)getProcessedImage;
-
-- (void)reset;
 
 @end
 

@@ -36,7 +36,7 @@ class PhotoStack {
     private let location: CLLocationCoordinate2D?
 
     private var captureObjects: [CaptureObject] = []
-    private var stacker: OpenCVStacker = OpenCVStacker()
+    private var stacker: OpenCVStacker?;
 
     private var dispatch: DispatchQueue = DispatchQueue(label: "StarStacker.stackingQueue")
 
@@ -81,7 +81,6 @@ class PhotoStack {
     }
 
     deinit {
-        self.stacker.reset()
     }
 
     func markEndCapture() {
@@ -136,54 +135,7 @@ class PhotoStack {
         }
     }
 
-    func stackHdr() {
-        let copiedStack = self.captureObjects
-        captureObjects = []
-        self.dispatch.async {
-            autoreleasepool {
-                let images = self.toUIImageArray(fromCaptureArray: copiedStack)
-                let previewImage = self.stacker.hdrMerge(images, self.alignEnabled)
-
-                let prediction = self.predict(self.coverPhoto)
-                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
-
-                //self.savePhoto(image: self.coverPhoto)
-                self.stacker.addSegmentationMask(maskImage)
-
-                self.coverPhoto = previewImage
-            }
-            for object in copiedStack {
-                object.deleteReference()
-            }
-        }
-    }
-
     func add(captureObject: CaptureObject, statusUpdateCallback: ((PhotoStackingResult) -> ())?) -> UIImage {
-        /*
-        if (hdrEnabled) {
-            self.captureObjects.append(captureObject)
-            if (self.captureObjects.count == CameraService.biasRotation.count) {
-                stackHdr()
-            }
-        } else {
-            self.dispatch.async {
-                let image = captureObject.toUIImage()
-                self.savePhoto(image: image)
-
-                self.stacker.addImage(toStack: image)
-
-                let prediction = self.predict(image)
-                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
-                self.stacker.addSegmentationMask(maskImage)
-
-                let previewImage = self.blendPreview(image1: self.coverPhoto, image2: image)
-
-                self.coverPhoto = previewImage
-            }
-        }
-        */
-        //TODO: ENABLE HDR AGAIN
-
         self.dispatch.async {
             autoreleasepool {
                 self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
@@ -195,15 +147,25 @@ class PhotoStack {
                 let prediction = self.predict(image)
                 let maskImage = UIImage(cgImage: prediction!.cgImage()!)
 
-                if let stackedImage = self.stacker.addAndProcess(image, maskImage) {
-                    self.coverPhoto = stackedImage
-                    self.savePhotoToFile(image: self.coverPhoto, url: self.captureProject.getUrl().appendingPathComponent(PREVIEW_FILE_NAME))
-                    
-                    statusUpdateCallback?(.SUCCESS)
+                /**
+                 Check if the stacker is called for the first time, if so, we need to init it.
+                 */
+                if self.stacker == nil {
+                    self.stacker = OpenCVStacker.init(image: image)
                 } else {
-                    statusUpdateCallback?(.FAILED)
+                    /**
+                     Otherwise, the photo can be merged
+                     */
+                    if let stackedImage = self.stacker!.addAndProcess(image, maskImage) {
+                        self.coverPhoto = stackedImage
+                        self.savePhotoToFile(image: self.coverPhoto, url: self.captureProject.getUrl().appendingPathComponent(PREVIEW_FILE_NAME))
+
+                        statusUpdateCallback?(.SUCCESS)
+                    } else {
+                        statusUpdateCallback?(.FAILED)
+                    }
                 }
-                
+
 
             }
         }
@@ -274,50 +236,12 @@ class PhotoStack {
     }
 
     func stackPhotos(_ statusUpdateCallback: ((Int) -> ())?) {
-        print("Sceduled merge")
-        /*
-        self.dispatch.async {
-            print("Merging")
-            let images = self.toUIImageArray(fromCaptureArray: self.captureObjects)
-            self.coverPhoto = self.stacker.hdrMerge(images, self.alignEnabled)
+        print("Scheduled merge")
 
-            for captureObject in self.captureObjects {
-                captureObject.deleteReference()
-            }
-            self.captureObjects = []
-
-            statusUpdateCallback?(0.5)
-
-            let imageStacked = self.stacker.composeStack()
-            self.savePhoto(image: imageStacked)
-
-            if self.enhanceEnabled {
-                // Enhance the image with Apples predefined filters
-                let ciImageStacked = self.autoEnhance(CIImage(cgImage: imageStacked.cgImage!))
-                self.savePhoto(image: UIImage(ciImage: ciImageStacked))
-            }
-
-            statusUpdateCallback?(0.75)
-
-            let imageTrailing = self.stacker.composeTrailing()
-            self.savePhoto(image: imageTrailing)
-
-            if self.enhanceEnabled {
-                // Enhance the image with Apples predefined filters
-                let ciImageTrailing = self.autoEnhance(CIImage(cgImage: imageTrailing.cgImage!))
-                self.savePhoto(image: UIImage(ciImage: ciImageTrailing))
-            }
-
-            self.coverPhoto = imageStacked
-
-            statusUpdateCallback?(1.0)
-
-        }
-      */
         self.dispatch.async {
             self.captureProject.save()
             
-            let imageStacked = self.stacker.getProcessedImage()
+            let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
             statusUpdateCallback?(-1)
         }
