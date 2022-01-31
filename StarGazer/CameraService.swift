@@ -13,18 +13,6 @@ import UIKit
 import CoreLocation
 import CoreMotion
 
-//  MARK: Class Camera Service, handles setup of AVFoundation needed for a basic camera app.
-public struct Photo: Identifiable, Equatable {
-//    The ID of the captured photo
-    public var id: String
-//    Data representation of the captured photo
-    public var originalData: Data
-
-    public init(id: String = UUID().uuidString, originalData: Data) {
-        self.id = id
-        self.originalData = originalData
-    }
-}
 
 public struct AlertError {
     public var title: String = ""
@@ -40,27 +28,6 @@ public struct AlertError {
         self.primaryAction = primaryAction
         self.primaryButtonTitle = primaryButtonTitle
         self.secondaryAction = secondaryAction
-    }
-}
-
-extension Photo {
-    public var compressedData: Data? {
-        ImageResizer(targetWidth: 800).resize(data: originalData)?.jpegData(compressionQuality: 0.5)
-    }
-    public var thumbnailData: Data? {
-        ImageResizer(targetWidth: 100).resize(data: originalData)?.jpegData(compressionQuality: 0.5)
-    }
-    public var thumbnailImage: UIImage? {
-        guard let data = thumbnailData else {
-            return nil
-        }
-        return UIImage(data: data)
-    }
-    public var image: UIImage? {
-        guard let data = compressedData else {
-            return nil
-        }
-        return UIImage(data: data)
     }
 }
 
@@ -82,17 +49,13 @@ public class CameraService: NSObject {
 //    6.
     @Published public var isCameraUnavailable = true
 //    8.
-    @Published public var isCaptureRunning = false
-
-    @Published public var photo: Photo?
+    @Published public var captureStatus : CaptureStatus = .preparing
 
     @Published public var previewPhoto: UIImage?
 
     @Published public var numPicures = 0
     @Published public var numProcessed = 0
     @Published public var numFailed = 0
-
-    @Published public var isProcessing = false
 
     @Published public var processingProgress = 0
 
@@ -287,6 +250,8 @@ public class CameraService: NSObject {
 
         self.isConfigured = true
 
+        self.captureStatus = .ready
+
         self.start()
     }
 
@@ -358,16 +323,14 @@ public class CameraService: NSObject {
     //    MARK: Capture Photo
 
     public func startTimelapse() {
-        self.isCaptureRunning = true
-
         if self.hdrEnabled {
             self.isoRotation = []
             for x in 4...7 {
-                self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
+                self.isoRotation.append(self.videoDeviceInput.device.activeFormat.minISO)
             }
         }
 
-        self.videoDeviceInput.device.activeFormat.maxISO
+        self.captureStatus = .capturing
 
         self.captureQueue.async {
             self.photoStack = PhotoStack(
@@ -435,8 +398,8 @@ public class CameraService: NSObject {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-                //device.focusMode = .locked
-                device.setFocusModeLocked(lensPosition: 0.82)
+                device.focusMode = .locked
+                //device.setFocusModeLocked(lensPosition: 0.82)
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -448,7 +411,7 @@ public class CameraService: NSObject {
     /// - Tag: CapturePhoto
     public func capturePhoto() {
         if self.setupResult != .configurationFailed {
-            if self.isCaptureRunning {
+            if self.captureStatus == .capturing {
                 self.captureQueue.async {
                     //self.isCameraButtonDisabled = true
                     if let photoOutputConnection = self.photoOutput.connection(with: .video) {
@@ -474,15 +437,18 @@ public class CameraService: NSObject {
 
 
                     let manualExpSetting = AVCaptureManualExposureBracketedStillImageSettings.manualExposureSettings
-                    
+
+                    let autoExpSetting = AVCaptureAutoExposureBracketedStillImageSettings.autoExposureSettings
+
                     //TODO: CHANGE BACK
                     let maxExposure = self.videoDeviceInput.device.activeFormat.maxExposureDuration
-                    
+
                     let photoSettings = AVCapturePhotoBracketSettings(
                             rawPixelFormatType: rawFormat,
                             processedFormat: nil,
                             bracketedSettings: self.isoRotation.map {
-                                manualExpSetting(maxExposure, $0)
+                                //manualExpSetting(maxExposure, $0)
+                                autoExpSetting(Float($0) / Float($0))
                             }
                     )
 
@@ -538,12 +504,13 @@ public class CameraService: NSObject {
                                     self.numProcessed += 1
                                 case .FAILED:
                                     self.numFailed += 1
+                                case .INIT_FAILED:
+                                    self.abortCapture()
                                 }
                             }
                     })
 
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
-                    //TODO: WHY DOES THIS FAIL SOMETIMES???
                     self.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = photoCaptureProcessor
 
                     //let current_exposure_duration : CMTime = (self.videoDeviceInput.device.exposureDuration)
@@ -553,9 +520,7 @@ public class CameraService: NSObject {
                         self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
                     }
                 }
-            } else {
-                self.isProcessing = true
-                
+            } else if self.captureStatus == .processing {
                 self.photoStack?.markEndCapture()
                 
                 self.stop()
@@ -566,19 +531,9 @@ public class CameraService: NSObject {
                             self.processingProgress = x
 
                             if (x == -1) {
-
-                                self.start()
-                                self.blackOutCamera = false
-                                self.isCaptureRunning = false
-                                self.processingProgress = 0
-                                self.numPicures = 0
-                                self.numProcessed = 0
-                                self.numFailed = 0
-                                self.photoStack = nil
-                                self.isProcessing = false
+                                self.resetCamera(deletingStack: false)
                             }
 
-                            self.start()
                         }
                     })
                     self.photoStack!.saveStack()
@@ -608,6 +563,37 @@ public class CameraService: NSObject {
         self.previewPhoto = photo
     }
 
+    public func abortCapture() {
+        self.captureStatus = .failed
+
+        //TODO: Delete the stack
+
+        self.resetCamera(deletingStack: true)
+
+        self.alertError = AlertError(
+                title: "No stars detected",
+                message: "Could not detect enough stars to track. Please make sure the night sky is clearly visible without too many objects in the foreground.",
+                primaryButtonTitle: "OK",
+                secondaryButtonTitle: nil,
+                primaryAction: nil,
+                secondaryAction: nil
+        )
+        self.shouldShowAlertView = true
+
+
+    }
+
+    private func resetCamera(deletingStack: Bool) {
+        self.start()
+        self.blackOutCamera = false
+        self.captureStatus = .ready
+        self.processingProgress = 0
+        self.numPicures = 0
+        self.numProcessed = 0
+        self.numFailed = 0
+        self.photoStack = nil
+    }
+
 }
 
 extension CameraService: CLLocationManagerDelegate {
@@ -630,29 +616,17 @@ extension CameraService: CLLocationManagerDelegate {
 }
 
 extension CameraService {
-    enum LivePhotoMode {
-        case on
-        case off
-    }
-
-    enum DepthDataDeliveryMode {
-        case on
-        case off
-    }
-
-    enum PortraitEffectsMatteDeliveryMode {
-        case on
-        case off
-    }
-
     enum SessionSetupResult {
         case success
         case notAuthorized
         case configurationFailed
     }
 
-    enum CaptureMode: Int {
-        case photo = 0
-        case movie = 1
+    public enum CaptureStatus {
+        case preparing
+        case ready
+        case capturing
+        case processing
+        case failed
     }
 }

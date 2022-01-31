@@ -14,6 +14,17 @@
 using namespace std;
 using namespace cv;
 
+struct MergingException : public exception {
+    const char *info;
+
+    MergingException(const char *info) : info(info) {
+    }
+
+    const char *what() const throw() {
+        return info;
+    }
+};
+
 class ImageMerger {
 private:
     const int MIN_STARS_PER_IMAGE = 10;
@@ -57,20 +68,24 @@ public:
         threshold = getThreshold(image);
         std::cout << "Initial threshold: " << threshold << std::endl;
         if (threshold == numeric_limits<float>::infinity()) {
-            throw "Could not find a threshold for the first image";
+            throw MergingException("Could not find initial threshold");
         }
 
         std::cout << "Finding initial stars..." << std::endl;
         //Find the star centers for the first image
         getStarCenters(image, threshold, lastStars);
-        lastImage = image.clone();
         std::cout << "Found " << lastStars.size() << " stars" << std::endl;
 
+        // Initialize the current stacks
+        lastImage = image.clone();
+        lastImage.convertTo(currentCombined, CV_32F);
+        currentMaxed = image.clone();
+
         // Init the total homography matrix as identity
-        totalHomography = Mat::eye(3, 3, CV_32F);
+        totalHomography = Mat::eye(3, 3, CV_64FC1);
 
         if (lastStars.size() < MIN_STARS_PER_IMAGE) {
-            throw "Not enough stars found in first image";
+            throw MergingException("Not enough stars found in initial image");
         }
     }
 
@@ -83,10 +98,19 @@ public:
      * @param previewImage
      */
     void getPreview(Mat &previewImage) {
-        previewImage = currentMaxed.clone();
-        previewImage = previewImage / numImages;
+        previewImage = currentMaxed;
+    }
 
-        previewImage.convertTo(previewImage, CV_8UC3);
+
+    /**
+     * Returns the processed image.
+     */
+    void getProcessed(Mat &image) {
+        image = currentCombined.clone();
+
+        // Convert to 8 bit
+        image = image / numImages;
+        image.convertTo(image, CV_8U);
     }
 
     /**

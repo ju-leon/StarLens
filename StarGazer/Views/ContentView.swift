@@ -21,12 +21,11 @@ final class CameraModel: ObservableObject {
 
     @Published var willCapturePhoto = false
 
-    @Published var isRecording = false
+    @Published var captureStatus : CameraService.CaptureStatus = .ready
     @Published var numPictures = 0
     @Published var numProcessed = 0
     @Published var numFailed = 0
 
-    @Published var isProcessing = false
     @Published var processingProgress = 0.0
 
     @Published var zoomLevel: Float = 1.0
@@ -68,18 +67,13 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
 
-        service.$isCaptureRunning.sink { [weak self] (val) in
-                    self?.isRecording = val
+        service.$captureStatus.sink { [weak self] (val) in
+                    self?.captureStatus = val
                 }
                 .store(in: &self.subscriptions)
 
         service.$numPicures.sink { [weak self] (val) in
                     self?.numPictures = val
-                }
-                .store(in: &self.subscriptions)
-
-        service.$isProcessing.sink { [weak self] (val) in
-                    self?.isProcessing = val
                 }
                 .store(in: &self.subscriptions)
 
@@ -105,13 +99,16 @@ final class CameraModel: ObservableObject {
     func startTimelapse() {
         UIApplication.shared.isIdleTimerDisabled = true
         //service.blackOutCamera = true
-        service.isCaptureRunning = true
-        service.startTimelapse()
+        if captureStatus == .ready {
+            service.startTimelapse()
+        }
+
     }
 
     func stopTimelapse() {
-        service.isCaptureRunning = false
-        //UIApplication.shared.isIdleTimerDisabled = false
+        if captureStatus == .capturing {
+            service.captureStatus = .processing
+        }
     }
 
     func switchFlash() {
@@ -249,13 +246,13 @@ struct CameraView: View {
 
     var captureButton: some View {
         Button(action: {
-            if !model.isRecording {
+            if model.captureStatus == .ready {
                 model.startTimelapse()
-            } else {
+            } else if model.captureStatus == .capturing {
                 model.stopTimelapse()
             }
         }, label: {
-            if !model.isRecording {
+            if model.captureStatus == .ready {
 
                 Circle()
                         .foregroundColor(.white)
@@ -265,7 +262,7 @@ struct CameraView: View {
                                         .stroke(Color.black.opacity(0.8), lineWidth: 2)
                                         .frame(width: 65, height: 65, alignment: .center)
                         )
-            } else {
+            } else if model.captureStatus == .capturing {
                 Circle()
                         .foregroundColor(.red)
                         .frame(width: 80, height: 80, alignment: .center)
@@ -278,6 +275,15 @@ struct CameraView: View {
                                                         .foregroundColor(.red)
                                                         .frame(width: 30, height: 30, alignment: .center)
                                         )
+                        )
+            } else {
+                Circle()
+                        .foregroundColor(.white)
+                        .frame(width: 80, height: 80, alignment: .center)
+                        .overlay(
+                                Circle()
+                                        .stroke(Color.black.opacity(0.8), lineWidth: 2)
+                                        .frame(width: 65, height: 65, alignment: .center)
                         )
             }
 
@@ -303,7 +309,7 @@ struct CameraView: View {
 
     var captureView: some View {
         VStack {
-            if !model.isRecording {
+            if model.captureStatus != .capturing {
 
                 GeometryReader {
                     geometry in
@@ -411,10 +417,10 @@ struct CameraView: View {
         GeometryReader { reader in
             ZStack {
                 Color.black.edgesIgnoringSafeArea(.all)
-                if (!model.isProcessing) {
-                    captureView
-                } else {
+                if (model.captureStatus == .processing) {
                     processingView
+                } else {
+                    captureView
                 }
             }
         }

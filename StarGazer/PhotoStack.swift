@@ -18,6 +18,7 @@ class PhotoStack {
     enum PhotoStackingResult: Int {
         case SUCCESS = 0
         case FAILED = 1
+        case INIT_FAILED = 2
     }
     
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
@@ -44,7 +45,10 @@ class PhotoStack {
     private let modelInputDimension = [513, 513]
     
     private var captureProject: Project
-    
+
+    private var initAttempts: Int = 0
+    private var MAX_INIT_ATTEMPTS: Int = 3
+
     //TODO: Init with actual size
     init(hdr: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -142,7 +146,8 @@ class PhotoStack {
                 self.captureProject.setMetadata(data: captureObject.metadata)
                 
                 let image = captureObject.toUIImage()
-                //self.savePhoto(image: image)
+
+                self.coverPhoto = image
 
                 let prediction = self.predict(image)
                 let maskImage = UIImage(cgImage: prediction!.cgImage()!)
@@ -152,6 +157,18 @@ class PhotoStack {
                  */
                 if self.stacker == nil {
                     self.stacker = OpenCVStacker.init(image: image)
+                    if (self.stacker == nil) {
+                        print("Failed to init OpenCVStacker")
+                        self.initAttempts += 1
+
+                        if (self.initAttempts > self.MAX_INIT_ATTEMPTS) {
+                            print("Failed to init OpenCVStacker after \(self.MAX_INIT_ATTEMPTS) attempts")
+                            statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
+                            self.dispatch.suspend()
+                            return
+                        }
+                    }
+
                 } else {
                     /**
                      Otherwise, the photo can be merged

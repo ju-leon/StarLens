@@ -23,7 +23,7 @@ unique_ptr<ImageMerger> merger;
 
 #pragma mark Public
 
-- (id) initWithImage:(UIImage *)image {
+- (instancetype) initWithImage:(UIImage *)image {
     NSLog (@"OpenCVStacker initWithImage");
 
     self = [super init];
@@ -32,9 +32,16 @@ unique_ptr<ImageMerger> merger;
             UIImage *rotatedImage = [image rotateToImageOrientation];
             Mat cvImage = [rotatedImage CVMat3];
 
-            merger = make_unique<ImageMerger>(cvImage);
+            try {
+                merger = make_unique<ImageMerger>(cvImage);
+            } catch (const MergingException& e) {
+                NSLog(@"OpenCVStacker initWithImage: %s", e.what());
+                return nil;
+            }
+
         } else {
-            throw @"Image must be of type UIImage";
+            NSLog(@"OpenCVStacker unsupportedImageFormat");
+            return nil;
         }
     }
     return self;
@@ -56,6 +63,9 @@ unique_ptr<ImageMerger> merger;
 
     if (merger->mergeImageOnStack(matImage, mask, preview)) {
        std::cout << "Merge successful" << std::endl;
+    } else {
+        std::cout << "Merge failed" << std::endl;
+        return nil;
     }
 
     return [UIImage imageWithCVMat:preview];

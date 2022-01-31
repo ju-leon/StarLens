@@ -266,13 +266,13 @@ float getThreshold(Mat &img) {
     cvtColor(img, imgGrayscale, cv::COLOR_BGR2GRAY);
 
 
-    Mat laplacian;
-    GaussianBlur( imgGrayscale, laplacian, Size(3, 3), 0, 0, BORDER_DEFAULT );
-    
+    GaussianBlur( imgGrayscale, imgGrayscale, Size(3, 3), 0, 0, BORDER_DEFAULT );
+
     int kernel_size = 3;
     int scale = 1;
     int delta = 0;
-    Laplacian( laplacian, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
+    Mat laplacian;
+    Laplacian( imgGrayscale, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
 
 
     /**
@@ -322,15 +322,15 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     Mat imGray;
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
     
-    Mat laplacian;
     // Blur the image first to be less sensitive to noise
-    GaussianBlur( imGray, laplacian, Size(3, 3), 0, 0, BORDER_DEFAULT );
-    
+    GaussianBlur( imGray, imGray, Size(3, 3), 0, 0, BORDER_DEFAULT );
+
     // Detect the stars using a Laplacian
+    Mat laplacian;
     int kernel_size = 3;
     int scale = 1;
     int delta = 0;
-    Laplacian( laplacian, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
+    Laplacian( imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
 
     // Only count stars that fall under the determined threshold
     Mat threshMat;
@@ -347,9 +347,11 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
         // To many contours, lower threshold
         // All values we're interested in are negative -> *1.1 gives a lower value
         threshold = threshold * 1.1;
+        std::cout << "Threshold too high, lowering to " << threshold << std::endl;
     } else if (contours.size() < MIN_NUM_CONTOURS) {
         // To little contours, increase threshold
         threshold = threshold * 0.95;
+        std::cout << "Threshold too low, raising to " << threshold << std::endl;
     }
     
     // Find the center point in every contour
