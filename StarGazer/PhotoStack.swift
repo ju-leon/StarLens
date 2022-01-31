@@ -20,11 +20,11 @@ class PhotoStack {
         case FAILED = 1
         case INIT_FAILED = 2
     }
-    
+
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     public let STRING_ID: String
     public let EXIF_IDENTIFIER = "StarGazer"
-    
+
     private let hdrEnabled: Bool
     private let alignEnabled: Bool
     private let enhanceEnabled: Bool
@@ -43,7 +43,7 @@ class PhotoStack {
 
     private let segmentationModel: DeepLabClean
     private let modelInputDimension = [513, 513]
-    
+
     private var captureProject: Project
 
     private var initAttempts: Int = 0
@@ -61,7 +61,7 @@ class PhotoStack {
             print("OPEN FAILED??")
             //TODO: HANDLE SOMEHOW
         }
-        
+
         self.hdrEnabled = hdr
         self.alignEnabled = align
         self.enhanceEnabled = enhance
@@ -79,9 +79,9 @@ class PhotoStack {
         context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
         coverPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-        
+
         self.captureProject = Project(url: tempDir.appendingPathComponent(self.STRING_ID),
-                                      captureStart: Date())
+                captureStart: Date())
     }
 
     deinit {
@@ -90,7 +90,7 @@ class PhotoStack {
     func markEndCapture() {
         self.captureProject.setCaptureEnd(date: Date())
     }
-    
+
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
         var images: [UIImage] = []
         for captureObject in fromCaptureArray {
@@ -144,7 +144,7 @@ class PhotoStack {
             autoreleasepool {
                 self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
                 self.captureProject.setMetadata(data: captureObject.metadata)
-                
+
                 let image = captureObject.toUIImage()
 
                 self.coverPhoto = image
@@ -257,7 +257,7 @@ class PhotoStack {
 
         self.dispatch.async {
             self.captureProject.save()
-            
+
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
             statusUpdateCallback?(-1)
@@ -268,18 +268,22 @@ class PhotoStack {
         //savePhoto(image: self.trailing!)
     }
 
-    func mergeImageData(imageData: Data, with metadata: NSDictionary) -> Data {
+    func mergeImageData(image: UIImage, with metadata: NSDictionary) -> Data {
+        let imageData = image.pngData()!
         let source: CGImageSource = CGImageSourceCreateWithData(imageData as NSData, nil)!
         let UTI: CFString = CGImageSourceGetType(source)!
-        let newImageData =  NSMutableData()
-        let cgImage = UIImage(data: imageData)!.cgImage
+        let newImageData = NSMutableData()
+        let cgImage = image.cgImage!
+
+        print(metadata)
+
         let imageDestination: CGImageDestination = CGImageDestinationCreateWithData((newImageData as CFMutableData), UTI, 1, nil)!
-        CGImageDestinationAddImage(imageDestination, cgImage!, metadata as CFDictionary)
+        CGImageDestinationAddImage(imageDestination, cgImage, metadata as CFDictionary)
         CGImageDestinationFinalize(imageDestination)
 
         return newImageData as Data
     }
-    
+
     func savePhoto(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
 
@@ -289,42 +293,45 @@ class PhotoStack {
             }
 
             var data = self.captureProject.getMetadata()!
-            
-            if var exifData = data["{Exif}"] as? [String : Any] {
+
+            if var exifData = data["{Exif}"] as? [String: Any] {
                 exifData["ExposureTime"] = Int(self.captureProject.getCaptureEnd()!.timeIntervalSince(self.captureProject.getCaptureStart()))
                 data["{Exif}"] = exifData
             }
-            
+
             if let loc = self.location {
-                var locationData : [String: Any] = [:]
-                
+                var locationData: [String: Any] = [:]
+
                 locationData[kCGImagePropertyGPSLatitude as String] = abs(loc.latitude)
                 locationData[kCGImagePropertyGPSLongitude as String] = abs(loc.longitude)
                 locationData[kCGImagePropertyGPSLatitudeRef as String] = loc.latitude > 0 ? "N" : "S"
                 locationData[kCGImagePropertyGPSLongitudeRef as String] = loc.longitude > 0 ? "E" : "W"
                 data[kCGImagePropertyGPSDictionary as String] = locationData
             }
-            
+
+            // Set to proper image orientation
+            data[kCGImagePropertyOrientation as String] = image.imageOrientation.rawValue
+
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo,
-                                            data: self.mergeImageData(imageData: image.pngData()!, with: data as NSDictionary),
+                        data: self.mergeImageData(image: image, with: data as NSDictionary),
                         options: nil)
-                
-                
+
+
             } completionHandler: { success, error in
                 // Process the Photos library error.
             }
-            
+
         }
     }
-    
+
     func savePhotoToFile(image: UIImage, url: URL) {
         if let data = image.pngData() {
             do {
                 try data.write(to: url)
                 print("Saved photo to \(url.path)")
-                
+
             } catch {
                 print(error.localizedDescription)
             }
