@@ -57,19 +57,15 @@ bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t n
 }
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
-    resize(segmentation, mask, cv::Size(segmentation.cols, segmentation.rows), INTER_LINEAR);
-    mask.setTo(255, mask == 3);
-    mask.setTo(255, mask == 22);
-    mask.setTo(255, mask == 27);
-    threshold(mask, mask, 254, 255, THRESH_BINARY);
+    mask = Mat::zeros(segmentation.size(), CV_32FC1);
+    mask.setTo(1.0, segmentation == 3);
+    mask.setTo(1.0, segmentation == 22);
+    mask.setTo(1.0, segmentation == 27);
 
-    Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(20, 20), cv::Point(10, 10));
+    Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
     erode(mask, mask, element);
 
-    GaussianBlur(mask, mask, cv::Size(101, 101), 0);
-
-    mask.convertTo(mask, CV_16FC1);
-    mask /= 255;
+    GaussianBlur(mask, mask, cv::Size(25, 25), 0);
 }
 
 void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {

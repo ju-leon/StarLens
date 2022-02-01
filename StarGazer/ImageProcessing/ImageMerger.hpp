@@ -27,8 +27,8 @@ struct MergingException : public exception {
 
 class ImageMerger {
 private:
-    const int MIN_STARS_PER_IMAGE = 10;
-    const int MIN_MATCHED_STARS = 10;
+    const int MIN_STARS_PER_IMAGE = 5;
+    const int MIN_MATCHED_STARS = 5;
 
     bool firstImageAdded = false;
 
@@ -121,15 +121,27 @@ public:
      * @param preview A preview of the current stack will be copied to here.
      * @return True if the operation was successful, false otherwise.
      */
-    bool mergeImageOnStack(Mat &image, Mat &mask, Mat &preview) {
+    bool mergeImageOnStack(Mat &image, Mat &segmentation, Mat &preview) {
+        // Convert mask to binary image
+        Mat mask;
+        createTrackingMask(segmentation, mask);
+        resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
+        cvtColor(mask, mask, COLOR_GRAY2RGB);
+
+        // Apply mask to image. Temporarily convert to float to allow soft masking.
+        Mat imageMasked;
+        image.convertTo(imageMasked, CV_32FC1);
+        multiply(imageMasked, mask, imageMasked);
+        imageMasked.convertTo(imageMasked, CV_8UC3);
+
         // Compute the stars in the current image
         vector<Point2i> stars;
-        threshold = getStarCenters(image, threshold, stars);
+        threshold = getStarCenters(imageMasked, threshold, stars);
 
         if (stars.size() < MIN_STARS_PER_IMAGE) {
             std::cout << "Not enough stars found" << std::endl;
             numFailed++;
-            getPreview(preview);
+            //getPreview(preview);
             return false;
         }
 
@@ -161,7 +173,7 @@ public:
 
         // Use homography to warp image
         Mat alignedImage;
-        warpPerspective(image, alignedImage, totalHomography, image.size());
+        warpPerspective(imageMasked, alignedImage, totalHomography, imageMasked.size());
 
         // Add image to the current stacks
         addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_32FC3);
@@ -173,6 +185,7 @@ public:
         numImages++;
 
         getPreview(preview);
+
         return true;
     }
 
