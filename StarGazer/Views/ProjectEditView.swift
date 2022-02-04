@@ -19,6 +19,64 @@ class ProjectEditModel : ObservableObject {
 }
 
 
+struct EditOptionsBar : View {
+    @StateObject var navigationModel: StateControlModel
+
+    @State private var showingDeleteDialog = false
+
+    var body: some View {
+        HStack(spacing: 0) {
+            
+            Button(action: {
+                showingDeleteDialog = true
+            }) {
+                HStack {
+                    Image(systemName: "trash")
+                    Text("Delete")
+                }.padding(10.0)
+                
+            }.padding().foregroundColor(.red).alert(isPresented: $showingDeleteDialog) {
+                Alert(title: Text("Delete project"),
+                      message: Text("This will delete the project and all it's files. This action cannot be undone.\nAre you sure?"),
+                      primaryButton: .default(Text("Cancel")),
+                      secondaryButton: .destructive(Text("Delete")){
+                        navigationModel.currentProject?.deleteProject()
+                        withAnimation {
+                            self.navigationModel.currentView = .projects
+                        }
+                    }
+            )}
+            
+            
+            Spacer()
+            
+            Button(action: {
+                print("Button action")
+            }) {
+                HStack {
+                    Image(systemName: "wand.and.stars")
+                    Text("Edit")
+                }.padding(10.0)
+                
+            }.padding().foregroundColor(.white)
+            
+            Spacer()
+            
+            Button(action: {
+                print("Button action")
+            }) {
+                HStack {
+                    Image(systemName: "square.and.arrow.down.fill")
+                    Text("Export")
+                }.padding(10.0)
+                
+            }.padding().foregroundColor(.white)
+
+        }
+    }
+}
+
+
 struct ProjectEditView : View {
     @StateObject var model = ProjectEditModel()
     
@@ -38,6 +96,7 @@ struct ProjectEditView : View {
                             .clipped()
                     Spacer()
                     
+                    EditOptionsBar(navigationModel: navigationModel)
                     /*
                      TODO: EXPORT; DELETE; PROCESS NOW; Maybe: SOME EDITING OPTIONS
                      */

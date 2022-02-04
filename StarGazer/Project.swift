@@ -137,6 +137,14 @@ class Project : NSObject {
         }
     }
     
+    public func deleteProject() {
+        do {
+            print(url.path)
+            try FileManager.default.removeItem(atPath: url.path)
+        } catch {
+            print("Delete failed")
+        }
+    }
 }
 
 extension Dictionary {
