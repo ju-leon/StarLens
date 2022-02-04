@@ -25,7 +25,7 @@ class PhotoStack {
     public let STRING_ID: String
     public let EXIF_IDENTIFIER = "StarGazer"
 
-    private let hdrEnabled: Bool
+    private let maskEnabled: Bool
     private let alignEnabled: Bool
     private let enhanceEnabled: Bool
 
@@ -50,7 +50,7 @@ class PhotoStack {
     private var MAX_INIT_ATTEMPTS: Int = 3
 
     //TODO: Init with actual size
-    init(hdr: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
+    init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
 
         let tempDir = FileManager.default.temporaryDirectory
@@ -62,7 +62,7 @@ class PhotoStack {
             //TODO: HANDLE SOMEHOW
         }
 
-        self.hdrEnabled = hdr
+        self.maskEnabled = mask
         self.alignEnabled = align
         self.enhanceEnabled = enhance
 
@@ -156,7 +156,8 @@ class PhotoStack {
                  Check if the stacker is called for the first time, if so, we need to init it.
                  */
                 if self.stacker == nil {
-                    self.stacker = OpenCVStacker.init(image: image)
+                    self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
+                    
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")
                         self.initAttempts += 1

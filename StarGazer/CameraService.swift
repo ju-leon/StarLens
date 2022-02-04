@@ -59,7 +59,7 @@ public class CameraService: NSObject {
 
     @Published public var processingProgress = 0
 
-    private var hdrEnabled = false
+    private var maskEnabled = false
     private var alignEnabled = false
     private var enhanceEnabled = false
 
@@ -307,34 +307,29 @@ public class CameraService: NSObject {
             }
         }
     }
-
-    public func toggleHdr(enabled: Bool) {
-        self.hdrEnabled = enabled
-    }
-
-    public func toggleAlign(enabled: Bool) {
-        self.alignEnabled = enabled
-    }
-
+    
     public func toggleEnhance(enabled: Bool) {
         self.enhanceEnabled = enabled
     }
 
+    public func toggleMask(enabled: Bool) {
+        self.maskEnabled = enabled
+    }
+    
     //    MARK: Capture Photo
 
     public func startTimelapse() {
-        if self.hdrEnabled {
-            self.isoRotation = []
-            for x in 4...7 {
-                self.isoRotation.append(self.videoDeviceInput.device.activeFormat.minISO)
-            }
+        
+        self.isoRotation = []
+        for x in 4...7 {
+            self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / 4)
         }
-
+    
         self.captureStatus = .capturing
 
         self.captureQueue.async {
             self.photoStack = PhotoStack(
-                    hdr: self.hdrEnabled,
+                    mask: self.maskEnabled,
                     align: self.alignEnabled,
                     enhance: self.enhanceEnabled,
                     location: self.location
@@ -398,8 +393,8 @@ public class CameraService: NSObject {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-                device.focusMode = .locked
-                //device.setFocusModeLocked(lensPosition: 0.82)
+                //device.focusMode = .locked
+                device.setFocusModeLocked(lensPosition: 0.82)
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -447,8 +442,8 @@ public class CameraService: NSObject {
                             rawPixelFormatType: rawFormat,
                             processedFormat: nil,
                             bracketedSettings: self.isoRotation.map {
-                                //manualExpSetting(maxExposure, $0)
-                                autoExpSetting(Float($0) / Float($0))
+                                manualExpSetting(maxExposure, $0)
+                                //autoExpSetting(Float($0) / Float($0))
                             }
                     )
 

@@ -23,7 +23,7 @@ unique_ptr<ImageMerger> merger;
 
 #pragma mark Public
 
-- (instancetype) initWithImage:(UIImage *)image {
+- (instancetype) initWithImage:(UIImage *)image :(bool) maskEnabled {
     NSLog (@"OpenCVStacker initWithImage");
 
     self = [super init];
@@ -33,7 +33,7 @@ unique_ptr<ImageMerger> merger;
             Mat cvImage = [rotatedImage CVMat3];
 
             try {
-                merger = make_unique<ImageMerger>(cvImage);
+                merger = make_unique<ImageMerger>(cvImage, maskEnabled);
             } catch (const MergingException& e) {
                 NSLog(@"OpenCVStacker initWithImage: %s", e.what());
                 return nil;

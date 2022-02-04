@@ -29,7 +29,7 @@ const int DISTANCE_THRESHOLD = 50;
 /**
  Minimum number of contours required to start a star detection.
  */
-const int MIN_NUM_CONTOURS = 1000;
+const int MIN_NUM_CONTOURS = 200;
 
 /**
  Minimum number of contours allowed  to start a star detection.

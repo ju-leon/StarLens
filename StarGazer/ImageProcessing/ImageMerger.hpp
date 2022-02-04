@@ -54,7 +54,8 @@ private:
     Mat lastImage;
 
     vector<Point2i> lastStars;
-
+    
+    bool maskEnabled;
 
 public:
     /**
@@ -62,7 +63,7 @@ public:
      * If not enough features are found ion the initial image, an exception is thrown.
      * @param image
      */
-    ImageMerger(Mat &image) {
+    ImageMerger(Mat &image, bool maskEnabled) : maskEnabled(maskEnabled) {
         // Find an initial threshold to be used in future images
         std::cout << "Finding initial threshold..." << std::endl;
         threshold = getThreshold(image);
@@ -98,7 +99,12 @@ public:
      * @param previewImage
      */
     void getPreview(Mat &previewImage) {
-        previewImage = currentMaxed;
+        //previewImage = currentMaxed;
+        previewImage = currentCombined.clone();
+
+        // Convert to 8 bit
+        previewImage = previewImage / numImages;
+        previewImage.convertTo(previewImage, CV_8U);
     }
 
 
@@ -122,18 +128,24 @@ public:
      * @return True if the operation was successful, false otherwise.
      */
     bool mergeImageOnStack(Mat &image, Mat &segmentation, Mat &preview) {
-        // Convert mask to binary image
-        Mat mask;
-        createTrackingMask(segmentation, mask);
-        resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
-        cvtColor(mask, mask, COLOR_GRAY2RGB);
-
-        // Apply mask to image. Temporarily convert to float to allow soft masking.
+        
         Mat imageMasked;
-        image.convertTo(imageMasked, CV_32FC1);
-        multiply(imageMasked, mask, imageMasked);
-        imageMasked.convertTo(imageMasked, CV_8UC3);
+        if (maskEnabled) {
+            // Convert mask to binary image
+            Mat mask;
+            createTrackingMask(segmentation, mask);
+            resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
+            cvtColor(mask, mask, COLOR_GRAY2RGB);
 
+            // Apply mask to image. Temporarily convert to float to allow soft masking.
+            image.convertTo(imageMasked, CV_32FC1);
+            multiply(imageMasked, mask, imageMasked);
+            imageMasked.convertTo(imageMasked, CV_8UC3);
+            
+        } else {
+            imageMasked = image.clone();
+        }
+        
         // Compute the stars in the current image
         vector<Point2i> stars;
         threshold = getStarCenters(imageMasked, threshold, stars);

@@ -30,9 +30,7 @@ final class CameraModel: ObservableObject {
 
     @Published var zoomLevel: Float = 1.0
 
-    @Published var hdr: Bool = false
-    @Published var align: Bool = false
-    @Published var enhance: Bool = false
+    @Published var mask: Bool = false
 
     var alertError: AlertError!
 
@@ -144,20 +142,11 @@ final class CameraModel: ObservableObject {
         self.service.focus(focusPoint)
     }
 
-    func toggleHdr() {
-        self.hdr = !self.hdr
-        service.toggleHdr(enabled: self.hdr)
+    func toggleMask() {
+        self.mask = !self.mask
+        service.toggleMask(enabled: self.mask)
     }
 
-    func toggleAlign() {
-        self.align = !self.align
-        service.toggleAlign(enabled: self.align)
-    }
-
-    func toggleEnhance() {
-        self.enhance = !self.enhance
-        service.toggleEnhance(enabled: self.enhance)
-    }
 
 }
 
@@ -190,14 +179,14 @@ struct OptionsBar: View {
             Spacer()
 
             Button(action: {
-                model.toggleHdr()
+                model.toggleMask()
             }, label: {
-                if model.hdr {
+                if model.mask {
                     //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "square.stack.3d.up.fill").foregroundColor(.white)
+                    Image(systemName: "moon.stars.fill").foregroundColor(.white)
                 } else {
                     //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "square.stack.3d.up.slash").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "moon.stars").foregroundColor(.white).opacity(0.5)
                 }
             }).animation(.easeInOut(duration: 0.2))
 
