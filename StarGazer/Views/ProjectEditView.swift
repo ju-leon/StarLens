@@ -14,6 +14,8 @@ class ProjectEditModel : ObservableObject {
     
     @Published var projectEditor: ProjectEditor?
     
+    @Published var previewImage: UIImage = UIImage()
+    
     private var subscriptions = Set<AnyCancellable>()
     
     func loadImageEditor(currentProject: Project) {
@@ -26,6 +28,14 @@ class ProjectEditModel : ObservableObject {
     
     func toggleEditMode() {
         self.inEditMode = !self.inEditMode
+    }
+    
+    func computeEnhanceStar(value: Double) {
+        self.previewImage = projectEditor!.enhanceStars(factor: value)
+    }
+    
+    func setPreviewImage(image: UIImage) {
+        self.previewImage = image
     }
 }
 
@@ -56,8 +66,11 @@ struct EditOptionsBar : View {
     
     var body: some View {
         VStack{
-            Slider(value: $sliderValue, in: -100...100){
+            Slider(value: $sliderValue, in: 0...1){
                 sliding in
+                if (!sliding) {
+                    model.computeEnhanceStar(value: sliderValue)
+                }
                 print(sliding)
             }
             HStack(spacing: 0) {
@@ -175,7 +188,7 @@ struct ProjectEditView : View {
                     }
                     
                     Spacer()
-                    Image(uiImage: navigationModel.currentProject!.getCoverPhoto())
+                    Image(uiImage: model.previewImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .clipped()
@@ -196,6 +209,7 @@ struct ProjectEditView : View {
                 }
         }.onAppear(perform: {
             model.loadImageEditor(currentProject: navigationModel.currentProject!)
+            model.setPreviewImage(image: navigationModel.currentProject!.getCoverPhoto())
         })
     }
     

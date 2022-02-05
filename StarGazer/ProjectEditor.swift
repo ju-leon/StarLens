@@ -19,10 +19,12 @@ class ProjectEditor {
         self.project = project
         let maxedPhoto = project.getMaxedPhoto()
         let averagedPhoto = project.getAveragedPhoto()
-                
+        let previewPhoto = project.getCoverPhoto()
+
         if (maxedPhoto != nil && averagedPhoto != nil) {
             imageEditor = ImageEditor.init(
-                stackedImage: averagedPhoto!,
+                //TODO: Change to averaged photo
+                stackedImage: previewPhoto,
                 maxedPhoto!
             )
             print("Success init")
