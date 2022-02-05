@@ -16,6 +16,8 @@ enum ProjectKeys : String {
     case images = "images"
     case metadata = "metadata"
     case unprocessedPhotoURLs = "photos"
+    case averagedPhotoURL = "averagedPhoto"
+    case maxedPhotoURL = "maxedPhoto"
 }
 
 class Project : NSObject {
@@ -25,9 +27,12 @@ class Project : NSObject {
     private var captureStart: Date
     private var captureEnd: Date?
     private var unprocessedPhotoURLs: [URL] = []
-    
+
     private var coverPhoto: UIImage?
-    
+
+    private var maxedImageURL: URL?
+    private var averagedImageURL: URL?
+
     init(url: URL, captureStart: Date) {
         self.url = url
         self.captureStart = captureStart
@@ -93,7 +98,14 @@ class Project : NSObject {
     public func getMetadata() -> [String: Any]? {
         return self.metadata
     }
-    
+
+    public func addMaxedImageURL(url: URL) {
+        self.maxedImageURL = url
+    }
+
+    public func addAverageImageURL(url: URL) {
+        self.averagedImageURL = url
+    }
     
     public func addUnprocessedPhotoURL(url: URL) {
         self.unprocessedPhotoURLs.append(url)
@@ -116,6 +128,8 @@ class Project : NSObject {
         plist[ProjectKeys.captureEnd.rawValue] = self.captureEnd
         plist[ProjectKeys.unprocessedPhotoURLs.rawValue] = self.unprocessedPhotoURLs
         plist[ProjectKeys.metadata.rawValue] = self.metadata
+        plist[ProjectKeys.averagedPhotoURL.rawValue] = self.averagedImageURL
+        plist[ProjectKeys.maxedPhotoURL.rawValue] = self.maxedImageURL
         
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }

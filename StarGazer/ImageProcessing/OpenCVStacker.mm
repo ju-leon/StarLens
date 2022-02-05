@@ -73,6 +73,12 @@ unique_ptr<ImageMerger> merger;
 
 - (UIImage *)getProcessedImage {
     Mat preview;
+    merger->getProcessed(preview);
+    return [UIImage imageWithCVMat:preview];
+}
+
+- (UIImage *)getPreviewImage {
+    Mat preview;
     merger->getPreview(preview);
     return [UIImage imageWithCVMat:preview];
 }

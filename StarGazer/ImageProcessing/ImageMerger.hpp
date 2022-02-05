@@ -77,6 +77,10 @@ public:
         getStarCenters(image, threshold, lastStars);
         std::cout << "Found " << lastStars.size() << " stars" << std::endl;
 
+        if (lastStars.size() < MIN_STARS_PER_IMAGE) {
+            throw MergingException("Not enough stars found in initial image");
+        }
+        
         // Initialize the current stacks
         lastImage = image.clone();
         lastImage.convertTo(currentCombined, CV_32F);
@@ -84,10 +88,6 @@ public:
 
         // Init the total homography matrix as identity
         totalHomography = Mat::eye(3, 3, CV_64FC1);
-
-        if (lastStars.size() < MIN_STARS_PER_IMAGE) {
-            throw MergingException("Not enough stars found in initial image");
-        }
     }
 
     virtual ~ImageMerger() {
@@ -100,11 +100,7 @@ public:
      */
     void getPreview(Mat &previewImage) {
         //previewImage = currentMaxed;
-        previewImage = currentCombined.clone();
-
-        // Convert to 8 bit
-        previewImage = previewImage / numImages;
-        previewImage.convertTo(previewImage, CV_8U);
+        previewImage = currentMaxed.clone();
     }
 
 
@@ -153,7 +149,7 @@ public:
         if (stars.size() < MIN_STARS_PER_IMAGE) {
             std::cout << "Not enough stars found" << std::endl;
             numFailed++;
-            //getPreview(preview);
+            getPreview(preview);
             return false;
         }
 

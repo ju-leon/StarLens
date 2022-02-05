@@ -142,11 +142,14 @@ class PhotoStack {
     func add(captureObject: CaptureObject, statusUpdateCallback: ((PhotoStackingResult) -> ())?) -> UIImage {
         self.dispatch.async {
             autoreleasepool {
+
+                
                 self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
                 self.captureProject.setMetadata(data: captureObject.metadata)
 
                 let image = captureObject.toUIImage()
-
+                //self.savePreview(image: image)
+                
                 self.coverPhoto = image
 
                 let prediction = self.predict(image)
@@ -266,6 +269,27 @@ class PhotoStack {
     }
 
     func saveStack() {
+
+        print("Saving stack")
+
+        self.dispatch.async {
+            self.captureProject.save()
+
+            let imageStacked = self.stacker!.getProcessedImage()
+            self.savePhoto(image: imageStacked)
+
+            self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent("imageAveraged.png"))
+            self.captureProject.addAverageImageURL(url: self.captureProject.getUrl().appendingPathComponent("imageAveraged.png"))
+
+            let imageMaxed = self.stacker!.getPreviewImage()
+            self.savePhoto(image: imageMaxed)
+
+            self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
+            self.captureProject.addMaxedImageURL(url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
+
+            print("Stack exported")
+
+        }
         //savePhoto(image: self.trailing!)
     }
 
@@ -285,6 +309,28 @@ class PhotoStack {
         return newImageData as Data
     }
 
+    func savePreview(image: UIImage) {
+        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
+
+            // Don't continue if not authorized.
+            guard status == .authorized else {
+                return
+            }
+
+            PHPhotoLibrary.shared().performChanges {
+                let creationRequest = PHAssetCreationRequest.forAsset()
+                creationRequest.addResource(with: .photo,
+                                            data: image.jpegData(compressionQuality: 0.99)!,
+                                            options: nil)
+
+
+            } completionHandler: { success, error in
+                // Process the Photos library error.
+            }
+
+        }
+    }
+    
     func savePhoto(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
 

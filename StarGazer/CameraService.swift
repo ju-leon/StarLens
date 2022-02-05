@@ -366,6 +366,7 @@ public class CameraService: NSObject {
                 self.adjustViewfinderSettings()
             }
         }
+        self.adjustViewfinderSettings()
 
     }
 

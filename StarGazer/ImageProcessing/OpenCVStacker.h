@@ -34,6 +34,8 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (UIImage *)getProcessedImage;
 
+- (UIImage *)getPreviewImage;
+
 @end
 
 NS_ASSUME_NONNULL_END
