@@ -346,8 +346,6 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     vector<Vec4i> hierarchy;
     cv::findContours(threshMat, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
     
-    std::cout << "Num contours in star centers: " << contours.size() << std::endl;
-    
     // Continously adapt threshold to account for changes in lighting if neccesary.
     if (contours.size() > MAX_NUM_CONTOURS) {
         // To many contours, lower threshold
@@ -363,11 +361,9 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     // Find the center point in every contour
     for (vector<Point> contour : contours) {
         if (contour.size() < 2) {
-            std::cout << "Contour too feww points" << std::endl;
             continue;
         }
-        std::cout << "Using contour" << std::endl;
-        
+
         // Find the convex hull of the contour to determin contours that are invalid
         auto area = cv::contourArea(contour);
         std::vector<Point> convexHull;
@@ -380,7 +376,6 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
         
         // Only select stars over a certain size
         if (area > MIN_AREA_THRESHOLD && area < MAX_AREA_THRESHOLD) {
-            std::cout << "Contour large enough" << std::endl;
             Moments moment = cv::moments(contour);
             
             if (moment.m00 != 0) {
