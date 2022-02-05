@@ -19,7 +19,13 @@ const float ROUNDNESS_THRESHOLD = 0.8;
 /**
  Minimum area required to be counted as a star.
  */
-const int AREA_THRESHOLD = 5;
+const int MIN_AREA_THRESHOLD = 5;
+
+/**
+ Maximum area to be counted as a star.
+ Prevent clouds from being counted as stars.
+ */
+const int MAX_AREA_THRESHOLD = 1000;
 
 /**
  Maxmium distance allowed to match 2 stars.
@@ -108,7 +114,7 @@ void extractStars(cv::Mat &image,
         
         auto ratio = area / convexHullArea;
         
-        if (ratio >= ROUNDNESS_THRESHOLD && area > AREA_THRESHOLD) {
+        if (ratio >= ROUNDNESS_THRESHOLD && area > MIN_AREA_THRESHOLD) {
             Moments moment = cv::moments(contour);
             int cX = moment.m10 / moment.m00;
             int cY = moment.m01 / moment.m00;
@@ -373,7 +379,7 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
         }
         
         // Only select stars over a certain size
-        if (area > AREA_THRESHOLD) {
+        if (area > MIN_AREA_THRESHOLD && area < MAX_AREA_THRESHOLD) {
             std::cout << "Contour large enough" << std::endl;
             Moments moment = cv::moments(contour);
             

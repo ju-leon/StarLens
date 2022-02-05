@@ -522,17 +522,8 @@ public class CameraService: NSObject {
                 self.stop()
 
                 sessionQueue.async {
-                    self.photoStack!.stackPhotos({ (x: Int) -> () in
-                        DispatchQueue.main.async {
-                            self.processingProgress = x
-
-                            if (x == -1) {
-                                self.resetCamera(deletingStack: false)
-                            }
-
-                        }
-                    })
                     self.photoStack!.saveStack()
+                    self.resetCamera(deletingStack: false)
                 }
             }
         }

@@ -256,25 +256,11 @@ class PhotoStack {
         return scaleDownFilter.outputImage!
     }
 
-    func stackPhotos(_ statusUpdateCallback: ((Int) -> ())?) {
-        print("Scheduled merge")
-
-        self.dispatch.async {
-            self.captureProject.save()
-
-            let imageStacked = self.stacker!.getProcessedImage()
-            self.savePhoto(image: imageStacked)
-            statusUpdateCallback?(-1)
-        }
-    }
-
     func saveStack() {
 
         print("Saving stack")
 
         self.dispatch.async {
-            self.captureProject.save()
-
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
 
@@ -286,6 +272,8 @@ class PhotoStack {
 
             self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
             self.captureProject.addMaxedImageURL(url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
+
+            self.captureProject.save()
 
             print("Stack exported")
 

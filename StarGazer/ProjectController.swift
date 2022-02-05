@@ -17,7 +17,15 @@ public class ProjectController: NSObject {
         let projectDirs = ProjectController.listProjects()
         self.projects = []
         for projectPath in projectDirs {
-            self.projects.append(Project(url: projectPath))
+            do {
+                try self.projects.append(Project(url: projectPath))
+            } catch {
+                print("Unable to load project at \(projectPath)")
+            }
+        }
+
+        self.projects.sort { (project1, project2) -> Bool in
+            return project1.getCaptureStart() > project2.getCaptureStart()
         }
     }
     

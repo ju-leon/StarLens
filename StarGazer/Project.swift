@@ -20,6 +20,10 @@ enum ProjectKeys : String {
     case maxedPhotoURL = "maxedPhoto"
 }
 
+enum ProjectError: Error {
+    case invalidProject
+}
+
 class Project : NSObject {
     private var url: URL
     
@@ -39,15 +43,14 @@ class Project : NSObject {
         
     }
     
-    init(url: URL) {
+    init(url: URL) throws {
         self.url = url
         
         let plist = Dictionary<String, Any>.loadFromPath(url: url.appendingPathComponent(PLIST_FILE_NAME))
         
         if plist == nil {
             print("Error loading project")
-            captureStart = Date()
-            return
+            throw ProjectError.invalidProject
         }
         
         self.captureStart = plist![ProjectKeys.captureStart.rawValue] as! Date
