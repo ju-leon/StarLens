@@ -49,7 +49,7 @@ public class CameraService: NSObject {
 //    6.
     @Published public var isCameraUnavailable = true
 //    8.
-    @Published public var captureStatus : CaptureStatus = .preparing
+    @Published public var captureStatus: CaptureStatus = .preparing
 
     @Published public var previewPhoto: UIImage?
 
@@ -132,14 +132,14 @@ public class CameraService: NSObject {
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
             locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestLocation() 
+            locationManager.requestLocation()
         }
 
         self.configureCaptureSession()
-       
+
     }
 
-    
+
     //        MARK: Checks for user's permisions
     public func checkForPermissions() {
         self.locationManager.requestWhenInUseAuthorization()
@@ -307,7 +307,7 @@ public class CameraService: NSObject {
             }
         }
     }
-    
+
     public func toggleEnhance(enabled: Bool) {
         self.enhanceEnabled = enabled
     }
@@ -315,16 +315,16 @@ public class CameraService: NSObject {
     public func toggleMask(enabled: Bool) {
         self.maskEnabled = enabled
     }
-    
+
     //    MARK: Capture Photo
 
     public func startTimelapse() {
-        
+
         self.isoRotation = []
         for x in 4...7 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / 4)
         }
-    
+
         self.captureStatus = .capturing
 
         self.captureQueue.async {
@@ -494,16 +494,16 @@ public class CameraService: NSObject {
                     }, photoStack: self.photoStack!, stackingResultsCallback: {
                         // Notfies the UI about the processing progress
                         (result) in
-                            DispatchQueue.main.async {
-                                switch result {
-                                case .SUCCESS:
-                                    self.numProcessed += 1
-                                case .FAILED:
-                                    self.numFailed += 1
-                                case .INIT_FAILED:
-                                    self.abortCapture()
-                                }
+                        DispatchQueue.main.async {
+                            switch result {
+                            case .SUCCESS:
+                                self.numProcessed += 1
+                            case .FAILED:
+                                self.numFailed += 1
+                            case .INIT_FAILED:
+                                self.abortCapture()
                             }
+                        }
                     })
 
                     // The photo output holds a weak reference to the photo capture delegate and stores it in an array to maintain a strong reference.
@@ -517,13 +517,16 @@ public class CameraService: NSObject {
                     }
                 }
             } else if self.captureStatus == .processing {
-                self.photoStack?.markEndCapture()
-                
-                self.stop()
 
+
+                self.photoStack?.markEndCapture()
                 sessionQueue.async {
-                    self.photoStack!.saveStack()
-                    self.resetCamera(deletingStack: false)
+                    self.photoStack!.saveStack(statusUpdateCallback:
+                    { (result) in
+                        self.resetCamera(deletingStack: false)
+                        self.stop()
+                    }
+                    )
                 }
             }
         }

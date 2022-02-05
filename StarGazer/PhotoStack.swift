@@ -256,7 +256,7 @@ class PhotoStack {
         return scaleDownFilter.outputImage!
     }
 
-    func saveStack() {
+    func saveStack(statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
 
         print("Saving stack")
 
@@ -275,6 +275,7 @@ class PhotoStack {
 
             self.captureProject.save()
 
+            statusUpdateCallback?(PhotoStackingResult.SUCCESS)
             print("Stack exported")
 
         }

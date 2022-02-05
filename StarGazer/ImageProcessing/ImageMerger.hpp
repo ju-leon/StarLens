@@ -82,12 +82,16 @@ public:
         }
         
         // Initialize the current stacks
-        lastImage = image.clone();
-        lastImage.convertTo(currentCombined, CV_32F);
+        image.copyTo(lastImage);
+        lastImage.convertTo(currentCombined, CV_64F);
+
         currentMaxed = image.clone();
 
         // Init the total homography matrix as identity
         totalHomography = Mat::eye(3, 3, CV_64FC1);
+
+        numImages = 0;
+        numFailed = 0;
     }
 
     virtual ~ImageMerger() {
@@ -108,8 +112,7 @@ public:
      * Returns the processed image.
      */
     void getProcessed(Mat &image) {
-        image = currentCombined.clone();
-
+        currentCombined.copyTo(image);
         // Convert to 8 bit
         image = image / numImages;
         image.convertTo(image, CV_8U);
@@ -183,9 +186,12 @@ public:
         Mat alignedImage;
         warpPerspective(imageMasked, alignedImage, totalHomography, imageMasked.size());
 
-        // Add image to the current stacks
-        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_32FC3);
+
         max(currentMaxed, alignedImage, currentMaxed);
+
+        // Add image to the current stacks
+        alignedImage.convertTo(alignedImage, CV_64F);
+        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_64F);
 
         // Update last image and stars
         lastImage = image;
