@@ -43,24 +43,6 @@ const int MIN_NUM_CONTOURS = 2000;
 const int MAX_NUM_CONTOURS = 20000;
 
 
-bool combine(cv::Mat &imageBase, cv::Mat &imageNew, cv::Mat &mask, std::size_t numImages, cv::Mat &result) {
-    Mat imReg, h;
-    
-    if (alignImages(imageNew, mask, imageBase, imReg, h)) {
-        std::cout << "Successfully aligned" << std::endl;
-
-        imReg.convertTo(imReg, CV_32FC3);
-
-        double weight = 1.0 / numImages;
-        
-        addWeighted(imageBase, 1, imReg, 1, 0.0, result, CV_32FC3);
-        //cv::max(imageBase, imReg, result);
-        return true;
-        
-    } else {
-        return false;
-    }
-}
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     mask = Mat::zeros(segmentation.size(), CV_32FC1);
@@ -82,46 +64,6 @@ void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {
         features.push_back(row);
     }
     mat = features;
-}
-
-void extractStars(cv::Mat &image,
-                  std::vector<KeyPoint> &keypoints,
-                  std::vector<cv::Point2i> &starCenters) {
-    
-    cv::Mat1b contourMat(image.size());
-    
-    for (auto keypoint: keypoints) {
-        cv::circle(contourMat, keypoint.pt, keypoint.size / 2, 255, -1);
-    }
-    
-    vector<vector<Point> > contours;
-    vector<Vec4i> hierarchy;
-    cv::findContours(contourMat, contours, hierarchy, RETR_TREE, CHAIN_APPROX_SIMPLE);
-    
-    for (vector<Point> contour : contours) {
-        if (contour.size() < 1) {
-            continue;
-        }
-        
-        auto area = cv::contourArea(contour);
-        std::vector<Point> convexHull;
-        cv::convexHull(contour, convexHull);
-        auto convexHullArea = cv::contourArea(convexHull);
-        
-        if (convexHullArea == 0) {
-            continue;
-        }
-        
-        auto ratio = area / convexHullArea;
-        
-        if (ratio >= ROUNDNESS_THRESHOLD && area > MIN_AREA_THRESHOLD) {
-            Moments moment = cv::moments(contour);
-            int cX = moment.m10 / moment.m00;
-            int cY = moment.m01 / moment.m00;
-
-            starCenters.emplace_back(Point2i(cX, cY));
-        }
-    }
 }
 
 void matchStars(std::vector<cv::Point2i> &points1,
@@ -173,89 +115,6 @@ void matchStars(std::vector<cv::Point2i> &points1,
         }
     }
 }
-
-bool alignImages(Mat &im1, Mat &mask, Mat &im2, Mat &im1Reg, Mat &h) {
-    // Convert images to grayscale
-    Mat im1Gray, im2Gray;
-    cvtColor(im1, im1Gray, cv::COLOR_BGR2GRAY);
-    cvtColor(im2, im2Gray, cv::COLOR_BGR2GRAY);
-
-    //Temporarily convert images to float to allow soft masking
-    im1Gray.convertTo(im1Gray, CV_16FC1);
-    im2Gray.convertTo(im2Gray, CV_16FC1);
-
-    im1Gray.mul(mask);
-    im2Gray.mul(mask);
-
-    im1Gray.convertTo(im1Gray, CV_8UC1);
-    im2Gray.convertTo(im2Gray, CV_8UC1);
-
-    
-    // Detect stars in image
-    std::vector<KeyPoint> keypoints1, keypoints2;
-    Ptr<Feature2D> star = xfeatures2d::StarDetector::create(20, 16, 10, 8, 3);
-    star->detect(im1Gray, keypoints1);
-    star->detect(im2Gray, keypoints2);
-
-    std::cout << "Found " << keypoints1.size() << " keypoints to track" << std::endl;
-
-    if (keypoints1.size() < 5 || keypoints2.size() < 5) {
-        std::cout << "Not enough keypoints to track" << std::endl;
-        return false;
-    }
-    
-    std::vector<Point2i> points1, points2;
-    extractStars(im1Gray, keypoints1, points1);
-    extractStars(im2Gray, keypoints2, points2);
-    
-    std::cout << "Extracted " << points1.size() << " stars from keypoints1" << std::endl;
-    std::cout << "Extracted " << points2.size() << " stars from keypoints2" << std::endl;
-
-    if (points1.size() < 5 || points2.size() < 5) {
-        std::cout << "Not enough stars to track" << std::endl;
-        return false;
-    }
-
-    std::vector<DMatch> matches;
-    matchStars(points1, points2, matches);
-
-    //OPTIONAL: REMOVE BAD MATCHES. SEE HOW IT GOES FIRST
-    /*
-    // Sort matches by score
-    std::sort(matches.begin(), matches.end());
-
-    // Remove not so good matches
-    const int numGoodMatches = matches.size() * GOOD_MATCH_PERCENT;
-    matches.erase(matches.begin() + numGoodMatches, matches.end());
-    */
-
-    std::vector<Point2i> matched_points1, matched_points2;
-    for (size_t i = 0; i < matches.size(); i++) {
-        matched_points1.push_back(points1[matches[i].queryIdx]);
-        matched_points2.push_back(points2[matches[i].trainIdx]);
-    }
-
-
-    if (matched_points1.size() < 10) {
-        std::cout << "Not enough features to match found" << std::endl;
-        return false;
-    }
-
-    std::cout << "Found " << matched_points1.size() << " points to match" << std::endl;
-
-    // Find homography
-    h = findHomography(matched_points2, matched_points1, RANSAC);
-
-    // Use homography to warp image
-    warpPerspective(im1, im1Reg, h, im2.size());
-    return true;
-}
-
-
-/**
- 
- --------------
- */
 
 /**
  Returns the threshold in the Laplacian of an image under which points are used in the contour detector.

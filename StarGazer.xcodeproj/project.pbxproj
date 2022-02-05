@@ -24,6 +24,8 @@
 		05B9B8CD276BDBB100FF442F /* StarGazerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8CC276BDBB100FF442F /* StarGazerTests.swift */; };
 		05B9B8D7276BDBB100FF442F /* StarGazerUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */; };
 		05B9B8D9276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */; };
+		05BE420827AF1EDD00F45670 /* ImageEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05BE420627AF1EDD00F45670 /* ImageEditor.mm */; };
+		05BE420A27AF32EC00F45670 /* ProjectEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE420927AF32EC00F45670 /* ProjectEditor.swift */; };
 		05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CEB59D27723D8800EDDE7D /* PhotoStack.swift */; };
 		05D338AB27A47A86008BB868 /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D338AA27A47A85008BB868 /* ProjectEditView.swift */; };
 		05D4507F279378BF008DB81E /* blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05D4507D279378BF008DB81E /* blend.cpp */; };
@@ -99,6 +101,9 @@
 		05B9B8D2276BDBB100FF442F /* StarGazerUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = StarGazerUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8D6276BDBB100FF442F /* StarGazerUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITests.swift; sourceTree = "<group>"; };
 		05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerUITestsLaunchTests.swift; sourceTree = "<group>"; };
+		05BE420627AF1EDD00F45670 /* ImageEditor.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = ImageEditor.mm; sourceTree = "<group>"; };
+		05BE420727AF1EDD00F45670 /* ImageEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageEditor.h; sourceTree = "<group>"; };
+		05BE420927AF32EC00F45670 /* ProjectEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditor.swift; sourceTree = "<group>"; };
 		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
 		05D338AA27A47A85008BB868 /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		05D4507D279378BF008DB81E /* blend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blend.cpp; sourceTree = "<group>"; };
@@ -247,6 +252,7 @@
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
 				05D4508227943EC6008DB81E /* ProjectController.swift */,
 				05D4508427943F12008DB81E /* Project.swift */,
+				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
 				3B2A07B712EAB45B4304C926 /* Views */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
 				051F0A8B276FC0C60015C507 /* Info.plist */,
@@ -320,6 +326,8 @@
 				05DE2259277DB51F007A90DE /* Extensions */,
 				05DE224F277D12F5007A90DE /* PrefixHeader.pch */,
 				05DE2245277D08FB007A90DE /* StarGazer-Bridging-Header.h */,
+				05BE420727AF1EDD00F45670 /* ImageEditor.h */,
+				05BE420627AF1EDD00F45670 /* ImageEditor.mm */,
 			);
 			path = ImageProcessing;
 			sourceTree = "<group>";
@@ -588,6 +596,8 @@
 				05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */,
 				05DE2244277D08C6007A90DE /* OpenCVStacker.mm in Sources */,
 				0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */,
+				05BE420827AF1EDD00F45670 /* ImageEditor.mm in Sources */,
+				05BE420A27AF32EC00F45670 /* ProjectEditor.swift in Sources */,
 				05D4508327943EC6008DB81E /* ProjectController.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,

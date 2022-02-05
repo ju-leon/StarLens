@@ -6,4 +6,5 @@
 //
 
 #import "OpenCVStacker.h"
+#import "ImageEditor.h"
 //#import "UIImage+OpenCV.hpp"

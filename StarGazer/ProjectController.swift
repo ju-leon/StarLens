@@ -20,7 +20,6 @@ public class ProjectController: NSObject {
             do {
                 try self.projects.append(Project(url: projectPath))
             } catch {
-                print("Unable to load project at \(projectPath)")
             }
         }
 
@@ -36,7 +35,6 @@ public class ProjectController: NSObject {
         do {
             let dir = try FileManager.default.contentsOfDirectory(at: tempDir, includingPropertiesForKeys: nil)
             return dir
-            print(dir)
         } catch {
             print("Failed")
             return []

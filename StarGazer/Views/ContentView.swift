@@ -367,8 +367,7 @@ struct CameraView: View {
 
                 //flipCameraButton
 
-            }
-                    .padding(.horizontal, 20)
+            }.padding(.horizontal, 20)
         }
 
     }

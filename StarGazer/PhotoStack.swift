@@ -264,14 +264,12 @@ class PhotoStack {
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
 
-            self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent("imageAveraged.png"))
-            self.captureProject.addAverageImageURL(url: self.captureProject.getUrl().appendingPathComponent("imageAveraged.png"))
+            self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent(AVERAGED_FILE_NAME))
 
             let imageMaxed = self.stacker!.getPreviewImage()
             self.savePhoto(image: imageMaxed)
 
-            self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
-            self.captureProject.addMaxedImageURL(url: self.captureProject.getUrl().appendingPathComponent("imageMaxed.png"))
+            self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent(MAXED_FILE_NAME))
 
             self.captureProject.save()
 

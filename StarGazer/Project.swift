@@ -9,6 +9,9 @@ import Foundation
 
 let PLIST_FILE_NAME = "data.xml"
 let PREVIEW_FILE_NAME = "preview.png"
+let MAXED_FILE_NAME = "imageMaxed.png"
+let AVERAGED_FILE_NAME = "imageAveraged.png"
+
 
 enum ProjectKeys : String {
     case captureStart = "captureStart"
@@ -16,8 +19,6 @@ enum ProjectKeys : String {
     case images = "images"
     case metadata = "metadata"
     case unprocessedPhotoURLs = "photos"
-    case averagedPhotoURL = "averagedPhoto"
-    case maxedPhotoURL = "maxedPhoto"
 }
 
 enum ProjectError: Error {
@@ -34,9 +35,6 @@ class Project : NSObject {
 
     private var coverPhoto: UIImage?
 
-    private var maxedImageURL: URL?
-    private var averagedImageURL: URL?
-
     init(url: URL, captureStart: Date) {
         self.url = url
         self.captureStart = captureStart
@@ -49,7 +47,6 @@ class Project : NSObject {
         let plist = Dictionary<String, Any>.loadFromPath(url: url.appendingPathComponent(PLIST_FILE_NAME))
         
         if plist == nil {
-            print("Error loading project")
             throw ProjectError.invalidProject
         }
         
@@ -60,8 +57,6 @@ class Project : NSObject {
         
         self.unprocessedPhotoURLs = plist![ProjectKeys.unprocessedPhotoURLs.rawValue] as! [URL]
         
-            
-
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(PREVIEW_FILE_NAME).path) {
             self.coverPhoto = UIImage(contentsOfFile: url.appendingPathComponent(PREVIEW_FILE_NAME).path)
         }
@@ -70,6 +65,24 @@ class Project : NSObject {
     
     deinit {
         //TODO: SAVE
+    }
+    
+    
+
+    public func getAveragedPhoto() -> UIImage? {
+        if FileManager.default.fileExists(atPath: url.appendingPathComponent(AVERAGED_FILE_NAME).path) {
+            return UIImage(contentsOfFile: url.appendingPathComponent(AVERAGED_FILE_NAME).path)
+        } else {
+            return nil
+        }
+    }
+
+    public func getMaxedPhoto() -> UIImage? {
+        if FileManager.default.fileExists(atPath: url.appendingPathComponent(MAXED_FILE_NAME).path) {
+            return UIImage(contentsOfFile: url.appendingPathComponent(MAXED_FILE_NAME).path)
+        } else {
+            return nil
+        }
     }
 
     public func getCoverPhoto() -> UIImage {
@@ -101,14 +114,6 @@ class Project : NSObject {
     public func getMetadata() -> [String: Any]? {
         return self.metadata
     }
-
-    public func addMaxedImageURL(url: URL) {
-        self.maxedImageURL = url
-    }
-
-    public func addAverageImageURL(url: URL) {
-        self.averagedImageURL = url
-    }
     
     public func addUnprocessedPhotoURL(url: URL) {
         self.unprocessedPhotoURLs.append(url)
@@ -131,8 +136,6 @@ class Project : NSObject {
         plist[ProjectKeys.captureEnd.rawValue] = self.captureEnd
         plist[ProjectKeys.unprocessedPhotoURLs.rawValue] = self.unprocessedPhotoURLs
         plist[ProjectKeys.metadata.rawValue] = self.metadata
-        plist[ProjectKeys.averagedPhotoURL.rawValue] = self.averagedImageURL
-        plist[ProjectKeys.maxedPhotoURL.rawValue] = self.maxedImageURL
         
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }
@@ -182,13 +185,11 @@ extension Dictionary {
     }
     
     static func loadFromPath(url: URL) -> [String : Any?]?{
-        print("Loading file \(url.absoluteString) ")
         do {
             let data = try Data(contentsOf: url)//6
             let object = try NSKeyedUnarchiver.unarchiveTopLevelObjectWithData(data)
             return object as? [String : Any?]
         } catch {
-            print("error is: \(error.localizedDescription)")//9
             return nil
         }
     }
