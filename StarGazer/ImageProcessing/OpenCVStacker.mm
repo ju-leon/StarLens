@@ -83,4 +83,8 @@ unique_ptr<ImageMerger> merger;
     return [UIImage imageWithCVMat:preview];
 }
 
+- (void) saveFiles: (NSString *) path {
+    merger->saveToDirectory(std::string([path UTF8String]));
+}
+
 @end

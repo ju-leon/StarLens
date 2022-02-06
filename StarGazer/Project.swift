@@ -31,7 +31,7 @@ class Project : NSObject {
     private var metadata : [String : Any]?
     private var captureStart: Date
     private var captureEnd: Date?
-    private var unprocessedPhotoURLs: [URL] = []
+    private var unprocessedPhotoURLs: [String] = []
 
     private var coverPhoto: UIImage?
 
@@ -55,8 +55,8 @@ class Project : NSObject {
         
         self.metadata = plist![ProjectKeys.metadata.rawValue] as? [String: Any]
         
-        self.unprocessedPhotoURLs = plist![ProjectKeys.unprocessedPhotoURLs.rawValue] as! [URL]
-        
+        self.unprocessedPhotoURLs = plist![ProjectKeys.unprocessedPhotoURLs.rawValue] as! [String]
+
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(PREVIEW_FILE_NAME).path) {
             self.coverPhoto = UIImage(contentsOfFile: url.appendingPathComponent(PREVIEW_FILE_NAME).path)
         }
@@ -67,7 +67,21 @@ class Project : NSObject {
         //TODO: SAVE
     }
     
-    
+    public func processedMatsAvailable() -> Bool {
+        if !FileManager.default.fileExists(atPath: url.appendingPathComponent("combined.xml").path) {
+            return false
+        }
+        
+        if !FileManager.default.fileExists(atPath: url.appendingPathComponent("maxed.xml").path) {
+            return false
+        }
+        
+        if !FileManager.default.fileExists(atPath: url.appendingPathComponent("stacked.xml").path) {
+            return false
+        }
+        
+        return true
+    }
 
     public func getAveragedPhoto() -> UIImage? {
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(AVERAGED_FILE_NAME).path) {
@@ -93,6 +107,10 @@ class Project : NSObject {
         }
     }
     
+    public func getUnprocessedPhotoURLS() -> [String] {
+        return self.unprocessedPhotoURLs
+    }
+    
     public func setCaptureEnd(date: Date) {
         self.captureEnd = date
     }
@@ -116,12 +134,12 @@ class Project : NSObject {
     }
     
     public func addUnprocessedPhotoURL(url: URL) {
-        self.unprocessedPhotoURLs.append(url)
+        self.unprocessedPhotoURLs.append(url.lastPathComponent)
     }
     
     public func removeUnprocessedPhotoURL(url: URL) {
-        if (self.unprocessedPhotoURLs.contains(where: {$0.path == url.path})) {
-            self.unprocessedPhotoURLs.remove(at: self.unprocessedPhotoURLs.firstIndex(where: {$0.path == url.path})!)
+        if (self.unprocessedPhotoURLs.contains(where: {$0 == url.lastPathComponent})) {
+            self.unprocessedPhotoURLs.remove(at: self.unprocessedPhotoURLs.firstIndex(where: {$0 == url.lastPathComponent})!)
         }
     }
     

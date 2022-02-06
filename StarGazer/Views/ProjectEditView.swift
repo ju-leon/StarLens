@@ -10,19 +10,18 @@ import AVFoundation
 import UIKit
 
 class ProjectEditModel : ObservableObject {
-    @Published var inEditMode = false;
-    
-    @Published var projectEditor: ProjectEditor?
+    private var projectEditor: ProjectEditor?
     
     @Published var previewImage: UIImage = UIImage()
+    @Published var inEditMode = false;
+    @Published var isProcessed = true;
     
     private var subscriptions = Set<AnyCancellable>()
-    
-    func loadImageEditor(currentProject: Project) {
-        do {
-            self.projectEditor = try ProjectEditor(project: currentProject)
-        } catch {
-            print("Project not finished processing")
+
+    func setProjectEditor(projectEditor: ProjectEditor) {
+        self.projectEditor = projectEditor
+        if (self.projectEditor?.imageEditor != nil) {
+            self.isProcessed = true;
         }
     }
     
@@ -120,7 +119,7 @@ struct ActionOptionsBar : View {
             
             Spacer()
             
-            if (model.projectEditor != nil) {
+            if (model.isProcessed) {
                 Button(action: {
                     withAnimation {
                         model.toggleEditMode()
@@ -135,6 +134,7 @@ struct ActionOptionsBar : View {
             } else {
                 Button(action: {
                     print("Processing clicked")
+                    //model.projectEditor?.stackPhotos(callback: nil)
                 }) {
                     HStack {
                         Image(systemName: "gearshape.2.fill")
@@ -206,9 +206,9 @@ struct ProjectEditView : View {
                     /*
                      TODO: EXPORT; DELETE; PROCESS NOW; Maybe: SOME EDITING OPTIONS
                      */
-                }
+                }.background(.black).foregroundColor(.white)
         }.onAppear(perform: {
-            model.loadImageEditor(currentProject: navigationModel.currentProject!)
+            model.setProjectEditor(projectEditor: ProjectEditor(project: navigationModel.currentProject!))
             model.setPreviewImage(image: navigationModel.currentProject!.getCoverPhoto())
         })
     }

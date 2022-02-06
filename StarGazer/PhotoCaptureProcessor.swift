@@ -36,7 +36,7 @@ class PhotoCaptureProcessor: NSObject {
 
     public var previewPhoto : UIImage?
     
-    private let stackingResultsCallback : (PhotoStack.PhotoStackingResult) -> Void
+    private let stackingResultsCallback : (PhotoStackingResult) -> Void
 
 //    Init takes multiple closures to be called in each step of the photco capture process
     init(with requestedPhotoSettings: AVCapturePhotoBracketSettings,
@@ -44,7 +44,7 @@ class PhotoCaptureProcessor: NSObject {
          completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
          photoProcessingHandler: @escaping (Bool) -> Void,
          photoStack: PhotoStack,
-         stackingResultsCallback: @escaping (PhotoStack.PhotoStackingResult) -> Void) {
+         stackingResultsCallback: @escaping (PhotoStackingResult) -> Void) {
 
         self.requestedPhotoSettings = requestedPhotoSettings
         self.willCapturePhotoAnimation = willCapturePhotoAnimation

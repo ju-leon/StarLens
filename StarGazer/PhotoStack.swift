@@ -13,13 +13,13 @@ import CoreImage
 import Vision
 import CoreML
 
+public enum PhotoStackingResult: Int {
+    case SUCCESS = 0
+    case FAILED = 1
+    case INIT_FAILED = 2
+}
 
-class PhotoStack {
-    enum PhotoStackingResult: Int {
-        case SUCCESS = 0
-        case FAILED = 1
-        case INIT_FAILED = 2
-    }
+public class PhotoStack {
 
     // TIME FOR ONE REVOLUTION OF THE EARTH IN SECONDS
     public let STRING_ID: String

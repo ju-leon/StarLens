@@ -9,6 +9,7 @@
 #define ImageMerger_hpp
 
 #include <stdio.h>
+#include <string.h>
 #include <opencv2/opencv.hpp>
 
 using namespace std;
@@ -43,6 +44,12 @@ private:
     Images are merged onto the stack using a max operation, so the stack contains the max over all images.
      */
     Mat currentMaxed;
+    
+    /**
+    Current stack all imges will be merged onto.
+    Images are merged onto the stack without being aligned. Used to spereate foreground and background.
+     */
+    Mat currentStacked;
 
     int numImages;
     int numFailed;
@@ -84,6 +91,7 @@ public:
         // Initialize the current stacks
         image.copyTo(lastImage);
         lastImage.convertTo(currentCombined, CV_64F);
+        lastImage.convertTo(currentStacked, CV_64F);
 
         currentMaxed = image.clone();
 
@@ -186,13 +194,18 @@ public:
         Mat alignedImage;
         warpPerspective(imageMasked, alignedImage, totalHomography, imageMasked.size());
 
-
         max(currentMaxed, alignedImage, currentMaxed);
 
         // Add image to the current stacks
         alignedImage.convertTo(alignedImage, CV_64F);
         addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_64F);
 
+        // Add image without alignment
+        Mat doubleImage;
+        image.convertTo(doubleImage, CV_64F);
+        addWeighted(currentStacked, 1, doubleImage, 1, 0.0, currentStacked, CV_64F);
+        
+        
         // Update last image and stars
         lastImage = image;
         lastStars = stars;
@@ -203,6 +216,23 @@ public:
         return true;
     }
 
+    
+    void saveToDirectory(string dir) {
+        // Save combined
+        FileStorage fsCombined(dir + "/combined.xml", FileStorage::WRITE);
+        fsCombined << "combined" << currentCombined;
+        fsCombined.release();
+        
+        // Save maxed
+        FileStorage fsMaxed(dir + "/maxed.xml", FileStorage::WRITE);
+        fsMaxed << "maxed" << currentMaxed;
+        fsMaxed.release();
+        
+        // Save stacked
+        FileStorage fsStacked(dir + "/stacked.xml", FileStorage::WRITE);
+        fsStacked << "maxed" << currentMaxed;
+        fsStacked.release();
+    }
 
 };
 

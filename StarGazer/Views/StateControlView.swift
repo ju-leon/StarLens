@@ -12,7 +12,6 @@ import UIKit
 
 enum Views {
     case camera
-    case processing
     case projects
     case edit
 }
@@ -31,8 +30,6 @@ struct StateControlView : View {
         switch navigationModel.currentView {
         case .camera:
             CameraView(navigationModel: navigationModel)
-        case .processing:
-            ResultView(navigationModel: navigationModel)
         case .projects:
             ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom))
         case .edit:
