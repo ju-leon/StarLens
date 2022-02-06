@@ -59,6 +59,8 @@ public class CameraService: NSObject {
 
     @Published public var processingProgress = 0
 
+    private var debugEnabled = false
+    
     private var maskEnabled = false
     private var alignEnabled = false
     private var enhanceEnabled = false
@@ -315,6 +317,10 @@ public class CameraService: NSObject {
     public func toggleMask(enabled: Bool) {
         self.maskEnabled = enabled
     }
+    
+    public func toggleDebug(enabled: Bool) {
+        self.debugEnabled = enabled
+    }
 
     //    MARK: Capture Photo
 
@@ -394,8 +400,12 @@ public class CameraService: NSObject {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-                //device.focusMode = .locked
-                device.setFocusModeLocked(lensPosition: 0.82)
+                //
+                if (self.debugEnabled) {
+                    device.focusMode = .locked
+                } else {
+                    device.setFocusModeLocked(lensPosition: 0.82)
+                }
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -443,21 +453,14 @@ public class CameraService: NSObject {
                             rawPixelFormatType: rawFormat,
                             processedFormat: nil,
                             bracketedSettings: self.isoRotation.map {
-                                manualExpSetting(maxExposure, $0)
-                                //autoExpSetting(Float($0) / Float($0))
+                                if self.debugEnabled {
+                                    return autoExpSetting(Float($0) / Float($0))
+                                } else {
+                                    return manualExpSetting(maxExposure, $0)
+                                }
                             }
                     )
 
-                    /*
-                    photoSettings.isHighResolutionPhotoEnabled = true
-
-
-                    // Sets the preview thumbnail pixel format
-                    if !photoSettings.__availablePreviewPhotoPixelFormatTypes.isEmpty {
-                        photoSettings.previewPhotoFormat = [kCVPixelBufferPixelFormatTypeKey as String: photoSettings.__availablePreviewPhotoPixelFormatTypes.first!]
-                    }
-
-                    */
 
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.

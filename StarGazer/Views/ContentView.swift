@@ -31,6 +31,7 @@ final class CameraModel: ObservableObject {
     @Published var zoomLevel: Float = 1.0
 
     @Published var mask: Bool = false
+    @Published var debug: Bool = false
 
     var alertError: AlertError!
 
@@ -146,6 +147,11 @@ final class CameraModel: ObservableObject {
         self.mask = !self.mask
         service.toggleMask(enabled: self.mask)
     }
+    
+    func toggleDebug() {
+        self.debug = !self.debug
+        service.toggleDebug(enabled: self.debug)
+    }
 
 
 }
@@ -189,6 +195,22 @@ struct OptionsBar: View {
                     Image(systemName: "moon.stars").foregroundColor(.white).opacity(0.5)
                 }
             }).animation(.easeInOut(duration: 0.2))
+            
+            Spacer()
+            
+            Button(action: {
+                model.toggleDebug()
+            }, label: {
+                if model.debug {
+                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
+                    Image(systemName: "chevron.left.forwardslash.chevron.right").foregroundColor(.white)
+                } else {
+                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
+                    Image(systemName: "chevron.left.forwardslash.chevron.right").foregroundColor(.white).opacity(0.5)
+                }
+            }).animation(.easeInOut(duration: 0.2))
+            
+            
 
             Spacer()
 
@@ -230,6 +252,7 @@ struct OptionsBar: View {
 struct CameraView: View {
     @StateObject var model = CameraModel()
     @StateObject var navigationModel: StateControlModel
+    
 
     @State var currentZoomFactor: CGFloat = 1.0
 
@@ -391,11 +414,20 @@ struct CameraView: View {
                     .aspectRatio(contentMode: .fit)
                     .clipped()
             Spacer()
+            
             ProgressView("Stacking Images…", value: Float(model.numFailed + model.numProcessed) / Float(model.numPictures))
                     .foregroundColor(.white)
                     .padding(.all)
                     .animation(.easeInOut)
+            
+            Button("Process later...") {}
+                .foregroundColor(.white)
+                .padding()
+                .background(Color.accentColor)
+                .cornerRadius(40)
+            
             Spacer()
+            
             
         }
     }
