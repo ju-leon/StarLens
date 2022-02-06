@@ -11,16 +11,22 @@ import UIKit
 
 class ProjectEditModel : ObservableObject {
     private var projectEditor: ProjectEditor?
+    private var project: Project?
     
     @Published var previewImage: UIImage = UIImage()
     @Published var inEditMode = false;
-    @Published var isProcessed = true;
+    @Published var isProcessed = false;
+    
+    @Published var activeEditMode: EditMode = .starEnahnce
     
     private var subscriptions = Set<AnyCancellable>()
 
-    func setProjectEditor(projectEditor: ProjectEditor) {
-        self.projectEditor = projectEditor
-        if (self.projectEditor?.imageEditor != nil) {
+    func setProjectEditor(project: Project?) {
+        print("Init project editor")
+        self.project = project
+        self.projectEditor = ProjectEditor(project: project!)
+        
+        if (self.project!.getProcessingComplete()) {
             self.isProcessed = true;
         }
     }
@@ -29,8 +35,20 @@ class ProjectEditModel : ObservableObject {
         self.inEditMode = !self.inEditMode
     }
     
+    func changeEditMode() {
+        self.projectEditor!.changeEditMode()
+    }
+    
     func computeEnhanceStar(value: Double) {
         self.previewImage = projectEditor!.enhanceStars(factor: value)
+    }
+
+    func computeChangeBrightness(value: Double) {
+        self.previewImage = projectEditor!.changeBrightness(factor: value)
+    }
+    
+    func computeChangeContrast(value: Double) {
+        self.previewImage = projectEditor!.changeContrast(factor: value)
     }
     
     func setPreviewImage(image: UIImage) {
@@ -39,21 +57,30 @@ class ProjectEditModel : ObservableObject {
 }
 
 struct EditOptionButton : View {
-    @State var image: String
+    @StateObject var model: ProjectEditModel
+    @State var editMode: EditMode
+    @State var onClick: () -> ()
     
     var body: some View {
         Button(action: {
-            
+            onClick()
         }) {
             Circle()
-                .stroke(.white, lineWidth: 2)
+                .stroke(model.activeEditMode == editMode ? .blue : .white, lineWidth: model.activeEditMode == editMode ? 8 : 2)
                 .frame(width: 60, height: 60, alignment: .center)
                 .overlay(
-                    Image(systemName: image).font(.system(size: 20))
+                    Image(systemName: editMode.rawValue).font(.system(size: 20))
                 )
-        }.padding().foregroundColor(.white)
+        }.padding().foregroundColor(model.activeEditMode == editMode ? .accentColor : .white)
     }
     
+}
+
+enum EditMode : String {
+    case starEnahnce = "sparkles"
+    case brightness = "wand.and.stars"
+    case contrast = "cloud.fog"
+    case finish = "checkmark"
 }
 
 struct EditOptionsBar : View {
@@ -63,25 +90,55 @@ struct EditOptionsBar : View {
 
     @State private var sliderValue: Double = 0
     
+    @State private var sliderRange = 0.0...1.0
+    
     var body: some View {
         VStack{
-            Slider(value: $sliderValue, in: 0...1){
+            Slider(value: $sliderValue, in: sliderRange){
                 sliding in
                 if (!sliding) {
-                    model.computeEnhanceStar(value: sliderValue)
+                    switch model.activeEditMode {
+                    case .brightness:
+                        print("brightness \(sliderValue)")
+                        model.computeChangeBrightness(value: sliderValue)
+                    case .starEnahnce:
+                        print("starenhance \(sliderValue)")
+                        model.computeEnhanceStar(value: sliderValue)
+                    case .contrast:
+                        print("constrast \(sliderValue)")
+                        model.computeChangeContrast(value: sliderValue)
+                    case .finish:
+                        print("Finish")
+                    }
+                    
                 }
-                print(sliding)
             }
             HStack(spacing: 0) {
                 //Spacer()
-                EditOptionButton(image: "sparkles")
-
-                EditOptionButton(image: "wand.and.stars")
+                EditOptionButton(model: model, editMode: .starEnahnce, onClick: {
+                    model.changeEditMode()
+                    model.activeEditMode = .starEnahnce
+                    sliderRange = 0...1
+                    sliderValue = 0
+                })
                 
-                EditOptionButton(image: "cloud.fog")
-                Spacer()
+                EditOptionButton(model: model, editMode: .brightness, onClick: {
+                    model.changeEditMode()
+                    model.activeEditMode = .brightness
+                    sliderRange = -100...100
+                    sliderValue = 0
+                })
+                
+                EditOptionButton(model: model, editMode: .contrast, onClick: {
+                    model.changeEditMode()
+                    model.activeEditMode = .contrast
+                    sliderRange = 0.2...1.8
+                    sliderValue = 1
+                })
 
-                EditOptionButton(image: "checkmark")
+                EditOptionButton(model: model, editMode: .finish, onClick: {
+                    model.activeEditMode = .finish
+                })
             }
         }
     }
@@ -208,7 +265,7 @@ struct ProjectEditView : View {
                      */
                 }.background(.black).foregroundColor(.white)
         }.onAppear(perform: {
-            model.setProjectEditor(projectEditor: ProjectEditor(project: navigationModel.currentProject!))
+            model.setProjectEditor(project: navigationModel.currentProject)
             model.setPreviewImage(image: navigationModel.currentProject!.getCoverPhoto())
         })
     }

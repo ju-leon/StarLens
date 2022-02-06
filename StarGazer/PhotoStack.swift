@@ -54,6 +54,8 @@ public class PhotoStack {
     private var initAttempts: Int = 0
     private var MAX_INIT_ATTEMPTS: Int = 3
 
+    private var numImages = 0
+    
     //TODO: Init with actual size
     init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -169,11 +171,11 @@ public class PhotoStack {
                  */
                 if self.stacker == nil {
                     self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
-                    
+                    self.numImages += 1
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")
                         self.initAttempts += 1
-
+                        self.numImages += 1
                         if (self.initAttempts > self.MAX_INIT_ATTEMPTS) {
                             print("Failed to init OpenCVStacker after \(self.MAX_INIT_ATTEMPTS) attempts")
                             statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
@@ -189,7 +191,7 @@ public class PhotoStack {
                     if let stackedImage = self.stacker!.addAndProcess(image, maskImage) {
                         self.coverPhoto = stackedImage
                         self.savePhotoToFile(image: self.coverPhoto, url: self.captureProject.getUrl().appendingPathComponent(PREVIEW_FILE_NAME))
-
+                        self.numImages += 1
                         statusUpdateCallback?(.SUCCESS)
                     } else {
                         statusUpdateCallback?(.FAILED)
@@ -266,7 +268,7 @@ public class PhotoStack {
         return scaleDownFilter.outputImage!
     }
 
-    func saveStack(statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
+    func saveStack(finished: Bool, statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
         self.dispatch.addOperation {
             if (self.stacker == nil) {
                 statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
@@ -276,13 +278,21 @@ public class PhotoStack {
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
 
-            self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent(AVERAGED_FILE_NAME))
+            //self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent(AVERAGED_FILE_NAME))
 
             let imageMaxed = self.stacker!.getPreviewImage()
             self.savePhoto(image: imageMaxed)
 
-            self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent(MAXED_FILE_NAME))
+            //self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent(MAXED_FILE_NAME))
 
+            if finished {
+                self.captureProject.setNumImages(self.numImages)
+                self.captureProject.doneProcessing()
+            }
+            
+            self.stacker!.saveFiles(self.captureProject.getUrl().path)
+            self.captureProject.save()
+            
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
             print("Stack exported")
 

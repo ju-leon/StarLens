@@ -21,34 +21,47 @@ using namespace cv;
 
 const int LAPLACIAN_THRESHOLD = -25;
 
-Mat stackedImage_;
+Mat combinedImage_;
 Mat maxedImage_;
+Mat stackedImage_;
 
 Mat filteredImage_;
 
 Mat laplacian_;
 
+Mat tempImage_;
 
-- (instancetype) initWithStackedImage:(UIImage *)stackedImage :(UIImage *) maxedImage {
+- (instancetype) init:(NSString *)path: (int) numImages {
     self = [super init];
-    if (self) {
-        if ([stackedImage isKindOfClass:[UIImage class]]) {
-            UIImage *rotatedImage = [stackedImage rotateToImageOrientation];
-            stackedImage_ = [rotatedImage CVMat3];
-        } else {
-            NSLog(@"OpenCVStacker unsupportedImageFormat");
-            return nil;
-        }
 
-        if ([maxedImage isKindOfClass:[UIImage class]]) {
-            UIImage *rotatedImage = [maxedImage rotateToImageOrientation];
-            maxedImage_ = [rotatedImage CVMat3];
-        } else {
-            NSLog(@"OpenCVStacker unsupportedImageFormat");
-            return nil;
-        }
-    }
-    stackedImage_.copyTo(filteredImage_);
+    string pathString = std::string([path UTF8String]);
+    
+    std::cout << "Searching at path: " << pathString + "/combined.xml" << std::endl;
+    
+    FileStorage fsCombined(pathString + "/combined.xml", FileStorage::READ);
+    fsCombined["combined"] >> combinedImage_;
+    fsCombined.release();
+    
+    combinedImage_.copyTo(filteredImage_);
+    filteredImage_ /= numImages;
+    filteredImage_.convertTo(filteredImage_, CV_8UC3);
+    
+    filteredImage_.copyTo(tempImage_);
+    
+    std::cout << "Combined size: " << combinedImage_.size() << std::endl;
+    
+    FileStorage fsMaxed(pathString + "/maxed.xml", FileStorage::READ);
+    fsMaxed["maxed"] >> maxedImage_;
+    fsMaxed.release();
+
+    std::cout << "Maxed size: " << combinedImage_.size() << std::endl;
+
+    FileStorage fsStacked(pathString + "/stacked.xml", FileStorage::READ);
+    fsStacked["stacked"] >> stackedImage_;
+    fsStacked.release();
+
+    std::cout << "Stacked size: " << combinedImage_.size() << std::endl;
+
     return self;
 }
 
@@ -78,14 +91,27 @@ Mat laplacian_;
         
         cvtColor(threshMat, laplacian_, COLOR_GRAY2RGB);
     }
-    Mat image;
-
-    std::cout << filteredImage_.size() << std::endl;
-    std::cout << laplacian_.size() << std::endl;
     
-    addWeighted(filteredImage_, 1, laplacian_, factor, 0, image);
+    addWeighted(filteredImage_, 1, laplacian_, factor, 0, tempImage_);
 
-    return [UIImage imageWithCVMat:image];
+    return [UIImage imageWithCVMat:tempImage_];
 }
 
+- (UIImage *) changeBrightness: (double) factor {
+    filteredImage_.convertTo(tempImage_, -1, 1, factor);
+
+    std::cout << "Changed brightness to " << factor << std::endl;
+    return [UIImage imageWithCVMat:tempImage_];
+}
+
+
+- (UIImage *) changeContrast: (double) factor {
+    filteredImage_.convertTo(tempImage_, -1, factor, 0);
+
+    return [UIImage imageWithCVMat:tempImage_];
+}
+
+- (void) finishSingleEdit {
+    tempImage_.copyTo(filteredImage_);
+}
 @end

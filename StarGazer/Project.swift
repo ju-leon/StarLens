@@ -19,6 +19,8 @@ enum ProjectKeys : String {
     case images = "images"
     case metadata = "metadata"
     case unprocessedPhotoURLs = "photos"
+    case processingComplete = "processingComplete"
+    case numImages = "numImages"
 }
 
 enum ProjectError: Error {
@@ -31,8 +33,13 @@ class Project : NSObject {
     private var metadata : [String : Any]?
     private var captureStart: Date
     private var captureEnd: Date?
+    
+    private var numImages: Int = 0
+    
     private var unprocessedPhotoURLs: [String] = []
 
+    private var processingComplete = false
+    
     private var coverPhoto: UIImage?
 
     init(url: URL, captureStart: Date) {
@@ -56,6 +63,10 @@ class Project : NSObject {
         self.metadata = plist![ProjectKeys.metadata.rawValue] as? [String: Any]
         
         self.unprocessedPhotoURLs = plist![ProjectKeys.unprocessedPhotoURLs.rawValue] as! [String]
+        
+        self.processingComplete = plist![ProjectKeys.processingComplete.rawValue] as! Bool
+
+        self.numImages = plist![ProjectKeys.numImages.rawValue] as! Int
 
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(PREVIEW_FILE_NAME).path) {
             self.coverPhoto = UIImage(contentsOfFile: url.appendingPathComponent(PREVIEW_FILE_NAME).path)
@@ -133,6 +144,10 @@ class Project : NSObject {
         return self.metadata
     }
     
+    public func doneProcessing() {
+        self.processingComplete = true
+    }
+    
     public func addUnprocessedPhotoURL(url: URL) {
         self.unprocessedPhotoURLs.append(url.lastPathComponent)
     }
@@ -147,6 +162,18 @@ class Project : NSObject {
         return self.url
     }
     
+    public func getProcessingComplete() -> Bool {
+        return self.processingComplete
+    }
+    
+    public func setNumImages(_ num: Int) {
+        self.numImages = num
+    }
+    
+    public func getNumImages() -> Int {
+        return self.numImages
+    }
+    
     public func save() {
         var plist : [String: Any] = [:]
         
@@ -154,6 +181,8 @@ class Project : NSObject {
         plist[ProjectKeys.captureEnd.rawValue] = self.captureEnd
         plist[ProjectKeys.unprocessedPhotoURLs.rawValue] = self.unprocessedPhotoURLs
         plist[ProjectKeys.metadata.rawValue] = self.metadata
+        plist[ProjectKeys.processingComplete.rawValue] = self.processingComplete
+        plist[ProjectKeys.numImages.rawValue] = self.numImages
         
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }

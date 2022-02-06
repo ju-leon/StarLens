@@ -527,7 +527,7 @@ public class CameraService: NSObject {
 
                 self.photoStack?.markEndCapture()
                 sessionQueue.async {
-                    self.photoStack!.saveStack(statusUpdateCallback:
+                    self.photoStack!.saveStack(finished: true, statusUpdateCallback:
                     { (result) in
                         self.stop()
                         self.resetCamera(deletingStack: false)
@@ -596,7 +596,7 @@ public class CameraService: NSObject {
     func processLater() {
         photoStack!.suspendProcessing()
         self.captureStatus = .preparing
-        photoStack!.saveStack(statusUpdateCallback: {
+        photoStack!.saveStack(finished: false, statusUpdateCallback: {
             _ in
             self.stop()
             
