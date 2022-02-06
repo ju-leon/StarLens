@@ -37,9 +37,14 @@ public class PhotoStack {
     private let location: CLLocationCoordinate2D?
 
     private var captureObjects: [CaptureObject] = []
-    private var stacker: OpenCVStacker?;
+    private var stacker: OpenCVStacker?
 
-    private var dispatch: DispatchQueue = DispatchQueue(label: "StarStacker.stackingQueue")
+    private var dispatch: OperationQueue = {
+        var queue = OperationQueue()
+        queue.name = "Stacking Queue"
+        queue.maxConcurrentOperationCount = 1
+        return queue
+      }()
 
     private let segmentationModel: DeepLabClean
     private let modelInputDimension = [513, 513]
@@ -87,6 +92,10 @@ public class PhotoStack {
     deinit {
     }
 
+    func suspendProcessing() {
+        self.dispatch.cancelAllOperations()
+    }
+    
     func markEndCapture() {
         self.captureProject.setCaptureEnd(date: Date())
     }
@@ -140,7 +149,7 @@ public class PhotoStack {
     }
 
     func add(captureObject: CaptureObject, statusUpdateCallback: ((PhotoStackingResult) -> ())?) -> UIImage {
-        self.dispatch.async {
+        self.dispatch.addOperation {
             autoreleasepool {
 
                 
@@ -168,7 +177,7 @@ public class PhotoStack {
                         if (self.initAttempts > self.MAX_INIT_ATTEMPTS) {
                             print("Failed to init OpenCVStacker after \(self.MAX_INIT_ATTEMPTS) attempts")
                             statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
-                            self.dispatch.suspend()
+                            self.dispatch.cancelAllOperations()
                             return
                         }
                     }
@@ -189,6 +198,7 @@ public class PhotoStack {
 
 
             }
+            self.captureProject.save()
         }
 
         return self.coverPhoto
@@ -257,10 +267,12 @@ public class PhotoStack {
     }
 
     func saveStack(statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
-
-        print("Saving stack")
-
-        self.dispatch.async {
+        self.dispatch.addOperation {
+            if (self.stacker == nil) {
+                statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
+                return
+            }
+            
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
 
@@ -270,8 +282,6 @@ public class PhotoStack {
             self.savePhoto(image: imageMaxed)
 
             self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent(MAXED_FILE_NAME))
-
-            self.captureProject.save()
 
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
             print("Stack exported")

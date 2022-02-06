@@ -97,7 +97,7 @@ final class CameraModel: ObservableObject {
 
     func startTimelapse() {
         UIApplication.shared.isIdleTimerDisabled = true
-        //service.blackOutCamera = true
+        service.blackOutCamera = true
         if captureStatus == .ready {
             service.startTimelapse()
         }
@@ -108,6 +108,7 @@ final class CameraModel: ObservableObject {
         if captureStatus == .capturing {
             service.captureStatus = .processing
         }
+        service.blackOutCamera = false
     }
 
     func switchFlash() {
@@ -153,6 +154,9 @@ final class CameraModel: ObservableObject {
         service.toggleDebug(enabled: self.debug)
     }
 
+    func processLater() {
+        service.processLater()
+    }
 
 }
 
@@ -290,12 +294,15 @@ struct CameraView: View {
                         )
             } else {
                 Circle()
-                        .foregroundColor(.white)
+                    .foregroundColor(.white).opacity(0.5)
                         .frame(width: 80, height: 80, alignment: .center)
                         .overlay(
                                 Circle()
-                                        .stroke(Color.black.opacity(0.8), lineWidth: 2)
-                                        .frame(width: 65, height: 65, alignment: .center)
+                                    .foregroundColor(.black)
+                                    .frame(width: 65, height: 65, alignment: .center)
+                                    .overlay(
+                                        ProgressView().frame(width: 50, height: 50, alignment: .center)
+                                    )
                         )
             }
 
@@ -420,7 +427,9 @@ struct CameraView: View {
                     .padding(.all)
                     .animation(.easeInOut)
             
-            Button("Process later...") {}
+            Button("Process later...") {
+                model.processLater()
+            }
                 .foregroundColor(.white)
                 .padding()
                 .background(Color.accentColor)

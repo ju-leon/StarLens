@@ -325,13 +325,12 @@ public class CameraService: NSObject {
     //    MARK: Capture Photo
 
     public func startTimelapse() {
-
+        self.captureStatus = .starting
+        
         self.isoRotation = []
-        for x in 4...7 {
+        for _ in 4...7 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / 4)
         }
-
-        self.captureStatus = .capturing
 
         self.captureQueue.async {
             self.photoStack = PhotoStack(
@@ -340,8 +339,12 @@ public class CameraService: NSObject {
                     enhance: self.enhanceEnabled,
                     location: self.location
             )
-            self.lockFocus()
-            self.capturePhoto()
+            
+            DispatchQueue.main.async {
+                self.captureStatus = .capturing
+                self.lockFocus()
+                self.capturePhoto()
+            }
         }
     }
 
@@ -526,12 +529,14 @@ public class CameraService: NSObject {
                 sessionQueue.async {
                     self.photoStack!.saveStack(statusUpdateCallback:
                     { (result) in
-                        self.resetCamera(deletingStack: false)
                         self.stop()
+                        self.resetCamera(deletingStack: false)
                     }
                     )
                 }
             }
+        } else {
+            print("Cannot start. Config failed.")
         }
     }
 
@@ -577,6 +582,7 @@ public class CameraService: NSObject {
     }
 
     private func resetCamera(deletingStack: Bool) {
+        print("Camera reset")
         self.start()
         self.blackOutCamera = false
         self.captureStatus = .ready
@@ -587,6 +593,19 @@ public class CameraService: NSObject {
         self.photoStack = nil
     }
 
+    func processLater() {
+        photoStack!.suspendProcessing()
+        self.captureStatus = .preparing
+        photoStack!.saveStack(statusUpdateCallback: {
+            _ in
+            self.stop()
+            
+            DispatchQueue.main.async {
+                self.resetCamera(deletingStack: false)
+            }
+        })
+    }
+    
 }
 
 extension CameraService: CLLocationManagerDelegate {
@@ -618,6 +637,7 @@ extension CameraService {
     public enum CaptureStatus {
         case preparing
         case ready
+        case starting
         case capturing
         case processing
         case failed
