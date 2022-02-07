@@ -111,7 +111,7 @@ void matchStars(std::vector<cv::Point2i> &points1,
             if (distances1[0] < DISTANCE_THRESHOLD) {
                 matches.push_back(DMatch(index1, index2, distances1[0]));
             }
-            matches.push_back(DMatch(index1, index2, distances1[0]));
+            //matches.push_back(DMatch(index1, index2, distances1[0]));
         }
     }
 }

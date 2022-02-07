@@ -529,8 +529,9 @@ public class CameraService: NSObject {
                 sessionQueue.async {
                     self.photoStack!.saveStack(finished: true, statusUpdateCallback:
                     { (result) in
-                        self.stop()
+                        //self.stop(completion: {
                         self.resetCamera(deletingStack: false)
+                        //})
                     }
                     )
                 }

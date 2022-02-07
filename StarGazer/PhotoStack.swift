@@ -161,7 +161,6 @@ public class PhotoStack {
                 let image = captureObject.toUIImage()
                 //self.savePreview(image: image)
                 
-                self.coverPhoto = image
 
                 let prediction = self.predict(image)
                 let maskImage = UIImage(cgImage: prediction!.cgImage()!)
@@ -170,6 +169,7 @@ public class PhotoStack {
                  Check if the stacker is called for the first time, if so, we need to init it.
                  */
                 if self.stacker == nil {
+                    self.coverPhoto = image
                     self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
                     self.numImages += 1
                     if (self.stacker == nil) {
