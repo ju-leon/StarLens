@@ -186,7 +186,7 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
     
     // Blur the image first to be less sensitive to noise
-    GaussianBlur( imGray, imGray, Size(3, 3), 0, 0, BORDER_DEFAULT );
+    GaussianBlur( imGray, imGray, Size(7, 7), 0, 0, BORDER_DEFAULT );
 
     // Detect the stars using a Laplacian
     Mat laplacian;
@@ -243,7 +243,7 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
                 starCenters.emplace_back(Point2i(cX, cY));
             }
         }
-    }
+    }    
     
     return threshold;
     

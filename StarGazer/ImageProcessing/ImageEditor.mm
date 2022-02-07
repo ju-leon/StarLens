@@ -19,17 +19,10 @@ using namespace cv;
 
 @implementation ImageEditor
 
-const int LAPLACIAN_THRESHOLD = -25;
 
-Mat combinedImage_;
-Mat maxedImage_;
-Mat stackedImage_;
+const int _laplacianTHRESHOLD = -25;
 
-Mat filteredImage_;
 
-Mat laplacian_;
-
-Mat tempImage_;
 
 - (instancetype) init:(NSString *)path: (int) numImages {
     self = [super init];
@@ -39,40 +32,40 @@ Mat tempImage_;
     std::cout << "Searching at path: " << pathString + "/combined.xml" << std::endl;
     
     FileStorage fsCombined(pathString + "/combined.xml", FileStorage::READ);
-    fsCombined["combined"] >> combinedImage_;
+    fsCombined["combined"] >> _combinedImage;
     fsCombined.release();
     
-    combinedImage_.copyTo(filteredImage_);
-    filteredImage_ /= numImages;
-    filteredImage_.convertTo(filteredImage_, CV_8UC3);
+    _combinedImage.copyTo(_filteredImage);
+    _filteredImage /= numImages;
+    _filteredImage.convertTo(_filteredImage, CV_8UC3);
     
-    filteredImage_.copyTo(tempImage_);
+    _filteredImage.copyTo(_tempImage);
     
-    std::cout << "Combined size: " << combinedImage_.size() << std::endl;
+    std::cout << "Combined size: " << _combinedImage.size() << std::endl;
     
     FileStorage fsMaxed(pathString + "/maxed.xml", FileStorage::READ);
-    fsMaxed["maxed"] >> maxedImage_;
+    fsMaxed["maxed"] >> _maxedImage;
     fsMaxed.release();
 
-    std::cout << "Maxed size: " << combinedImage_.size() << std::endl;
+    std::cout << "Maxed size: " << _combinedImage.size() << std::endl;
 
     FileStorage fsStacked(pathString + "/stacked.xml", FileStorage::READ);
-    fsStacked["stacked"] >> stackedImage_;
+    fsStacked["stacked"] >> _stackedImage;
     fsStacked.release();
 
-    std::cout << "Stacked size: " << combinedImage_.size() << std::endl;
+    std::cout << "Stacked size: " << _combinedImage.size() << std::endl;
 
     return self;
 }
 
 - (UIImage *) getFilteredImage {
-    return [UIImage imageWithCVMat:filteredImage_];
+    return [UIImage imageWithCVMat:_filteredImage];
 }
 
 - (UIImage *) enhanceStars: (double) factor {
-    if (laplacian_.empty()) {
+    if (_laplacian.empty()) {
         Mat imGray;
-        cvtColor(maxedImage_, imGray, cv::COLOR_BGR2GRAY);
+        cvtColor(_maxedImage, imGray, cv::COLOR_BGR2GRAY);
         
         // Blur the image first to be less sensitive to noise
         GaussianBlur( imGray, imGray, cv::Size(9, 9), 0, 0, BORDER_DEFAULT );
@@ -86,32 +79,42 @@ Mat tempImage_;
 
         // Only count stars that fall under the determined threshold
         Mat threshMat;
-        cv::threshold(laplacian, threshMat, LAPLACIAN_THRESHOLD, 255, cv::THRESH_BINARY_INV);
+        cv::threshold(laplacian, threshMat, _laplacianTHRESHOLD, 255, cv::THRESH_BINARY_INV);
         threshMat.convertTo(threshMat, CV_8UC1);
         
-        cvtColor(threshMat, laplacian_, COLOR_GRAY2RGB);
+        cvtColor(threshMat, _laplacian, COLOR_GRAY2RGB);
     }
     
-    addWeighted(filteredImage_, 1, laplacian_, factor, 0, tempImage_);
+    addWeighted(_filteredImage, 1, _laplacian, factor, 0, _tempImage);
 
-    return [UIImage imageWithCVMat:tempImage_];
+    return [UIImage imageWithCVMat:_tempImage];
+}
+
+- (UIImage *) enhanceSky: (double) factor {
+    Mat multiplyMat;
+    
+    _maxedImage.convertTo(multiplyMat, CV_64F);
+    multiplyMat /= factor;
+    
+    cv::multiply(_filteredImage, multiplyMat, _tempImage, 1, CV_8UC3);
+    
+    return [UIImage imageWithCVMat:_tempImage];
 }
 
 - (UIImage *) changeBrightness: (double) factor {
-    filteredImage_.convertTo(tempImage_, -1, 1, factor);
+    _filteredImage.convertTo(_tempImage, -1, 1, factor);
 
-    std::cout << "Changed brightness to " << factor << std::endl;
-    return [UIImage imageWithCVMat:tempImage_];
+    return [UIImage imageWithCVMat:_tempImage];
 }
 
 
 - (UIImage *) changeContrast: (double) factor {
-    filteredImage_.convertTo(tempImage_, -1, factor, 0);
+    _filteredImage.convertTo(_tempImage, -1, factor, 0);
 
-    return [UIImage imageWithCVMat:tempImage_];
+    return [UIImage imageWithCVMat:_tempImage];
 }
 
 - (void) finishSingleEdit {
-    tempImage_.copyTo(filteredImage_);
+    _tempImage.copyTo(_filteredImage);
 }
 @end

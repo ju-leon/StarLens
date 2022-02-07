@@ -352,7 +352,21 @@ public class CameraService: NSObject {
     public func changeCamera(_ device: AVCaptureDevice) {
         self.blackOutCamera = true
         self.captureQueue.async {
+            
+            do {
+                try device.lockForConfiguration()
+                //device.exposureMode = .continuousAutoExposure
 
+                device.setExposureTargetBias(device.maxExposureTargetBias)
+                print("Done adjusting brightness to \(device.maxExposureTargetBias)")
+                //device.exposureMode = .continuousAutoExposure
+                device.unlockForConfiguration()
+                
+            } catch {
+                print("Failed to adjust brightness")
+                // just ignore
+            }
+            
             do {
                 let videoDevice = try AVCaptureDeviceInput(device: device)
 
@@ -370,12 +384,13 @@ public class CameraService: NSObject {
                 print("Camera config failed")
             }
 
+            //self.adjustViewfinderSettings()
+            
             DispatchQueue.main.async {
                 self.blackOutCamera = false
-                self.adjustViewfinderSettings()
             }
         }
-        self.adjustViewfinderSettings()
+
 
     }
 
@@ -541,17 +556,19 @@ public class CameraService: NSObject {
         }
     }
 
-    public func adjustViewfinderSettings() {
+     public func adjustViewfinderSettings() {
         self.captureQueue.async {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
-                device.exposureMode = .continuousAutoExposure
+                //device.exposureMode = .continuousAutoExposure
 
-                device.setExposureTargetBias(1.5, completionHandler: { _ in
-                    device.unlockForConfiguration()
-                })
+                device.setExposureTargetBias(device.maxExposureTargetBias)
+                print("Done adjusting brightness to \(device.maxExposureTargetBias)")
+                device.unlockForConfiguration()
+                
             } catch {
+                print("Failed to adjust brightness")
                 // just ignore
             }
 

@@ -51,6 +51,10 @@ class ProjectEditor {
         return imageEditor!.changeContrast(factor)
     }
     
+    func enhanceSky(factor: Double) -> UIImage {
+        return imageEditor!.enhanceSky(factor)
+    }
+    
     func stackPhotos(callback: ((UIImage?) -> ())?) {
         //TODO: Use mask if available
         //TODO: Save location in project

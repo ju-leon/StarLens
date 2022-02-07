@@ -8,6 +8,7 @@ import SwiftUI
 import Combine
 import AVFoundation
 import UIKit
+import SlidingRuler
 
 class ProjectEditModel : ObservableObject {
     private var projectEditor: ProjectEditor?
@@ -51,6 +52,10 @@ class ProjectEditModel : ObservableObject {
         self.previewImage = projectEditor!.changeContrast(factor: value)
     }
     
+    func computeEnhanceSky(value: Double) {
+        self.previewImage = projectEditor!.enhanceSky(factor: value)
+    }
+    
     func setPreviewImage(image: UIImage) {
         self.previewImage = image
     }
@@ -76,11 +81,31 @@ struct EditOptionButton : View {
     
 }
 
+struct EditFinishBar: View {
+    var body: some View {
+        HStack {
+            Button(action: {
+                
+            }) {
+                Text("Cancel")
+            }.padding().foregroundColor(.red)
+            
+            Spacer()
+            
+            Button(action: {
+            }) {
+                Text("Done")
+            }.padding().foregroundColor(.accentColor)
+        }
+    }
+}
+
 enum EditMode : String {
     case starEnahnce = "sparkles"
     case brightness = "wand.and.stars"
     case contrast = "cloud.fog"
     case finish = "checkmark"
+    case sky = "moon"
 }
 
 struct EditOptionsBar : View {
@@ -94,7 +119,43 @@ struct EditOptionsBar : View {
     
     var body: some View {
         VStack{
-            Slider(value: $sliderValue, in: sliderRange){
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 0) {
+                    //Spacer()
+                    EditOptionButton(model: model, editMode: .starEnahnce, onClick: {
+                        model.changeEditMode()
+                        model.activeEditMode = .starEnahnce
+                        sliderRange = 0...1
+                        sliderValue = 0
+                    })
+                    
+                    EditOptionButton(model: model, editMode: .brightness, onClick: {
+                        model.changeEditMode()
+                        model.activeEditMode = .brightness
+                        sliderRange = -100...100
+                        sliderValue = 0
+                    })
+                    
+                    EditOptionButton(model: model, editMode: .contrast, onClick: {
+                        model.changeEditMode()
+                        model.activeEditMode = .contrast
+                        sliderRange = 0.2...1.8
+                        sliderValue = 1
+                    })
+                    
+                    EditOptionButton(model: model, editMode: .sky, onClick: {
+                        model.changeEditMode()
+                        model.activeEditMode = .sky
+                        sliderRange = 100...270
+                        sliderValue = 150
+                    })
+
+                    EditOptionButton(model: model, editMode: .finish, onClick: {
+                        model.activeEditMode = .finish
+                    })
+                }
+            }
+            SlidingRuler(value: $sliderValue, in: sliderRange){
                 sliding in
                 if (!sliding) {
                     switch model.activeEditMode {
@@ -109,37 +170,15 @@ struct EditOptionsBar : View {
                         model.computeChangeContrast(value: sliderValue)
                     case .finish:
                         print("Finish")
+                    case .sky:
+                        model.computeEnhanceSky(value: sliderValue)
                     }
                     
                 }
             }
-            HStack(spacing: 0) {
-                //Spacer()
-                EditOptionButton(model: model, editMode: .starEnahnce, onClick: {
-                    model.changeEditMode()
-                    model.activeEditMode = .starEnahnce
-                    sliderRange = 0...1
-                    sliderValue = 0
-                })
-                
-                EditOptionButton(model: model, editMode: .brightness, onClick: {
-                    model.changeEditMode()
-                    model.activeEditMode = .brightness
-                    sliderRange = -100...100
-                    sliderValue = 0
-                })
-                
-                EditOptionButton(model: model, editMode: .contrast, onClick: {
-                    model.changeEditMode()
-                    model.activeEditMode = .contrast
-                    sliderRange = 0.2...1.8
-                    sliderValue = 1
-                })
-
-                EditOptionButton(model: model, editMode: .finish, onClick: {
-                    model.activeEditMode = .finish
-                })
-            }
+            
+            EditFinishBar()
+            
         }
     }
 }

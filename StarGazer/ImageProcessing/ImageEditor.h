@@ -11,11 +11,29 @@
 #import <CoreML/CoreML.h>
 #import <Vision/Vision.h>
 
-//#import <opencv2/opencv.hpp>
+#ifdef __cplusplus
+
+#import <opencv2/opencv.hpp>
+
+#endif
 
 NS_ASSUME_NONNULL_BEGIN
 
 @interface ImageEditor : NSObject
+
+#ifdef __cplusplus
+
+@property cv::Mat combinedImage;
+@property cv::Mat maxedImage;
+@property cv::Mat stackedImage;
+
+@property cv::Mat filteredImage;
+
+@property cv::Mat laplacian;
+
+@property cv::Mat tempImage;
+
+#endif
 
 - (instancetype) init:(NSString *)path: (int) numImages;
 
@@ -26,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 - (UIImage *) changeBrightness: (double) factor;
 
 - (UIImage *) changeContrast: (double) factor;
+
+- (UIImage *) enhanceSky: (double) factor;
 
 - (void) finishSingleEdit;
 

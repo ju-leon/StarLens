@@ -51,6 +51,7 @@
 		05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22752781CB0A007A90DE /* Foundation.framework */; };
 		05DE22782781CC3D007A90DE /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22772781CC3D007A90DE /* opencv2.framework */; };
 		05DE227A2781CCB5007A90DE /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22792781CCB2007A90DE /* opencv2.framework */; };
+		05F62DE127B1C604006463AA /* SlidingRuler in Frameworks */ = {isa = PBXBuildFile; productRef = 05F62DE027B1C604006463AA /* SlidingRuler */; };
 		3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0FE462ACA9CE3BBD2D62 /* StateControlView.swift */; };
 		3B2A03360DC479D2EB69D1CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0F6AA3500E160EEAF037 /* ContentView.swift */; };
 		3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */; };
@@ -161,6 +162,7 @@
 			files = (
 				05DE22782781CC3D007A90DE /* opencv2.framework in Frameworks */,
 				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
+				05F62DE127B1C604006463AA /* SlidingRuler in Frameworks */,
 				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
 				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
 				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
@@ -396,6 +398,7 @@
 			);
 			name = StarGazer;
 			packageProductDependencies = (
+				05F62DE027B1C604006463AA /* SlidingRuler */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -472,6 +475,7 @@
 			);
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
+				05F62DDF27B1C603006463AA /* XCRemoteSwiftPackageReference "SlidingRuler" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -968,6 +972,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		05F62DDF27B1C603006463AA /* XCRemoteSwiftPackageReference "SlidingRuler" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/Pyroh/SlidingRuler.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 0.2.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		05F62DE027B1C604006463AA /* SlidingRuler */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05F62DDF27B1C603006463AA /* XCRemoteSwiftPackageReference "SlidingRuler" */;
+			productName = SlidingRuler;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 05B9B8B0276BDBAF00FF442F /* Project object */;
 }
