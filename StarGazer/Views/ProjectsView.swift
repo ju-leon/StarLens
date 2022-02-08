@@ -30,15 +30,26 @@ struct ProjectCard: View {
     @State var project : Project
 
     var body: some View {
-        VStack {
+        ZStack {
             Image(uiImage: project.getCoverPhoto())
                 .resizable()
                 .background(.black)
-                .cornerRadius(10)
-                .frame(maxWidth: .infinity, minHeight: 200, maxHeight: 200)           
-            Text(project.getCaptureStart().formatted()).font(.subheadline)
-            Spacer()
-        }
+                .frame(maxWidth: .infinity, minHeight: 200, maxHeight: 200)
+            LinearGradient(colors: [.clear, .clear, .clear, .black], startPoint: .top, endPoint: .bottom)
+            VStack{
+                Spacer()
+                HStack {
+                    if (project.getProcessingComplete()) {
+                        Circle().fill(.green).frame(width: 10, height: 10, alignment: .center).padding()
+                    } else {
+                        Circle().fill(.yellow).frame(width: 10, height: 10, alignment: .center).padding()
+                    }
+                    Text(project.getCaptureStart().formatted()).font(.subheadline).foregroundColor(.white)
+                    Spacer()
+                }
+
+            }
+        }.cornerRadius(10)
     }
 }
 

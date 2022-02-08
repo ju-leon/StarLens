@@ -24,7 +24,7 @@ const int _laplacianTHRESHOLD = -25;
 
 
 
-- (instancetype) init:(NSString *)path: (int) numImages {
+- (instancetype) init:(NSString *) path: (int) numImages {
     self = [super init];
 
     string pathString = std::string([path UTF8String]);
