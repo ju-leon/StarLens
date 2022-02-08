@@ -107,7 +107,7 @@ public class CameraService: NSObject {
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
     private var biasRotationIndex = 0
-
+    
     public func configure() {
         /*
          Setup the capture session.
@@ -342,7 +342,7 @@ public class CameraService: NSObject {
             
             DispatchQueue.main.async {
                 self.captureStatus = .capturing
-                self.lockFocus()
+                //self.lockFocus()
                 self.capturePhoto()
             }
         }
@@ -412,7 +412,22 @@ public class CameraService: NSObject {
 
         }
     }
+    
+    public func setFocus(_ value: Float) {
+        self.captureQueue.async {
+            let device = self.videoDeviceInput.device
+            do {
+                try device.lockForConfiguration()
 
+                device.setFocusModeLocked(lensPosition: value)
+                device.unlockForConfiguration()
+            } catch {
+                // just ignore
+            }
+
+        }
+    }
+    
     public func lockFocus() {
         self.captureQueue.async {
             let device = self.videoDeviceInput.device

@@ -9,10 +9,11 @@ import SwiftUI
 import Combine
 import AVFoundation
 import UIKit
+import SlidingRuler
 
 final class CameraModel: ObservableObject {
     private let service = CameraService()
-
+    
     @Published var photo: UIImage!
 
     @Published var showAlertError = false
@@ -32,6 +33,8 @@ final class CameraModel: ObservableObject {
 
     @Published var mask: Bool = false
     @Published var debug: Bool = false
+    
+    @Published var focusDistance: Float = 1.0
 
     var alertError: AlertError!
 
@@ -157,6 +160,10 @@ final class CameraModel: ObservableObject {
     func processLater() {
         service.processLater()
     }
+    
+    func changeFocus() {
+        service.setFocus(focusDistance)
+    }
 
 }
 
@@ -178,7 +185,6 @@ struct ZoomButton: View {
         })
     }
 }
-
 
 struct OptionsBar: View {
     @StateObject var model = CameraModel()
@@ -254,12 +260,14 @@ struct OptionsBar: View {
 }
 
 struct CameraView: View {
-    @StateObject var model = CameraModel()
+    @ObservedObject var model = CameraModel()
     @StateObject var navigationModel: StateControlModel
     
 
     @State var currentZoomFactor: CGFloat = 1.0
 
+    @State var currentFocus: CGFloat = 0.7
+    
     var captureButton: some View {
         Button(action: {
             if model.captureStatus == .ready {
@@ -334,27 +342,42 @@ struct CameraView: View {
                     geometry in
                     VStack(alignment: .center) {
                         OptionsBar(model: model).padding()
-                        CameraPreview(tappedCallback: { point in
-                            model.tapToFocus(point, geometry.size)
-                        }, session: model.session)
-                                .onAppear {
-                                    model.configure()
-                                }
-                                .alert(isPresented: $model.showAlertError, content: {
-                                    Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                        model.alertError.primaryAction?()
-                                    }))
-                                })
+                        ZStack {
+                            CameraPreview(tappedCallback: { point in
+                                model.tapToFocus(point, geometry.size)
+                            }, session: model.session)
+                                    .onAppear {
+                                        model.configure()
+                                    }
+                                    .alert(isPresented: $model.showAlertError, content: {
+                                        Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                                            model.alertError.primaryAction?()
+                                        }))
+                                    })
 
-                                .overlay(
-                                        Group {
-                                            if model.willCapturePhoto {
-                                                Color.black
+                                    .overlay(
+                                            Group {
+                                                if model.willCapturePhoto {
+                                                    Color.black
+                                                }
                                             }
-                                        }
-                                )
-                                .animation(.easeInOut)
-                        zoomSelector.padding()
+                                    )
+                                    .animation(.easeInOut)
+                            VStack {
+                                Spacer()
+                                zoomSelector.padding()
+                                //TODO: Properly align
+                            }
+                            
+                        }
+                        
+                        SlidingRuler(value: self.$model.focusDistance, in: 0...1, step: 0.5, tick: .none, onEditingChanged: {
+                            (value) in if !value {
+                                model.changeFocus()
+                            }
+                        })
+                        Spacer()
+                        
                     }
 
                 }
