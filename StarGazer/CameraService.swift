@@ -12,6 +12,7 @@ import Photos
 import UIKit
 import CoreLocation
 import CoreMotion
+import SwiftUI
 
 
 public struct AlertError {
@@ -59,6 +60,8 @@ public class CameraService: NSObject {
 
     @Published public var processingProgress = 0
 
+    @Published public var focusDistance: Double = 0.0
+    
     private var debugEnabled = false
     
     private var maskEnabled = false
@@ -107,6 +110,8 @@ public class CameraService: NSObject {
 
     public static let biasRotation: [Float] = [-1, -0.5, 0, 0.5]
     private var biasRotationIndex = 0
+    
+    private var focusUpdate = false
     
     public func configure() {
         /*
@@ -328,8 +333,8 @@ public class CameraService: NSObject {
         self.captureStatus = .starting
         
         self.isoRotation = []
-        for _ in 4...7 {
-            self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / 4)
+        for x in 4...7 {
+            self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
         }
 
         self.captureQueue.async {
@@ -402,24 +407,45 @@ public class CameraService: NSObject {
                 try device.lockForConfiguration()
 
                 device.focusPointOfInterest = point
-                //device.focusMode = .continuousAutoFocus
+                
                 device.focusMode = .autoFocus
-                //device.focusMode = .locked
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
             }
-
+            
+            DispatchQueue.main.async {
+                withAnimation {
+                    self.focusDistance = Double(device.lensPosition)
+                }
+            }
         }
     }
     
-    public func setFocus(_ value: Float) {
+    /**
+     Triggers a continous focus update until the methods is called again to stop.
+     */
+    public func focusUpdate(_ enabled: Bool) {
+        if(enabled) {
+            self.focusUpdate = true
+            continousFocusUpdate()
+        } else {
+            self.focusUpdate = false
+        }
+    }
+    
+    public func continousFocusUpdate() {
         self.captureQueue.async {
             let device = self.videoDeviceInput.device
             do {
                 try device.lockForConfiguration()
+                
 
-                device.setFocusModeLocked(lensPosition: value)
+                while (self.focusUpdate) {
+                    usleep(1000)
+                    
+                    device.setFocusModeLocked(lensPosition: Float(self.focusDistance))
+                }
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -434,11 +460,7 @@ public class CameraService: NSObject {
             do {
                 try device.lockForConfiguration()
                 //
-                if (self.debugEnabled) {
-                    device.focusMode = .locked
-                } else {
-                    device.setFocusModeLocked(lensPosition: 0.82)
-                }
+                device.focusMode = .locked
                 device.unlockForConfiguration()
             } catch {
                 // just ignore
@@ -578,7 +600,7 @@ public class CameraService: NSObject {
                 try device.lockForConfiguration()
                 //device.exposureMode = .continuousAutoExposure
 
-                device.setExposureTargetBias(device.maxExposureTargetBias)
+                //device.setExposureTargetBias(device.maxExposureTargetBias)
                 print("Done adjusting brightness to \(device.maxExposureTargetBias)")
                 device.unlockForConfiguration()
                 

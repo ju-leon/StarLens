@@ -12,7 +12,7 @@ import UIKit
 import SlidingRuler
 
 final class CameraModel: ObservableObject {
-    private let service = CameraService()
+    public var service = CameraService()
     
     @Published var photo: UIImage!
 
@@ -34,8 +34,8 @@ final class CameraModel: ObservableObject {
     @Published var mask: Bool = false
     @Published var debug: Bool = false
     
-    @Published var focusDistance: Float = 1.0
-
+    @Published var focusDistance: Double = 1.0
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -88,8 +88,12 @@ final class CameraModel: ObservableObject {
                     self?.numFailed = val
                 }
                 .store(in: &self.subscriptions)
-
         
+        service.$focusDistance.sink { [weak self] (val) in
+                    self?.focusDistance = val
+                }
+                .store(in: &self.subscriptions)
+       
 
     }
 
@@ -161,8 +165,12 @@ final class CameraModel: ObservableObject {
         service.processLater()
     }
     
-    func changeFocus() {
-        service.setFocus(focusDistance)
+    func focusUpdate(_ value: Bool) {
+        service.focusUpdate(value)
+    }
+    
+    func setFocusDistance(value: Double) {
+        service.focusDistance = value
     }
 
 }
@@ -371,10 +379,17 @@ struct CameraView: View {
                             
                         }
                         
-                        SlidingRuler(value: self.$model.focusDistance, in: 0...1, step: 0.5, tick: .none, onEditingChanged: {
-                            (value) in if !value {
-                                model.changeFocus()
-                            }
+                        SlidingRuler(value:
+                                        Binding(get: {self.model.focusDistance},
+                                                set: {self.model.service.focusDistance = $0}),
+                                     in: 0...1,
+                                     step: 0.5,
+                                     tick: .none,
+                                     onEditingChanged: {
+                            (value) in
+                            
+                            model.focusUpdate(value)
+                            
                         })
                         Spacer()
                         
