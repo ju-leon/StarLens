@@ -14,9 +14,9 @@
         "package": "SlidingRuler",
         "repositoryURL": "https://github.com/Pyroh/SlidingRuler.git",
         "state": {
-          "branch": null,
+          "branch": "main",
           "revision": "707b15e0ade64b488e7146a487cc5ee9570af9fa",
-          "version": "0.2.0"
+          "version": null
         }
       },
       {

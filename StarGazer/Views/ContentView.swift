@@ -35,6 +35,7 @@ final class CameraModel: ObservableObject {
     @Published var debug: Bool = false
     
     @Published var focusDistance: Double = 1.0
+    @Published var focusDetailShown: Bool = false
     
     var alertError: AlertError!
 
@@ -166,6 +167,7 @@ final class CameraModel: ObservableObject {
     }
     
     func focusUpdate(_ value: Bool) {
+        self.focusDetailShown = value
         service.focusUpdate(value)
     }
     
@@ -266,6 +268,7 @@ struct OptionsBar: View {
         }
     }
 }
+
 
 struct CameraView: View {
     @ObservedObject var model = CameraModel()
@@ -384,7 +387,7 @@ struct CameraView: View {
                                                 set: {self.model.service.focusDistance = $0}),
                                      in: 0...1,
                                      step: 0.5,
-                                     tick: .none,
+                                     tick: .fraction,
                                      onEditingChanged: {
                             (value) in
                             
