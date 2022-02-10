@@ -27,27 +27,20 @@ NS_ASSUME_NONNULL_BEGIN
 @property cv::Mat maxedImage;
 @property cv::Mat stackedImage;
 
-@property cv::Mat filteredImage;
-
-@property cv::Mat laplacian;
-
-@property cv::Mat tempImage;
+@property cv::Mat combinedImagePreview;
+@property cv::Mat maxedImagePreview;
+@property cv::Mat stackedImagePreview;
 
 #endif
 
-- (instancetype) init:(NSString *)path: (int) numImages;
+- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages;
 
-- (UIImage *) getFilteredImage;
 
-- (UIImage *) enhanceStars: (double) factor;
+- (void) setStarPop: (double) factor;
+- (void) setBrightness: (double) factor;
+- (void) setContrast: (double) factor;
 
-- (UIImage *) changeBrightness: (double) factor;
-
-- (UIImage *) changeContrast: (double) factor;
-
-- (UIImage *) enhanceSky: (double) factor;
-
-- (void) finishSingleEdit;
+- (UIImage *) getFilteredImagePreview;
 
 @end
 

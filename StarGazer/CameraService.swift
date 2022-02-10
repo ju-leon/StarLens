@@ -60,7 +60,7 @@ public class CameraService: NSObject {
 
     @Published public var processingProgress = 0
 
-    @Published public var focusDistance: Double = 0.0
+    @Published public var focusDistance: Double = 0.5
     
     private var debugEnabled = false
     

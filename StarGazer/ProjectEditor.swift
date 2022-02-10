@@ -7,6 +7,7 @@
 
 import Foundation
 import CoreLocation
+import UIKit
 
 enum ProjectEditorErrors : Error {
     case initError
@@ -28,31 +29,22 @@ class ProjectEditor {
         }
         
         if (project.getProcessingComplete()) {
-            imageEditor = ImageEditor.init(project.getUrl().path, Int32(project.getNumImages()))
+            imageEditor = ImageEditor.init(atPath: project.getUrl().path, numImages: Int32(project.getNumImages()))
             print("Success init")
         } else {
             imageEditor = nil
         }
     }
     
-    func changeEditMode() {
-        imageEditor?.finishSingleEdit()
-    }
-    
-    func enhanceStars(factor: Double) -> UIImage {
-        return imageEditor!.enhanceStars(factor)
-    }
-    
-    func changeBrightness(factor: Double) -> UIImage {
-        return imageEditor!.changeBrightness(factor)
-    }
-
-    func changeContrast(factor: Double) -> UIImage {
-        return imageEditor!.changeContrast(factor)
-    }
-    
-    func enhanceSky(factor: Double) -> UIImage {
-        return imageEditor!.enhanceSky(factor)
+    func applyFilters(starPop: Double, contrast: Double, brightness: Double, resultCallback: @escaping (UIImage) -> ()){
+        if imageEditor != nil {
+            imageEditor!.setContrast(contrast)
+            imageEditor!.setStarPop(0)
+            imageEditor!.setBrightness(brightness)
+            DispatchQueue.main.async {
+                resultCallback(self.imageEditor!.getFilteredImagePreview())
+            }
+        }
     }
     
     func stackPhotos(callback: ((UIImage?) -> ())?) {

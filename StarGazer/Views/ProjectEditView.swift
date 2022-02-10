@@ -18,7 +18,11 @@ class ProjectEditModel : ObservableObject {
     @Published var inEditMode = false;
     @Published var isProcessed = false;
     
-    @Published var activeEditMode: EditMode = .starEnahnce
+    @Published var activeEditMode: EditMode = .starPop
+    
+    @Published var starPop: Double = 0.0
+    @Published var contrast: Double = 1.0
+    @Published var brightness: Double = 0.0
     
     private var subscriptions = Set<AnyCancellable>()
 
@@ -36,24 +40,15 @@ class ProjectEditModel : ObservableObject {
         self.inEditMode = !self.inEditMode
     }
     
-    func changeEditMode() {
-        self.projectEditor!.changeEditMode()
-    }
-    
-    func computeEnhanceStar(value: Double) {
-        self.previewImage = projectEditor!.enhanceStars(factor: value)
-    }
-
-    func computeChangeBrightness(value: Double) {
-        self.previewImage = projectEditor!.changeBrightness(factor: value)
-    }
-    
-    func computeChangeContrast(value: Double) {
-        self.previewImage = projectEditor!.changeContrast(factor: value)
-    }
-    
-    func computeEnhanceSky(value: Double) {
-        self.previewImage = projectEditor!.enhanceSky(factor: value)
+    func updatePreview() {
+        if projectEditor != nil {
+            projectEditor!.applyFilters(starPop: starPop, contrast: contrast, brightness: brightness, resultCallback: {
+                image in
+                DispatchQueue.main.async {
+                    self.previewImage = image
+                }
+            })
+        }
     }
     
     func setPreviewImage(image: UIImage) {
@@ -101,10 +96,9 @@ struct EditFinishBar: View {
 }
 
 enum EditMode : String {
-    case starEnahnce = "sparkles"
+    case starPop = "sparkles"
     case brightness = "wand.and.stars"
     case contrast = "cloud.fog"
-    case finish = "checkmark"
     case sky = "moon"
 }
 
@@ -122,58 +116,45 @@ struct EditOptionsBar : View {
             ScrollView(.horizontal, showsIndicators: false) {
                 HStack(spacing: 0) {
                     //Spacer()
-                    EditOptionButton(model: model, editMode: .starEnahnce, onClick: {
-                        model.changeEditMode()
-                        model.activeEditMode = .starEnahnce
-                        sliderRange = 0...1
-                        sliderValue = 0
+                    EditOptionButton(model: model, editMode: .starPop, onClick: {
+                        model.activeEditMode = .starPop
+                        sliderValue = model.starPop
                     })
                     
                     EditOptionButton(model: model, editMode: .brightness, onClick: {
-                        model.changeEditMode()
                         model.activeEditMode = .brightness
-                        sliderRange = -100...100
-                        sliderValue = 0
+                        sliderValue = model.brightness
                     })
                     
                     EditOptionButton(model: model, editMode: .contrast, onClick: {
-                        model.changeEditMode()
                         model.activeEditMode = .contrast
-                        sliderRange = 0.2...1.8
-                        sliderValue = 1
+                        sliderValue = model.contrast
                     })
                     
                     EditOptionButton(model: model, editMode: .sky, onClick: {
-                        model.changeEditMode()
                         model.activeEditMode = .sky
-                        sliderRange = 100...270
-                        sliderValue = 150
-                    })
-
-                    EditOptionButton(model: model, editMode: .finish, onClick: {
-                        model.activeEditMode = .finish
+                        sliderValue = 0.5
                     })
                 }
             }
-            SlidingRuler(value: $sliderValue, in: sliderRange){
+            SlidingRuler(value: $sliderValue, in: sliderRange,
+                         step: 0.5,
+                         tick: .fraction){
                 sliding in
                 if (!sliding) {
                     switch model.activeEditMode {
                     case .brightness:
-                        print("brightness \(sliderValue)")
-                        model.computeChangeBrightness(value: sliderValue)
-                    case .starEnahnce:
-                        print("starenhance \(sliderValue)")
-                        model.computeEnhanceStar(value: sliderValue)
+                        model.brightness = sliderValue
+                    case .starPop:
+                        model.starPop = sliderValue
                     case .contrast:
-                        print("constrast \(sliderValue)")
-                        model.computeChangeContrast(value: sliderValue)
-                    case .finish:
-                        print("Finish")
+                        model.contrast = sliderValue
                     case .sky:
-                        model.computeEnhanceSky(value: sliderValue)
+                        print("Doing nothing lol")
                     }
-                    
+                    model.updatePreview()
+                } else {
+
                 }
             }
             

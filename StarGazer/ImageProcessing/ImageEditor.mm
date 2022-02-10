@@ -24,7 +24,7 @@ const int _laplacianTHRESHOLD = -25;
 
 
 
-- (instancetype) init:(NSString *) path: (int) numImages {
+- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages {
     self = [super init];
 
     string pathString = std::string([path UTF8String]);
@@ -35,86 +35,77 @@ const int _laplacianTHRESHOLD = -25;
     fsCombined["combined"] >> _combinedImage;
     fsCombined.release();
     
-    _combinedImage.copyTo(_filteredImage);
-    _filteredImage /= numImages;
-    _filteredImage.convertTo(_filteredImage, CV_8UC3);
-    
-    _filteredImage.copyTo(_tempImage);
-    
-    std::cout << "Combined size: " << _combinedImage.size() << std::endl;
+    resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
     
     FileStorage fsMaxed(pathString + "/maxed.xml", FileStorage::READ);
     fsMaxed["maxed"] >> _maxedImage;
     fsMaxed.release();
+    _maxedImage.convertTo(_maxedImage, CV_64F);
 
-    std::cout << "Maxed size: " << _combinedImage.size() << std::endl;
-
+    resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
+    
     FileStorage fsStacked(pathString + "/stacked.xml", FileStorage::READ);
     fsStacked["stacked"] >> _stackedImage;
     fsStacked.release();
+    
+    //TODO: UNCOMMENT
+    //resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.rows / 3, _stackedImage.cols / 3));
 
-    std::cout << "Stacked size: " << _combinedImage.size() << std::endl;
 
+    contrast = 1;
+    brightness = 0;
+    starPop = 1;
+    
     return self;
 }
 
-- (UIImage *) getFilteredImage {
-    return [UIImage imageWithCVMat:_filteredImage];
+- (UIImage *) getFilteredImagePreview {
+    Mat result;
+    applyFilters(_combinedImagePreview, _maxedImagePreview, _stackedImagePreview, result);
+    return [UIImage imageWithCVMat: result];
 }
 
-- (UIImage *) enhanceStars: (double) factor {
-    if (_laplacian.empty()) {
-        Mat imGray;
-        cvtColor(_maxedImage, imGray, cv::COLOR_BGR2GRAY);
-        
-        // Blur the image first to be less sensitive to noise
-        GaussianBlur( imGray, imGray, cv::Size(9, 9), 0, 0, BORDER_DEFAULT );
+/**
+ Seta skyPop value in range [0, 1]
+ */
+- (void) setStarPop: (double) factor {
+    // Convert skyPop value to range [0.8, 1.2]
+    starPop = (factor * 0.4) + 0.8;
+}
 
-        // Detect the stars using a Laplacian
-        Mat laplacian;
-        int kernel_size = 3;
-        int scale = 1;
-        int delta = 0;
-        Laplacian( imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
+/**
+ Set a brightness value in range [0, 1]
+ */
+- (void) setBrightness: (double) factor {
+    // Convert brightness value to range [-127, 127]
+    brightness = (factor * 255) - 127;
+}
 
-        // Only count stars that fall under the determined threshold
-        Mat threshMat;
-        cv::threshold(laplacian, threshMat, _laplacianTHRESHOLD, 255, cv::THRESH_BINARY_INV);
-        threshMat.convertTo(threshMat, CV_8UC1);
-        
-        cvtColor(threshMat, _laplacian, COLOR_GRAY2RGB);
-    }
+
+/**
+ Set a contrast level in range [0, 1]
+ */
+- (void) setContrast: (double) factor {
+    //Convert contrast value to range [0, 1.5]
+    contrast = factor * 1.5;
+}
+
+#ifdef __cplusplus
+
+double contrast;
+double brightness;
+double starPop;
+double skyPop;
+
+void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &result) {
+    // Apply skyPop
+    result = imageCombined.mul(imageMaxed / 255 * starPop);
     
-    addWeighted(_filteredImage, 1, _laplacian, factor, 0, _tempImage);
-
-    return [UIImage imageWithCVMat:_tempImage];
-}
-
-- (UIImage *) enhanceSky: (double) factor {
-    Mat multiplyMat;
     
-    _maxedImage.convertTo(multiplyMat, CV_64F);
-    multiplyMat /= factor;
-    
-    cv::multiply(_filteredImage, multiplyMat, _tempImage, 1, CV_8UC3);
-    
-    return [UIImage imageWithCVMat:_tempImage];
+    // Apply contrast and brightness, convert back to int
+    result.convertTo(result, CV_8U, contrast, brightness);
 }
 
-- (UIImage *) changeBrightness: (double) factor {
-    _filteredImage.convertTo(_tempImage, -1, 1, factor);
+#endif
 
-    return [UIImage imageWithCVMat:_tempImage];
-}
-
-
-- (UIImage *) changeContrast: (double) factor {
-    _filteredImage.convertTo(_tempImage, -1, factor, 0);
-
-    return [UIImage imageWithCVMat:_tempImage];
-}
-
-- (void) finishSingleEdit {
-    _tempImage.copyTo(_filteredImage);
-}
 @end
