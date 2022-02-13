@@ -168,6 +168,7 @@ public:
             imageMasked.convertTo(imageMasked, CV_8UC3);
             
         } else {
+            foregroundMask = Mat::ones(segmentation.size(), CV_32FC1);
             std::cout << "Mask disabled" << std::endl;
             imageMasked = image.clone();
         }

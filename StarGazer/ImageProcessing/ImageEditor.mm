@@ -12,6 +12,7 @@
 #import "hdrmerge.hpp"
 #import "ImageMerger.hpp"
 #import "SaveBinaryCV.hpp"
+#import "blend.hpp"
 
 using namespace std;
 using namespace cv;
@@ -59,12 +60,12 @@ const int _laplacianTHRESHOLD = -25;
 
 - (UIImage *) getFilteredImagePreview {
     Mat result;
-    applyFilters(_combinedImagePreview, _maxedImagePreview, _stackedImagePreview, result);
+    applyFilters(_combinedImagePreview, _maxedImagePreview, _stackedImagePreview, _maskPreview, result);
     return [UIImage imageWithCVMat: result];
 }
 
 /**
- Seta skyPop value in range [0, 1]
+ Set a skyPop value in range [0, 1]
  */
 - (void) setStarPop: (double) factor {
     // Convert skyPop value to range [0.8, 1.2]
@@ -95,13 +96,16 @@ double brightness;
 double starPop;
 double skyPop;
 
-void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &result) {
+void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result) {
     // Apply skyPop
     result = imageCombined.mul(imageMaxed / 255 * starPop);
     
     
     // Apply contrast and brightness, convert back to int
     result.convertTo(result, CV_8U, contrast, brightness);
+
+    // Apply mask
+    blendMasked(result, foreground, mask, result);
 }
 
 #endif
