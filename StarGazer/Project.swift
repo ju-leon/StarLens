@@ -11,7 +11,7 @@ let PLIST_FILE_NAME = "data.xml"
 let PREVIEW_FILE_NAME = "preview.png"
 let MAXED_FILE_NAME = "imageMaxed.png"
 let AVERAGED_FILE_NAME = "imageAveraged.png"
-
+let CHECKPOINT_FILE_NAME = "checkpoint.stargazer"
 
 enum ProjectKeys : String {
     case captureStart = "captureStart"
@@ -163,7 +163,10 @@ class Project : NSObject {
     }
     
     public func getProcessingComplete() -> Bool {
-        return self.processingComplete
+        if FileManager.default.fileExists(atPath: self.url.appendingPathComponent(CHECKPOINT_FILE_NAME).path) {
+            return self.processingComplete
+        }
+        return false
     }
     
     public func setNumImages(_ num: Int) {

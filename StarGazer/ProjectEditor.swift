@@ -20,16 +20,9 @@ class ProjectEditor {
     
     init(project: Project) {
         self.project = project
-
-        do {
-            let directoryContents = try FileManager.default.contentsOfDirectory(at: project.getUrl(), includingPropertiesForKeys: nil)
-            print(directoryContents)
-        } catch {
-            print("Couldnt list")
-        }
         
         if (project.getProcessingComplete()) {
-            imageEditor = ImageEditor.init(atPath: project.getUrl().path, numImages: Int32(project.getNumImages()))
+            imageEditor = ImageEditor.init(atPath: project.getUrl().appendingPathComponent(CHECKPOINT_FILE_NAME).path, numImages: Int32(project.getNumImages()))
             print("Success init")
         } else {
             imageEditor = nil

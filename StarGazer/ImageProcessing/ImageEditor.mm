@@ -29,16 +29,20 @@ const int _laplacianTHRESHOLD = -25;
 
     string pathString = std::string([path UTF8String]);
     
-    std::ifstream ifs(pathString + "/checkpoint.stargazer", std::ios::binary);
+    std::ifstream ifs(pathString, std::ios::binary);
     readMatBinary(ifs, _combinedImage);
     readMatBinary(ifs, _maxedImage);
-    _maxedImage.convertTo(_maxedImage, CV_64F);
     readMatBinary(ifs, _stackedImage);
     
     std::cout << "Combined image type: " << _combinedImage.type() << std::endl;
     std::cout << "Maxed image type: " << _maxedImage.type() << std::endl;
     std::cout << "Stacked image type: " << _stackedImage.type() << std::endl;
 
+    if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty()) {
+        return nil;
+    }
+    
+    _maxedImage.convertTo(_maxedImage, CV_64F);
     
     resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
 
