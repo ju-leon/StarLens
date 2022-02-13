@@ -18,7 +18,6 @@ enum ProjectEditMode: Int {
 }
 
 class ProjectEditModel: ObservableObject {
-    private var projectEditor: ProjectEditor?
     private var project: Project?
 
     @Published var numPictures = 0
@@ -31,17 +30,15 @@ class ProjectEditModel: ObservableObject {
 
     @Published var activeEditMode: EditMode = .starPop
 
-    @Published var starPop: Double = 0.0
-    @Published var contrast: Double = 1.0
-    @Published var brightness: Double = 0.0
-
+    public var projectEditor: ProjectEditor?
+    
     private var subscriptions = Set<AnyCancellable>()
 
     func setProjectEditor(project: Project?) {
         print("Init project editor")
         self.project = project
-        self.projectEditor = ProjectEditor(project: project!)
-
+        self.projectEditor = ProjectEditor(project: project! )
+        
         if (self.project!.getProcessingComplete()) {
             self.isProcessed = true;
         }
@@ -55,9 +52,9 @@ class ProjectEditModel: ObservableObject {
         }
     }
 
-    func updatePreview() {
+    func updatePreview(enabled: Bool) {
         if projectEditor != nil {
-            projectEditor!.applyFilters(starPop: starPop, contrast: contrast, brightness: brightness, resultCallback: {
+            projectEditor!.continousPreviewUpdate(enabled: enabled, resultCallback: {
                 image in
                 DispatchQueue.main.async {
                     self.previewImage = image
@@ -71,14 +68,16 @@ class ProjectEditModel: ObservableObject {
         self.numPictures = self.project!.getUnprocessedPhotoURLS().count
         projectEditor?.stackPhotos(
                 statusUpdateCallback: { result in
-                    switch result {
-                    case .SUCCESS:
-                        self.numProcessed += 1
-                    case .FAILED:
-                        self.numFailed += 1
-                    case .INIT_FAILED:
-                        //TODO Give feedback to the user that stacking is not possible
-                        self.projectEditMode = .preview
+                    DispatchQueue.main.async {
+                        switch result {
+                        case .SUCCESS:
+                            self.numProcessed += 1
+                        case .FAILED:
+                            self.numFailed += 1
+                        case .INIT_FAILED:
+                            //TODO Give feedback to the user that stacking is not possible
+                            self.projectEditMode = .preview
+                        }
                     }
                 },
                 previewImageCallback: { image in
@@ -176,17 +175,17 @@ struct EditOptionsBar: View {
                         //Spacer()
                         EditOptionButton(model: model, editMode: .starPop, onClick: {
                             model.activeEditMode = .starPop
-                            sliderValue = model.starPop
+                            sliderValue = model.projectEditor!.starPop
                         })
 
                         EditOptionButton(model: model, editMode: .brightness, onClick: {
                             model.activeEditMode = .brightness
-                            sliderValue = model.brightness
+                            sliderValue = model.projectEditor!.brightness
                         })
 
                         EditOptionButton(model: model, editMode: .contrast, onClick: {
                             model.activeEditMode = .contrast
-                            sliderValue = model.contrast
+                            sliderValue = model.projectEditor!.contrast
                         })
 
                         EditOptionButton(model: model, editMode: .sky, onClick: {
@@ -195,26 +194,25 @@ struct EditOptionsBar: View {
                         })
                     }
                 }
-                SlidingRuler(value: $sliderValue, in: sliderRange,
-                        step: 0.5,
-                        tick: .fraction) {
-                    sliding in
-                    if (!sliding) {
-                        switch model.activeEditMode {
-                        case .brightness:
-                            model.brightness = sliderValue
-                        case .starPop:
-                            model.starPop = sliderValue
-                        case .contrast:
-                            model.contrast = sliderValue
-                        case .sky:
-                            print("Doing nothing lol")
-                        }
-                        model.updatePreview()
-                    } else {
-
-                    }
-                }
+                SlidingRuler(value: Binding(get: {sliderValue},
+                                           set: {
+                                                self.sliderValue = $0
+                                                switch model.activeEditMode {
+                                                   case .brightness:
+                                                       model.projectEditor!.brightness = $0
+                                                   case .starPop:
+                                                       model.projectEditor!.starPop = $0
+                                                   case .contrast:
+                                                       model.projectEditor!.contrast = $0
+                                                   case .sky:
+                                                       print("Doing nothing lol \($0)")
+                                                }})
+                                            , in: sliderRange,
+                                            step: 0.5,
+                                            tick: .fraction) {
+                                        sliding in
+                                        model.updatePreview(enabled: sliding)
+                                    }
             } else {
                 HStack {
                     Spacer()

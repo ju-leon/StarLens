@@ -37,6 +37,9 @@ const int _laplacianTHRESHOLD = -25;
     readMatBinary(ifs, _stackedImage);
     readMatBinary(ifs, _mask);
     
+    _combinedImage /= numImages;
+    _stackedImage /= numImages;
+    
     if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty()) {
         return nil;
     }
@@ -70,8 +73,8 @@ const int _laplacianTHRESHOLD = -25;
  Set a skyPop value in range [0, 1]
  */
 - (void) setStarPop: (double) factor {
-    // Convert skyPop value to range [0.8, 1.2]
-    starPop = (factor * 0.4) + 0.8;
+    // Convert skyPop value to range [0, 2]
+    starPop = (factor * 1) + 0.5;
 }
 
 /**
@@ -101,13 +104,13 @@ int numImgs;
 
 void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result) {
     // Apply skyPop
-    result = imageCombined / numImgs;
-    result = imageCombined.mul(imageMaxed / 255 * starPop);
+    result = ((imageCombined) + (imageMaxed * starPop)) / (1 + starPop);
+    result = result.mul(imageMaxed / 255 * starPop);
     
     // Apply contrast and brightness
     result.convertTo(result, CV_32F, contrast, brightness);
 
-    Mat foregroundNormal = foreground / numImgs;
+    Mat foregroundNormal = foreground;
     // Apply mask
     blendMasked(result, foregroundNormal, mask, result);
 }

@@ -17,7 +17,14 @@ class ProjectEditor {
     let imageEditor: ImageEditor?
     let project: Project
     var photoStack: PhotoStack?
-
+    var updatePreview = false;
+    
+    @Published var starPop: Double = 0.0
+    @Published var contrast: Double = 1.0
+    @Published var brightness: Double = 0.0
+    
+    private var editQueue: DispatchQueue = DispatchQueue(label: "StarStacker.editQueue")
+    
     init(project: Project) {
         self.project = project
 
@@ -29,14 +36,28 @@ class ProjectEditor {
         }
     }
 
-    func applyFilters(starPop: Double, contrast: Double, brightness: Double, resultCallback: @escaping (UIImage) -> ()) {
-        if imageEditor != nil {
-            imageEditor!.setContrast(contrast)
-            imageEditor!.setStarPop(0)
-            imageEditor!.setBrightness(brightness)
-            DispatchQueue.main.async {
-                resultCallback(self.imageEditor!.getFilteredImagePreview())
+    func applyFilters(resultCallback: @escaping (UIImage) -> ()) {
+        editQueue.async {
+            if self.imageEditor != nil {
+                while (self.updatePreview) {
+                    autoreleasepool {
+                        self.imageEditor!.setContrast(self.contrast)
+                        self.imageEditor!.setStarPop(self.starPop)
+                        self.imageEditor!.setBrightness(self.brightness)
+                        resultCallback(self.imageEditor!.getFilteredImagePreview())
+                    }
+                }
             }
+        }
+    }
+    
+    func continousPreviewUpdate(enabled: Bool, resultCallback: @escaping (UIImage) -> ()) {
+        self.updatePreview = enabled
+        
+        print(enabled)
+        
+        if (enabled) {
+            applyFilters(resultCallback: resultCallback)
         }
     }
 
@@ -44,21 +65,20 @@ class ProjectEditor {
                      previewImageCallback: ((UIImage?) -> ())?,
                      onDone: @escaping (PhotoStackingResult) -> ()) {
         print("Trying to stack photos...")
+        editQueue.async {
+            self.photoStack = PhotoStack(project: self.project)
 
-        photoStack = PhotoStack(project: project)
+            for photoURL in self.project.getUnprocessedPhotoURLS() {
+                let captureObject = CaptureObject(url: self.project.getUrl().appendingPathComponent(photoURL), time: Date(), metadata: self.project.getMetadata()!)
+                let _ = self.photoStack?.add(
+                        captureObject: captureObject,
+                        statusUpdateCallback: statusUpdateCallback,
+                        previewImageCallback: previewImageCallback
+                )
+            }
 
-        for photoURL in project.getUnprocessedPhotoURLS() {
-            print(photoURL)
-
-            let captureObject = CaptureObject(url: project.getUrl().appendingPathComponent(photoURL), time: Date(), metadata: project.getMetadata()!)
-            let image = photoStack?.add(
-                    captureObject: captureObject,
-                    statusUpdateCallback: statusUpdateCallback,
-                    previewImageCallback: previewImageCallback
-            )
+            self.photoStack?.saveStack(finished: true, statusUpdateCallback: onDone)
         }
-
-        photoStack?.saveStack(finished: true, statusUpdateCallback: onDone)
     }
 
 
