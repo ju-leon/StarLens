@@ -76,24 +76,34 @@ struct EditOptionButton : View {
     
 }
 
-struct EditFinishBar: View {
+struct FilterPreview : View {
+    @State var uiImage: UIImage
+    @State var title: String
+    
     var body: some View {
-        HStack {
-            Button(action: {
-                
-            }) {
-                Text("Cancel")
-            }.padding().foregroundColor(.red)
+        VStack {
+            Image(uiImage: uiImage)
+                .resizable()
+                .aspectRatio(contentMode: .fill)
+                .clipped()
+                .frame(width: 60, height: 80, alignment: .center)
+                .cornerRadius(10)
+                .overlay(RoundedRectangle(cornerRadius: 10)
+                            .stroke(.white, lineWidth: 2))
             
-            Spacer()
+            RoundedRectangle(cornerRadius: 10)
+                .frame(height: 20, alignment: .center)
+                .foregroundColor(.white)
+                .overlay(
+                    Text(title).font(.caption2).foregroundColor(.black)
+                )
             
-            Button(action: {
-            }) {
-                Text("Done")
-            }.padding().foregroundColor(.accentColor)
-        }
+        }.padding()
+            
     }
+    
 }
+
 
 enum EditMode : String {
     case starPop = "sparkles"
@@ -111,54 +121,102 @@ struct EditOptionsBar : View {
     
     @State private var sliderRange = 0.0...1.0
     
+    @State private var filterMenu = false
+    
     var body: some View {
         VStack{
-            ScrollView(.horizontal, showsIndicators: false) {
-                HStack(spacing: 0) {
-                    //Spacer()
-                    EditOptionButton(model: model, editMode: .starPop, onClick: {
-                        model.activeEditMode = .starPop
-                        sliderValue = model.starPop
-                    })
-                    
-                    EditOptionButton(model: model, editMode: .brightness, onClick: {
-                        model.activeEditMode = .brightness
-                        sliderValue = model.brightness
-                    })
-                    
-                    EditOptionButton(model: model, editMode: .contrast, onClick: {
-                        model.activeEditMode = .contrast
-                        sliderValue = model.contrast
-                    })
-                    
-                    EditOptionButton(model: model, editMode: .sky, onClick: {
-                        model.activeEditMode = .sky
-                        sliderValue = 0.5
-                    })
-                }
-            }
-            SlidingRuler(value: $sliderValue, in: sliderRange,
-                         step: 0.5,
-                         tick: .fraction){
-                sliding in
-                if (!sliding) {
-                    switch model.activeEditMode {
-                    case .brightness:
-                        model.brightness = sliderValue
-                    case .starPop:
-                        model.starPop = sliderValue
-                    case .contrast:
-                        model.contrast = sliderValue
-                    case .sky:
-                        print("Doing nothing lol")
+            if (!filterMenu) {
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        //Spacer()
+                        EditOptionButton(model: model, editMode: .starPop, onClick: {
+                            model.activeEditMode = .starPop
+                            sliderValue = model.starPop
+                        })
+                        
+                        EditOptionButton(model: model, editMode: .brightness, onClick: {
+                            model.activeEditMode = .brightness
+                            sliderValue = model.brightness
+                        })
+                        
+                        EditOptionButton(model: model, editMode: .contrast, onClick: {
+                            model.activeEditMode = .contrast
+                            sliderValue = model.contrast
+                        })
+                        
+                        EditOptionButton(model: model, editMode: .sky, onClick: {
+                            model.activeEditMode = .sky
+                            sliderValue = 0.5
+                        })
                     }
-                    model.updatePreview()
-                } else {
+                }
+                SlidingRuler(value: $sliderValue, in: sliderRange,
+                             step: 0.5,
+                             tick: .fraction){
+                    sliding in
+                    if (!sliding) {
+                        switch model.activeEditMode {
+                        case .brightness:
+                            model.brightness = sliderValue
+                        case .starPop:
+                            model.starPop = sliderValue
+                        case .contrast:
+                            model.contrast = sliderValue
+                        case .sky:
+                            print("Doing nothing lol")
+                        }
+                        model.updatePreview()
+                    } else {
 
+                    }
+                }
+            } else {
+                HStack {
+                    Spacer()
+                    FilterPreview(uiImage: model.previewImage, title: "ORIGINAL")
+                    FilterPreview(uiImage: model.previewImage, title: "AI ENHANCED")
+                    FilterPreview(uiImage: model.previewImage, title: "TRAILS")
+                    Spacer()
                 }
             }
             
-            EditFinishBar()
+            HStack {
+                Button(action: {
+                    withAnimation {
+                        model.toggleEditMode()
+                    }
+                }) {
+                    Text("Cancel")
+                }.padding().foregroundColor(.red)
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation {
+                        filterMenu = false
+                    }
+                }) {
+                    Image(systemName: "dial.min.fill")
+                }.padding().foregroundColor(filterMenu ? .white : .accentColor)
+                
+                Button(action: {
+                    withAnimation {
+                        filterMenu = true
+                    }
+                }) {
+                    Image(systemName: "camera.filters")
+                }.padding().foregroundColor(filterMenu ? .accentColor : .white)
+                
+                Spacer()
+                
+                Button(action: {
+                    withAnimation {
+                        model.toggleEditMode()
+                    }
+                }) {
+                    Text("Done")
+                }.padding().foregroundColor(.accentColor)
+            }
             
         }
     }
@@ -248,20 +306,22 @@ struct ProjectEditView : View {
         GeometryReader { reader in
                 VStack {
                     
-                    HStack {
-                        Button(action: {
-                            withAnimation {
-                                self.navigationModel.currentView = .projects
-                            }
-                        }) {
-                            HStack {
-                                Image(systemName: "arrow.backward")
-                                Text("Back")
-                            }.padding(10.0)
-                            
-                        }.padding().foregroundColor(.accentColor)
+                    if !model.inEditMode {
+                        HStack {
+                            Button(action: {
+                                withAnimation {
+                                    self.navigationModel.currentView = .projects
+                                }
+                            }) {
+                                HStack {
+                                    Image(systemName: "arrow.backward")
+                                    Text("Back")
+                                }.padding(10.0)
+                                
+                            }.padding().foregroundColor(.accentColor)
 
-                        Spacer()
+                            Spacer()
+                        }
                     }
                     
                     Spacer()

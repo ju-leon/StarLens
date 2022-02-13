@@ -29,11 +29,11 @@ struct StateControlView : View {
     var body: some View {
         switch navigationModel.currentView {
         case .camera:
-            CameraView(navigationModel: navigationModel)
+            CameraView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         case .projects:
-            ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom))
+            ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom)).environment(\.colorScheme, .dark)
         case .edit:
-            ProjectEditView(navigationModel: navigationModel).transition(.move(edge: .trailing))
+            ProjectEditView(navigationModel: navigationModel).transition(.move(edge: .trailing)).environment(\.colorScheme, .dark)
         }
     
     }

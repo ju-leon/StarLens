@@ -393,7 +393,7 @@ struct CameraView: View {
                             
                             model.focusUpdate(value)
                             
-                        })
+                        }).foregroundColor(.white).background(.black)
                         Spacer()
                         
                     }
