@@ -27,7 +27,8 @@ const int _laplacianTHRESHOLD = -25;
 
 - (instancetype) initAtPath:(NSString *)path numImages:(int) numImages {
     self = [super init];
-
+    
+    
     string pathString = std::string([path UTF8String]);
     
     std::ifstream ifs(pathString, std::ios::binary);
@@ -40,20 +41,21 @@ const int _laplacianTHRESHOLD = -25;
         return nil;
     }
     
-    _maxedImage.convertTo(_maxedImage, CV_64F);
+    _maxedImage.convertTo(_maxedImage, CV_32F);
     
     resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
 
     resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
     
-    resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.rows / 3, _stackedImage.cols / 3));
+    resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.cols / 3, _stackedImage.rows / 3));
     
-    resize(_mask, _maskPreview, cv::Size(_mask.rows / 3, _mask.cols / 3));
+    resize(_mask, _maskPreview, cv::Size(_mask.cols / 3, _mask.rows / 3));
 
 
     contrast = 1;
     brightness = 0;
     starPop = 1;
+    numImgs = numImages;
     
     return self;
 }
@@ -95,17 +97,19 @@ double contrast;
 double brightness;
 double starPop;
 double skyPop;
+int numImgs;
 
 void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result) {
     // Apply skyPop
+    result = imageCombined / numImgs;
     result = imageCombined.mul(imageMaxed / 255 * starPop);
     
-    
-    // Apply contrast and brightness, convert back to int
-    result.convertTo(result, CV_8U, contrast, brightness);
+    // Apply contrast and brightness
+    result.convertTo(result, CV_32F, contrast, brightness);
 
+    Mat foregroundNormal = foreground / numImgs;
     // Apply mask
-    blendMasked(result, foreground, mask, result);
+    blendMasked(result, foregroundNormal, mask, result);
 }
 
 #endif

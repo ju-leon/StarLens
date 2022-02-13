@@ -40,24 +40,25 @@ class ProjectEditor {
         }
     }
 
-    func stackPhotos(callback: ((UIImage?) -> ())?) {
-        //TODO: Use mask if available
-        //TODO: Save location in project
+    func stackPhotos(statusUpdateCallback: @escaping (PhotoStackingResult) -> (),
+                     previewImageCallback: ((UIImage?) -> ())?,
+                     onDone: @escaping (PhotoStackingResult) -> ()) {
         print("Trying to stack photos...")
 
-        photoStack = PhotoStack(mask: false, align: true, enhance: false, location: CLLocationCoordinate2D(latitude: 0, longitude: 0))
+        photoStack = PhotoStack(project: project)
 
         for photoURL in project.getUnprocessedPhotoURLS() {
             print(photoURL)
-            //TODO: REMOVE!!!
-            let tempPhotoUrl = URL(fileURLWithPath: photoURL).lastPathComponent
 
-            let captureObject = CaptureObject(url: project.getUrl().appendingPathComponent(tempPhotoUrl), time: Date(), metadata: project.getMetadata()!)
-            let image = photoStack?.add(captureObject: captureObject, statusUpdateCallback: {
-                _ in
-                print("Done with one photo")
-            }, previewImageCallback: callback)
+            let captureObject = CaptureObject(url: project.getUrl().appendingPathComponent(photoURL), time: Date(), metadata: project.getMetadata()!)
+            let image = photoStack?.add(
+                    captureObject: captureObject,
+                    statusUpdateCallback: statusUpdateCallback,
+                    previewImageCallback: previewImageCallback
+            )
         }
+
+        photoStack?.saveStack(finished: true, statusUpdateCallback: onDone)
     }
 
 

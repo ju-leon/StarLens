@@ -91,6 +91,24 @@ public class PhotoStack {
                 captureStart: Date())
     }
 
+    init(project: Project) {
+        self.captureProject = project
+
+        self.maskEnabled = true
+        self.alignEnabled = true
+        self.enhanceEnabled = false
+
+        self.coverPhoto = UIImage()
+
+        self.STRING_ID = project.getUrl().lastPathComponent
+
+        location = nil
+        
+        
+
+        self.segmentationModel = DeepLabClean()
+    }
+
     deinit {
     }
 
@@ -342,7 +360,11 @@ public class PhotoStack {
             var data = self.captureProject.getMetadata()!
 
             if var exifData = data["{Exif}"] as? [String: Any] {
-                exifData["ExposureTime"] = Int(self.captureProject.getCaptureEnd()!.timeIntervalSince(self.captureProject.getCaptureStart()))
+                if self.captureProject.getCaptureEnd() != nil {
+                    exifData["ExposureTime"] = Int(self.captureProject.getCaptureEnd()!.timeIntervalSince(self.captureProject.getCaptureStart()))
+                } else {
+                    exifData["ExposureTime"] = 10.0
+                }
                 data["{Exif}"] = exifData
             }
 

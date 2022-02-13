@@ -444,42 +444,12 @@ struct CameraView: View {
     }
 
     var processingView: some View {
-        VStack {
-            Spacer()
-            HStack {
-                Spacer()
-                Label(String(model.numPictures), systemImage: "sparkles.rectangle.stack").foregroundColor(.white)
-                Spacer()
-                Label(String(model.numProcessed), systemImage: "checkmark.circle").foregroundColor(.white)
-                Spacer()
-                Label(String(model.numFailed), systemImage: "xmark.circle").foregroundColor(.white)
-                Spacer()
-            }
-            
-            Spacer()
-            Image(uiImage: model.photo)
-                    .resizable()
-                    .aspectRatio(contentMode: .fit)
-                    .clipped()
-            Spacer()
-            
-            ProgressView("Stacking Images…", value: Float(model.numFailed + model.numProcessed) / Float(model.numPictures))
-                    .foregroundColor(.white)
-                    .padding(.all)
-                    .animation(.easeInOut)
-            
-            Button("Process later...") {
-                model.processLater()
-            }
-                .foregroundColor(.white)
-                .padding()
-                .background(Color.accentColor)
-                .cornerRadius(40)
-            
-            Spacer()
-            
-            
-        }
+        ProcessingView(numFailed: $model.numFailed,
+                numProcessed: $model.numProcessed,
+                numPictures: $model.numPictures,
+                photo: $model.photo,
+                cancelProcessing: model.processLater)
+
     }
     
 

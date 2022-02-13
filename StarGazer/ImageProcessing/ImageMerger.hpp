@@ -99,8 +99,8 @@ public:
         
         // Initialize the current stacks
         image.copyTo(lastImage);
-        lastImage.convertTo(currentCombined, CV_64F);
-        lastImage.convertTo(currentStacked, CV_64F);
+        lastImage.convertTo(currentCombined, CV_32F);
+        lastImage.convertTo(currentStacked, CV_32F);
 
         currentMaxed = image.clone();
 
@@ -131,11 +131,8 @@ public:
     void getProcessed(Mat &image) {
         Mat combinedNormal = currentCombined / numImages;
         Mat stackedNormal = currentStacked / numImages;
-        
+
         blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
-        //blendMasked(currentCombined / numImages, currentStacked / numImages, foregroundMask, image);
-        
-        image.convertTo(image, CV_8U);
     }
 
     /**
@@ -147,7 +144,6 @@ public:
      * @return True if the operation was successful, false otherwise.
      */
     bool mergeImageOnStack(Mat &image, Mat &segmentation, Mat &preview) {
-        
         Mat imageMasked;
         if (maskEnabled) {
             std::cout << "Mask enabled" << std::endl;
@@ -163,7 +159,7 @@ public:
             cvtColor(mask, mask, COLOR_GRAY2RGB);
 
             // Apply mask to image. Temporarily convert to float to allow soft masking.
-            image.convertTo(imageMasked, CV_32FC1);
+            image.convertTo(imageMasked, CV_32FC3);
             multiply(imageMasked, mask, imageMasked);
             imageMasked.convertTo(imageMasked, CV_8UC3);
             
@@ -217,13 +213,13 @@ public:
         max(currentMaxed, alignedImage, currentMaxed);
 
         // Add image to the current stacks
-        alignedImage.convertTo(alignedImage, CV_64F);
-        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_64F);
+        alignedImage.convertTo(alignedImage, CV_32F);
+        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_32F);
 
         // Add image without alignment
         Mat doubleImage;
-        image.convertTo(doubleImage, CV_64F);
-        addWeighted(currentStacked, 1, doubleImage, 1, 0.0, currentStacked, CV_64F);
+        image.convertTo(doubleImage, CV_32F);
+        addWeighted(currentStacked, 1, doubleImage, 1, 0.0, currentStacked, CV_32F);
         
         
         // Update last image and stars
