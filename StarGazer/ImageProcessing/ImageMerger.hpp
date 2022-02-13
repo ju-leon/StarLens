@@ -11,6 +11,9 @@
 #include <stdio.h>
 #include <string.h>
 #include <opencv2/opencv.hpp>
+#include <fstream>
+
+#include "SaveBinaryCV.hpp"
 
 using namespace std;
 using namespace cv;
@@ -219,19 +222,10 @@ public:
     
     void saveToDirectory(string dir) {
         // Save combined
-        FileStorage fsCombined(dir + "/combined.xml", FileStorage::WRITE);
-        fsCombined << "combined" << currentCombined;
-        fsCombined.release();
-        
-        // Save maxed
-        FileStorage fsMaxed(dir + "/maxed.xml", FileStorage::WRITE);
-        fsMaxed << "maxed" << currentMaxed;
-        fsMaxed.release();
-        
-        // Save stacked
-        FileStorage fsStacked(dir + "/stacked.xml", FileStorage::WRITE);
-        fsStacked << "maxed" << currentMaxed;
-        fsStacked.release();
+        std::ofstream ofs(dir + "/checkpoint.stargazer", std::ios::binary);
+        writeMatBinary(ofs, currentCombined);
+        writeMatBinary(ofs, currentMaxed);
+        writeMatBinary(ofs, currentStacked);
     }
 
 };

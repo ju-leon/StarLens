@@ -11,7 +11,7 @@
 #import "homography.hpp"
 #import "hdrmerge.hpp"
 #import "ImageMerger.hpp"
-
+#import "SaveBinaryCV.hpp"
 
 using namespace std;
 using namespace cv;
@@ -29,24 +29,20 @@ const int _laplacianTHRESHOLD = -25;
 
     string pathString = std::string([path UTF8String]);
     
-    std::cout << "Searching at path: " << pathString + "/combined.xml" << std::endl;
+    std::ifstream ifs(pathString + "/checkpoint.stargazer", std::ios::binary);
+    readMatBinary(ifs, _combinedImage);
+    readMatBinary(ifs, _maxedImage);
+    _maxedImage.convertTo(_maxedImage, CV_64F);
+    readMatBinary(ifs, _stackedImage);
     
-    FileStorage fsCombined(pathString + "/combined.xml", FileStorage::READ);
-    fsCombined["combined"] >> _combinedImage;
-    fsCombined.release();
+    std::cout << "Combined image type: " << _combinedImage.type() << std::endl;
+    std::cout << "Maxed image type: " << _maxedImage.type() << std::endl;
+    std::cout << "Stacked image type: " << _stackedImage.type() << std::endl;
+
     
     resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
-    
-    FileStorage fsMaxed(pathString + "/maxed.xml", FileStorage::READ);
-    fsMaxed["maxed"] >> _maxedImage;
-    fsMaxed.release();
-    _maxedImage.convertTo(_maxedImage, CV_64F);
 
     resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
-    
-    FileStorage fsStacked(pathString + "/stacked.xml", FileStorage::READ);
-    fsStacked["stacked"] >> _stackedImage;
-    fsStacked.release();
     
     //TODO: UNCOMMENT
     //resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.rows / 3, _stackedImage.cols / 3));
