@@ -25,6 +25,8 @@ class PhotoCaptureProcessor: NSObject {
 
     private var intrinsicMatrix = simd_float3x3(0)
 
+    private var previewImageCallback: (UIImage) -> Void
+
     private let queue = DispatchQueue(label: "com.jungemeyer.preview-merge-queue")
 //    The actual captured photo's data
 
@@ -34,9 +36,9 @@ class PhotoCaptureProcessor: NSObject {
 //    The maximum time lapse before telling UI to show a spinner
     private var maxPhotoProcessingTime: CMTime?
 
-    public var previewPhoto : UIImage?
-    
-    private let stackingResultsCallback : (PhotoStackingResult) -> Void
+    public var previewPhoto: UIImage?
+
+    private let stackingResultsCallback: (PhotoStackingResult) -> Void
 
 //    Init takes multiple closures to be called in each step of the photco capture process
     init(with requestedPhotoSettings: AVCapturePhotoBracketSettings,
@@ -44,7 +46,8 @@ class PhotoCaptureProcessor: NSObject {
          completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
          photoProcessingHandler: @escaping (Bool) -> Void,
          photoStack: PhotoStack,
-         stackingResultsCallback: @escaping (PhotoStackingResult) -> Void) {
+         stackingResultsCallback: @escaping (PhotoStackingResult) -> Void,
+         previewImageCallback: @escaping (UIImage?) -> Void) {
 
         self.requestedPhotoSettings = requestedPhotoSettings
         self.willCapturePhotoAnimation = willCapturePhotoAnimation
@@ -53,6 +56,7 @@ class PhotoCaptureProcessor: NSObject {
 
         self.photoStack = photoStack
         self.stackingResultsCallback = stackingResultsCallback
+        self.previewImageCallback = previewImageCallback
     }
 }
 
@@ -127,7 +131,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 .appendingPathExtension("dng")
         print(dir)
         return dir
-        
+
     }
 
 
@@ -156,7 +160,10 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             //self.saveToPhotoLibrary(data)
             for rawURL in rawFileURLs {
                 let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
-                self.previewPhoto = self.photoStack.add(captureObject: captureObject, statusUpdateCallback: self.stackingResultsCallback)
+                self.previewPhoto = self.photoStack.add(
+                        captureObject: captureObject,
+                        statusUpdateCallback: self.stackingResultsCallback,
+                        previewImageCallback: self.previewImageCallback)
             }
             DispatchQueue.main.async {
                 self.completionHandler(self)

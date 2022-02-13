@@ -33,11 +33,8 @@ const int _laplacianTHRESHOLD = -25;
     readMatBinary(ifs, _combinedImage);
     readMatBinary(ifs, _maxedImage);
     readMatBinary(ifs, _stackedImage);
+    readMatBinary(ifs, _mask);
     
-    std::cout << "Combined image type: " << _combinedImage.type() << std::endl;
-    std::cout << "Maxed image type: " << _maxedImage.type() << std::endl;
-    std::cout << "Stacked image type: " << _stackedImage.type() << std::endl;
-
     if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty()) {
         return nil;
     }
@@ -48,8 +45,9 @@ const int _laplacianTHRESHOLD = -25;
 
     resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
     
-    //TODO: UNCOMMENT
-    //resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.rows / 3, _stackedImage.cols / 3));
+    resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.rows / 3, _stackedImage.cols / 3));
+    
+    resize(_mask, _maskPreview, cv::Size(_mask.rows / 3, _mask.cols / 3));
 
 
     contrast = 1;

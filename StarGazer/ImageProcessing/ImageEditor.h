@@ -26,10 +26,12 @@ NS_ASSUME_NONNULL_BEGIN
 @property cv::Mat combinedImage;
 @property cv::Mat maxedImage;
 @property cv::Mat stackedImage;
+@property cv::Mat mask;
 
 @property cv::Mat combinedImagePreview;
 @property cv::Mat maxedImagePreview;
 @property cv::Mat stackedImagePreview;
+@property cv::Mat maskPreview;
 
 #endif
 

@@ -21,4 +21,6 @@ void blendSoftLight(Mat im1, Mat im2, Mat out);
 
 void blendHardLight(Mat im1, Mat im2, Mat out);
 
+void blendMasked(Mat &sky, Mat &foreground, Mat &mask, Mat &output);
+
 #endif /* blend_hpp */

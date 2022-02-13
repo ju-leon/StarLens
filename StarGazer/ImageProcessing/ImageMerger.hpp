@@ -14,6 +14,7 @@
 #include <fstream>
 
 #include "SaveBinaryCV.hpp"
+#include "blend.hpp"
 
 using namespace std;
 using namespace cv;
@@ -54,6 +55,11 @@ private:
      */
     Mat currentStacked;
 
+    /**
+    Mask that seperates fromground from backgrounds in the image.
+     */
+    Mat foregroundMask;
+    
     int numImages;
     int numFailed;
 
@@ -101,7 +107,7 @@ public:
         // Init the total homography matrix as identity
         totalHomography = Mat::eye(3, 3, CV_64FC1);
 
-        numImages = 0;
+        numImages = 1;
         numFailed = 0;
     }
 
@@ -123,9 +129,12 @@ public:
      * Returns the processed image.
      */
     void getProcessed(Mat &image) {
-        currentCombined.copyTo(image);
-        // Convert to 8 bit
-        image = image / numImages;
+        Mat combinedNormal = currentCombined / numImages;
+        Mat stackedNormal = currentStacked / numImages;
+        
+        blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
+        //blendMasked(currentCombined / numImages, currentStacked / numImages, foregroundMask, image);
+        
         image.convertTo(image, CV_8U);
     }
 
@@ -141,10 +150,16 @@ public:
         
         Mat imageMasked;
         if (maskEnabled) {
+            std::cout << "Mask enabled" << std::endl;
             // Convert mask to binary image
             Mat mask;
             createTrackingMask(segmentation, mask);
             resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
+            
+            if (foregroundMask.empty()) {
+                mask.copyTo(foregroundMask);
+            }
+            
             cvtColor(mask, mask, COLOR_GRAY2RGB);
 
             // Apply mask to image. Temporarily convert to float to allow soft masking.
@@ -153,6 +168,7 @@ public:
             imageMasked.convertTo(imageMasked, CV_8UC3);
             
         } else {
+            std::cout << "Mask disabled" << std::endl;
             imageMasked = image.clone();
         }
         
@@ -226,6 +242,7 @@ public:
         writeMatBinary(ofs, currentCombined);
         writeMatBinary(ofs, currentMaxed);
         writeMatBinary(ofs, currentStacked);
+        writeMatBinary(ofs, foregroundMask);
     }
 
 };

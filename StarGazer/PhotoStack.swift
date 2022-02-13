@@ -44,7 +44,7 @@ public class PhotoStack {
         queue.name = "Stacking Queue"
         queue.maxConcurrentOperationCount = 1
         return queue
-      }()
+    }()
 
     private let segmentationModel: DeepLabClean
     private let modelInputDimension = [513, 513]
@@ -55,7 +55,7 @@ public class PhotoStack {
     private var MAX_INIT_ATTEMPTS: Int = 3
 
     private var numImages = 0
-    
+
     //TODO: Init with actual size
     init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
@@ -97,7 +97,7 @@ public class PhotoStack {
     func suspendProcessing() {
         self.dispatch.cancelAllOperations()
     }
-    
+
     func markEndCapture() {
         self.captureProject.setCaptureEnd(date: Date())
     }
@@ -112,19 +112,8 @@ public class PhotoStack {
         return images
     }
 
-    func resizeImage(_ image: UIImage, _ targetSize: [Int]) -> UIImage? {
-
-        // Actually do the resizing to the rect using the ImageContext stuff
-        UIGraphicsBeginImageContextWithOptions(CGSize(width: targetSize[0], height: targetSize[1]), false, 1.0)
-        image.draw(in: CGRect(x: 0, y: 0, width: targetSize[0], height: targetSize[1]))
-        let newImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-
-        return newImage
-    }
-
     func predict(_ image: UIImage) -> MLMultiArray? {
-        let resizedImage = resizeImage(image, modelInputDimension)!
+        let resizedImage = ImageResizer.resizeImage(image, modelInputDimension)!
 
         let ciImage = CIImage(cgImage: resizedImage.cgImage!)
 
@@ -150,17 +139,19 @@ public class PhotoStack {
         }
     }
 
-    func add(captureObject: CaptureObject, statusUpdateCallback: ((PhotoStackingResult) -> ())?) -> UIImage {
+    func add(captureObject: CaptureObject,
+             statusUpdateCallback: ((PhotoStackingResult) -> ())?,
+             previewImageCallback: ((UIImage) -> Void)?) -> UIImage {
         self.dispatch.addOperation {
             autoreleasepool {
 
-                
+
                 self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
                 self.captureProject.setMetadata(data: captureObject.metadata)
 
                 let image = captureObject.toUIImage()
                 //self.savePreview(image: image)
-                
+
 
                 let prediction = self.predict(image)
                 let maskImage = UIImage(cgImage: prediction!.cgImage()!)
@@ -182,6 +173,11 @@ public class PhotoStack {
                             self.dispatch.cancelAllOperations()
                             return
                         }
+                        statusUpdateCallback?(PhotoStackingResult.FAILED)
+                    } else {
+                        self.captureProject.setCoverPhoto(image: self.coverPhoto)
+                        previewImageCallback?(self.coverPhoto)
+                        statusUpdateCallback?(PhotoStackingResult.SUCCESS)
                     }
 
                 } else {
@@ -190,15 +186,13 @@ public class PhotoStack {
                      */
                     if let stackedImage = self.stacker!.addAndProcess(image, maskImage) {
                         self.coverPhoto = stackedImage
-                        self.savePhotoToFile(image: self.coverPhoto, url: self.captureProject.getUrl().appendingPathComponent(PREVIEW_FILE_NAME))
                         self.numImages += 1
                         statusUpdateCallback?(.SUCCESS)
                     } else {
                         statusUpdateCallback?(.FAILED)
                     }
+                    previewImageCallback?(self.stacker!.getProcessedImage())
                 }
-
-
             }
             self.captureProject.save()
         }
@@ -274,30 +268,29 @@ public class PhotoStack {
                 statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
                 return
             }
-            
+
             let imageStacked = self.stacker!.getProcessedImage()
             self.savePhoto(image: imageStacked)
 
-            //self.savePhotoToFile(image: imageStacked, url: self.captureProject.getUrl().appendingPathComponent(AVERAGED_FILE_NAME))
-
             let imageMaxed = self.stacker!.getPreviewImage()
             self.savePhoto(image: imageMaxed)
-
-            //self.savePhotoToFile(image: imageMaxed, url: self.captureProject.getUrl().appendingPathComponent(MAXED_FILE_NAME))
 
             if finished {
                 self.captureProject.setNumImages(self.numImages)
                 self.captureProject.doneProcessing()
             }
-            
+
+            let previewPhoto = self.stacker!.getPreviewImage()
+
+            self.captureProject.setCoverPhoto(image: self.stacker!.getProcessedImage())
             self.stacker!.saveFiles(self.captureProject.getUrl().path)
+
             self.captureProject.save()
-            
+
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
             print("Stack exported")
 
         }
-        //savePhoto(image: self.trailing!)
     }
 
     func mergeImageData(image: UIImage, with metadata: NSDictionary) -> Data {
@@ -327,8 +320,8 @@ public class PhotoStack {
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo,
-                                            data: image.jpegData(compressionQuality: 0.99)!,
-                                            options: nil)
+                        data: image.jpegData(compressionQuality: 0.99)!,
+                        options: nil)
 
 
             } completionHandler: { success, error in
@@ -337,7 +330,7 @@ public class PhotoStack {
 
         }
     }
-    
+
     func savePhoto(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
 
@@ -377,20 +370,6 @@ public class PhotoStack {
                 // Process the Photos library error.
             }
 
-        }
-    }
-
-    func savePhotoToFile(image: UIImage, url: URL) {
-        if let data = image.pngData() {
-            do {
-                try data.write(to: url)
-                print("Saved photo to \(url.path)")
-
-            } catch {
-                print(error.localizedDescription)
-            }
-        } else {
-            print("Couldnt convert data")
         }
     }
 

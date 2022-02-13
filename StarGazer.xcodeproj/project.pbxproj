@@ -55,6 +55,7 @@
 		3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0FE462ACA9CE3BBD2D62 /* StateControlView.swift */; };
 		3B2A03360DC479D2EB69D1CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0F6AA3500E160EEAF037 /* ContentView.swift */; };
 		3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */; };
+		3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */; };
 		3B2A0AC74BE999EEA6281B19 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A01974F64B6F47AF2F12B /* CaptureView.swift */; };
 		3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0AF963F942431EE0A19B /* ProcessingView.swift */; };
 		6948A4D8FA4A8EA88A4AC16E /* Pods_StarGazer_StarGazerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */; };
@@ -145,6 +146,7 @@
 		3B2A01974F64B6F47AF2F12B /* CaptureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		3B2A0AF963F942431EE0A19B /* ProcessingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
 		3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
+		3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSaver.swift; sourceTree = "<group>"; };
 		3B2A0F6AA3500E160EEAF037 /* ContentView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
 		3B2A0FE462ACA9CE3BBD2D62 /* StateControlView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = StateControlView.swift; sourceTree = "<group>"; };
 		426CCD848BF90E192F8C2927 /* Pods-StarGazer-StarGazerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer-StarGazerUITests.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer-StarGazerUITests/Pods-StarGazer-StarGazerUITests.debug.xcconfig"; sourceTree = "<group>"; };
@@ -261,6 +263,7 @@
 				051F0A8B276FC0C60015C507 /* Info.plist */,
 				05B9B8C1276BDBB100FF442F /* Preview Content */,
 				3B2A085D1DE3B259F9C0B6F3 /* MLModels */,
+				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
 			);
 			path = StarGazer;
 			sourceTree = "<group>";
@@ -621,6 +624,7 @@
 				3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */,
 				3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
+				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -530,9 +530,6 @@ public class CameraService: NSObject {
                         // Allow settings to the camera again
                         self!.videoDeviceInput.device.unlockForConfiguration()
 
-                        // Update the preview
-                        self?.previewPhoto = photoCaptureProcessor.previewPhoto
-
                         // Let the main thread know there's another photo
                         self?.numPicures += self!.isoRotation.count
 
@@ -561,6 +558,12 @@ public class CameraService: NSObject {
                             case .INIT_FAILED:
                                 self.abortCapture()
                             }
+                        }
+                    }, previewImageCallback: {
+                        // Notifies the UI about the preview image
+                        (image) in
+                        DispatchQueue.main.async {
+                            self.previewPhoto = image
                         }
                     })
 
