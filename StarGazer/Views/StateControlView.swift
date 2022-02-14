@@ -14,6 +14,7 @@ enum Views {
     case camera
     case projects
     case edit
+    case settings
 }
 
 final class StateControlModel : ObservableObject {
@@ -34,6 +35,8 @@ struct StateControlView : View {
             ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom)).environment(\.colorScheme, .dark)
         case .edit:
             ProjectEditView(navigationModel: navigationModel).transition(.move(edge: .trailing)).environment(\.colorScheme, .dark)
+        case .settings:
+            SettingsView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         }
     
     }

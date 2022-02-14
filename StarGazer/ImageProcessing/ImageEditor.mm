@@ -82,7 +82,7 @@ const int _laplacianTHRESHOLD = -25;
  */
 - (void) setBrightness: (double) factor {
     // Convert brightness value to range [-127, 127]
-    brightness = (factor * 255) - 127;
+    brightness = (factor * 400) - 127;
 }
 
 
@@ -91,7 +91,7 @@ const int _laplacianTHRESHOLD = -25;
  */
 - (void) setContrast: (double) factor {
     //Convert contrast value to range [0, 1.5]
-    contrast = factor * 1.5;
+    contrast = factor * 3;
 }
 
 #ifdef __cplusplus

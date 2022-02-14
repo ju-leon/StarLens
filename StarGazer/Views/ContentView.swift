@@ -434,7 +434,14 @@ struct CameraView: View {
                 
                 captureButton.frame(maxWidth: .infinity)
 
-                Image(systemName: "dial.max").font(.system(size: 40)).frame(maxWidth: .infinity)
+                
+                Button(action: {
+                    withAnimation {
+                        self.navigationModel.currentView = .settings
+                    }
+                }, label:{
+                    Image(systemName: "gear").font(.system(size: 40)).frame(maxWidth: .infinity).foregroundColor(.white)
+                })
 
                 //flipCameraButton
 
