@@ -20,6 +20,20 @@ float getThreshold(cv::Mat &img_grayscale);
 
 float getStarCenters(cv::Mat &image, float threshold, std::vector<cv::Point2i> &starCenters);
 
+/**
+ * Match stars based on KD_Tree KNN search. Recommended for large number of stars.
+ * @param points1
+ * @param points2
+ * @param matches
+ */
 void matchStars(std::vector<cv::Point2i> &points1, std::vector<cv::Point2i> &points2, std::vector<cv::DMatch> &matches);
+
+/**
+ * Match stars based on brute force matching. Recommended for small number of stars.
+ * @param points1
+ * @param points2
+ * @param matches
+ */
+void matchStarsSimple(std::vector<cv::Point2i> &points1, std::vector<cv::Point2i> &points2, std::vector<cv::DMatch> &matches);
 
 #endif /* homography_hpp */

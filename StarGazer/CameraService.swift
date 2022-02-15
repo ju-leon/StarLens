@@ -501,7 +501,6 @@ public class CameraService: NSObject {
 
                     let autoExpSetting = AVCaptureAutoExposureBracketedStillImageSettings.autoExposureSettings
 
-                    //TODO: CHANGE BACK
                     let maxExposure = self.videoDeviceInput.device.activeFormat.maxExposureDuration
 
                     let photoSettings = AVCapturePhotoBracketSettings(

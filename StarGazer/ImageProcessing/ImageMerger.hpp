@@ -12,6 +12,7 @@
 #include <string.h>
 #include <opencv2/opencv.hpp>
 #include <fstream>
+#include <chrono>
 
 #include "SaveBinaryCV.hpp"
 #include "blend.hpp"
@@ -34,6 +35,11 @@ class ImageMerger {
 private:
     const int MIN_STARS_PER_IMAGE = 5;
     const int MIN_MATCHED_STARS = 5;
+
+    /**
+     * Threshold user which brute force matcher will be used.
+     */
+    const int SIMPLE_MATCHER_THRESHOLD = 500;
 
     bool firstImageAdded = false;
 
@@ -129,10 +135,15 @@ public:
      * Returns the processed image.
      */
     void getProcessed(Mat &image) {
-        Mat combinedNormal = currentCombined / numImages;
-        Mat stackedNormal = currentStacked / numImages;
+        if (maskEnabled) {
+            Mat combinedNormal = currentCombined / numImages;
+            Mat stackedNormal = currentStacked / numImages;
 
-        blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
+            blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
+        } else {
+            Mat combinedNormal = currentCombined / numImages;
+            combinedNormal.convertTo(image, CV_8UC3);
+        }
     }
 
     /**
@@ -182,7 +193,21 @@ public:
 
         // Match the stars with the last image
         vector<DMatch> matches;
-        matchStars(lastStars, stars, matches);
+
+        auto start = std::chrono::high_resolution_clock::now();
+        if (std::max(lastStars.size(), stars.size()) > SIMPLE_MATCHER_THRESHOLD) {
+            matchStars(lastStars, stars, matches);
+        } else {
+            matchStarsSimple(lastStars, stars, matches);
+        }
+
+        auto end = std::chrono::high_resolution_clock::now();
+
+        auto time = std::chrono::duration_cast<std::chrono::microseconds>
+                (end - start).count();
+
+        std::cout << "Matching took " << time << std::endl;
+
 
         // Extract the star centers from the matches
         std::vector<Point2i> matched_points1, matched_points2;

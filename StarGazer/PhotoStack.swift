@@ -56,7 +56,6 @@ public class PhotoStack {
 
     private var numImages = 0
 
-    //TODO: Init with actual size
     init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
 
@@ -78,14 +77,7 @@ public class PhotoStack {
         self.segmentationModel = DeepLabClean()
 
         // Init the photo to a black photo
-        let imageSize = CGSize(width: 300, height: 400)
-        let color: UIColor = .black
-        UIGraphicsBeginImageContextWithOptions(imageSize, true, 0)
-        let context = UIGraphicsGetCurrentContext()!
-        color.setFill()
-        context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
-        coverPhoto = UIGraphicsGetImageFromCurrentImageContext()!
-        UIGraphicsEndImageContext()
+        self.coverPhoto = UIImage()
 
         self.captureProject = Project(url: tempDir.appendingPathComponent(self.STRING_ID),
                 captureStart: Date())
@@ -179,6 +171,9 @@ public class PhotoStack {
                  */
                 if self.stacker == nil {
                     self.coverPhoto = image
+
+                    print("<<<<<<<<<<<<<<<<<< Init with mask \(self.maskEnabled)")
+
                     self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
                     self.numImages += 1
                     if (self.stacker == nil) {

@@ -35,14 +35,17 @@ const int DISTANCE_THRESHOLD = 50;
 /**
  Minimum number of contours required to start a star detection.
  */
-const int MIN_NUM_CONTOURS = 2000;
+const int MIN_NUM_CONTOURS = 3000;
 
 /**
  Minimum number of contours allowed  to start a star detection.
  */
 const int MAX_NUM_CONTOURS = 20000;
 
-
+/**
+ * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
+ */
+const int GAUSSIAN_FILTER_SIZE = 3;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     mask = Mat::zeros(segmentation.size(), CV_32FC1);
@@ -66,6 +69,12 @@ void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {
     mat = features;
 }
 
+/**
+ * Match stars based on KD_Tree KNN search. Recommended for large number of stars.
+ * @param points1
+ * @param points2
+ * @param matches
+ */
 void matchStars(std::vector<cv::Point2i> &points1,
         std::vector<cv::Point2i> &points2,
         std::vector<cv::DMatch> &matches) {
@@ -116,6 +125,58 @@ void matchStars(std::vector<cv::Point2i> &points1,
     }
 }
 
+const double distance(const cv::Point2i &point1, const cv::Point2i &point2) {
+    return sqrt(pow(point1.x - point2.x, 2.0) + pow(point1.y - point2.y, 2.0));
+}
+
+/**
+ * Match stars based on brute force matching. Recommended for small number of stars.
+ * AVOID FOR LARGE NUMBER OF POINTS: O(N^2) TIME COMPLEXITY
+ * @param points1
+ * @param points2
+ * @param matches
+ */
+void matchStarsSimple(std::vector<cv::Point2i> &points1,
+        std::vector<cv::Point2i> &points2,
+        std::vector<cv::DMatch> &matches) {
+
+    std::vector<int> matchesForward(points1.size(), -1);
+    std::vector<float> distances(points1.size(), 0);
+    std::vector<int> matchesBackward(points2.size(), -1);
+    /**
+     * Loop over all points.
+     * For points that have a match within distance threshold, pick the closest match.
+     */
+    for (int index1 = 0; index1 < points1.size(); ++index1) {
+
+        double minDistance = std::numeric_limits<double>::infinity();
+        int minIndex = 0;
+        for (int index2 = 0; index2 < points2.size(); ++index2) {
+            auto currDistance = distance(points1[index1], points2[index2]);
+
+            if (currDistance < minDistance) {
+                minDistance = currDistance;
+                minIndex = index2;
+            }
+        }
+
+        if (minDistance < DISTANCE_THRESHOLD) {
+            matchesForward[index1] = minIndex;
+            matchesBackward[minIndex] = index1;
+        }
+    }
+
+    /**
+     * Check if stars from both lists have matched the other star.
+     * If so, create a match.
+     */
+    for (int i = 0; i < matchesForward.size(); ++i) {
+        if (matchesForward[i] != -1 && matchesBackward[matchesForward[i]] == i) {
+            matches.emplace_back(i, matchesForward[i], distances[i]);
+        }
+    }
+}
+
 /**
  Returns the threshold in the Laplacian of an image under which points are used in the contour detector.
  Aims to get a number of contours(that will later be used as starts) between MIN_NUM_CONTOURS and MAX_NUM_CONTOURS
@@ -127,7 +188,7 @@ float getThreshold(Mat &img) {
     cvtColor(img, imgGrayscale, cv::COLOR_BGR2GRAY);
 
 
-    GaussianBlur( imgGrayscale, imgGrayscale, Size(3, 3), 0, 0, BORDER_DEFAULT );
+    GaussianBlur( imgGrayscale, imgGrayscale, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_DEFAULT );
 
     int kernel_size = 3;
     int scale = 1;
@@ -149,9 +210,7 @@ float getThreshold(Mat &img) {
         vector<vector<Point> > contours;
         vector<Vec4i> hierarchy;
         cv::findContours(threshMat, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
-        
-        std::cout << "Num Contours: " << contours.size() << std::endl;
-        
+
         if (contours.size() > MAX_NUM_CONTOURS) {
             // To many contours, lower threshold
             // All values we're interested in are negative -> *1.5 gives a lower value
@@ -168,9 +227,6 @@ float getThreshold(Mat &img) {
         if (threshold >= 0 || threshold < -2000) {
             return std::numeric_limits<float>::infinity();
         }
-
-        std::cout << "Threshold: " << threshold << std::endl;
-        
     }
     return numeric_limits<float>::infinity();
 }
@@ -186,7 +242,7 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
     
     // Blur the image first to be less sensitive to noise
-    GaussianBlur( imGray, imGray, Size(7, 7), 0, 0, BORDER_DEFAULT );
+    GaussianBlur( imGray, imGray, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_DEFAULT );
 
     // Detect the stars using a Laplacian
     Mat laplacian;
