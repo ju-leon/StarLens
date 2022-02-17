@@ -10,6 +10,7 @@ import Combine
 import AVFoundation
 import UIKit
 import SlidingRuler
+import Lottie
 
 final class CameraModel: ObservableObject {
     public var service = CameraService()
@@ -279,7 +280,9 @@ struct CameraView: View {
             }
         }, label: {
             if model.captureStatus == .ready {
-
+                LottieView(name: "shutterstill", loopMode: .playOnce).frame(width: 80, height: 80)
+                
+                /*
                 Circle()
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80, alignment: .center)
@@ -288,35 +291,16 @@ struct CameraView: View {
                                         .stroke(Color.black.opacity(0.8), lineWidth: 2)
                                         .frame(width: 65, height: 65, alignment: .center)
                         )
+                 
+             */
             } else if model.captureStatus == .capturing {
-                Circle()
-                        .foregroundColor(.red)
-                        .frame(width: 80, height: 80, alignment: .center)
-                        .overlay(
-                                Circle()
-                                        .foregroundColor(.black)
-                                        .frame(width: 65, height: 65, alignment: .center)
-                                        .overlay(
-                                                RoundedRectangle(cornerRadius: 5)
-                                                        .foregroundColor(.red)
-                                                        .frame(width: 30, height: 30, alignment: .center)
-                                        )
-                        )
+                LottieView(name: "shutter", loopMode: .loop).frame(width: 80, height: 80)
+                
             } else {
-                Circle()
-                    .foregroundColor(.white).opacity(0.5)
-                        .frame(width: 80, height: 80, alignment: .center)
-                        .overlay(
-                                Circle()
-                                    .foregroundColor(.black)
-                                    .frame(width: 65, height: 65, alignment: .center)
-                                    .overlay(
-                                        ProgressView().frame(width: 50, height: 50, alignment: .center)
-                                    )
-                        )
+                LottieView(name: "shutterprep", loopMode: .loop).frame(width: 80, height: 80)
             }
 
-        })
+        }).disabled(!(model.captureStatus == .ready || model.captureStatus == .capturing))
     }
 
 

@@ -7,9 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0510811A27BEE06100A50129 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0510811927BEE06100A50129 /* Lottie */; };
+		0510811C27BEE51000A50129 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0510811B27BEE51000A50129 /* LottieView.swift */; };
 		051F0A80276FBA370015C507 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A7F276FBA370015C507 /* CameraService.swift */; };
 		051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */; };
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
+		0536C3F527BEFDFC0060ABA0 /* shutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3F427BEFDFC0060ABA0 /* shutter.json */; };
+		0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FB27BF01D50060ABA0 /* shutterstill.json */; };
+		0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FE27BF02310060ABA0 /* shutterprep.json */; };
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
 		0555FF1627865BA80077B7A8 /* DeepLabClean.mlmodel in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF1527865BA80077B7A8 /* DeepLabClean.mlmodel */; };
@@ -82,10 +87,14 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0510811B27BEE51000A50129 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		051F0A7F276FBA370015C507 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
 		051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureProcessor.swift; sourceTree = "<group>"; };
 		051F0A85276FBCBB0015C507 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0536C3F427BEFDFC0060ABA0 /* shutter.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = shutter.json; path = ../../../../Desktop/shutter.json; sourceTree = "<group>"; };
+		0536C3FB27BF01D50060ABA0 /* shutterstill.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterstill.json; sourceTree = "<group>"; };
+		0536C3FE27BF02310060ABA0 /* shutterprep.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterprep.json; sourceTree = "<group>"; };
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		0555FF1527865BA80077B7A8 /* DeepLabClean.mlmodel */ = {isa = PBXFileReference; lastKnownFileType = file.mlmodel; path = DeepLabClean.mlmodel; sourceTree = "<group>"; };
@@ -171,6 +180,7 @@
 				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
 				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
 				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
+				0510811A27BEE06100A50129 /* Lottie in Frameworks */,
 				05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */,
 				05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */,
 				05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */,
@@ -202,6 +212,16 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0510811D27BEE52E00A50129 /* Lottie */ = {
+			isa = PBXGroup;
+			children = (
+				0536C3FE27BF02310060ABA0 /* shutterprep.json */,
+				0536C3FB27BF01D50060ABA0 /* shutterstill.json */,
+				0536C3F427BEFDFC0060ABA0 /* shutter.json */,
+			);
+			path = Lottie;
+			sourceTree = "<group>";
+		};
 		0555FF102785D5670077B7A8 /* Extensions */ = {
 			isa = PBXGroup;
 			children = (
@@ -248,6 +268,7 @@
 		05B9B8BA276BDBAF00FF442F /* StarGazer */ = {
 			isa = PBXGroup;
 			children = (
+				0510811D27BEE52E00A50129 /* Lottie */,
 				0555FF102785D5670077B7A8 /* Extensions */,
 				05DE223C277D0799007A90DE /* ImageProcessing */,
 				056CBBC927790DE700538E2E /* Filters */,
@@ -364,6 +385,7 @@
 				05D4508027943488008DB81E /* ProjectsView.swift */,
 				05D338AA27A47A85008BB868 /* ProjectEditView.swift */,
 				05849A3427BAF8C90073BB75 /* SettingsView.swift */,
+				0510811B27BEE51000A50129 /* LottieView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -407,6 +429,7 @@
 			);
 			name = StarGazer;
 			packageProductDependencies = (
+				0510811927BEE06100A50129 /* Lottie */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -483,6 +506,7 @@
 			);
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
+				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -500,8 +524,11 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */,
+				0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */,
 				05B9B8C3276BDBB100FF442F /* Preview Assets.xcassets in Resources */,
 				05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */,
+				0536C3F527BEFDFC0060ABA0 /* shutter.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -627,6 +654,7 @@
 				3B2A03360DC479D2EB69D1CF /* ContentView.swift in Sources */,
 				3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */,
 				3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */,
+				0510811C27BEE51000A50129 /* LottieView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 			);
@@ -982,6 +1010,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 3.0.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		0510811927BEE06100A50129 /* Lottie */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			productName = Lottie;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 05B9B8B0276BDBAF00FF442F /* Project object */;
 }
