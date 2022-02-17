@@ -164,8 +164,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
 
     /// - Tag: DidFinishCapture
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishCaptureFor resolvedSettings: AVCaptureResolvedPhotoSettings, error: Error?) {
-        print("Finished processing photo")
-
         if let error = error {
             print("Error capturing photo: \(error)")
             DispatchQueue.main.async {

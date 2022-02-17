@@ -28,7 +28,7 @@ class ProjectEditModel: ObservableObject {
     @Published var projectEditMode = ProjectEditMode.preview;
     @Published var isProcessed = false;
 
-    @Published var activeEditMode: EditMode = .starPop
+    @Published var activeEditMode: EditOption = .starPop
 
     public var projectEditor: ProjectEditor?
     
@@ -48,6 +48,7 @@ class ProjectEditModel: ObservableObject {
         if (self.projectEditMode == .preview) {
             self.projectEditMode = .editing
         } else {
+            self.projectEditor?.saveProject()
             self.projectEditMode = .preview
         }
     }
@@ -98,11 +99,19 @@ class ProjectEditModel: ObservableObject {
     func setPreviewImage(image: UIImage) {
         self.previewImage = image
     }
+    
+    func getInitalSliderValue() -> Double {
+        if let value = project?.getEditOptions()[self.activeEditMode.instance.identifier] {
+            return value as! Double
+        } else {
+            return 0
+        }
+    }
 }
 
 struct EditOptionButton: View {
     @StateObject var model: ProjectEditModel
-    @State var editMode: EditMode
+    @State var editMode: EditOption
     @State var onClick: () -> ()
 
     var body: some View {
@@ -110,10 +119,10 @@ struct EditOptionButton: View {
             onClick()
         }) {
             Circle()
-                    .stroke(model.activeEditMode == editMode ? .blue : .white, lineWidth: model.activeEditMode == editMode ? 8 : 2)
+                .stroke(model.activeEditMode == editMode ? .blue : .white, lineWidth: model.activeEditMode == editMode ? 8 : 2)
                     .frame(width: 60, height: 60, alignment: .center)
                     .overlay(
-                            Image(systemName: editMode.rawValue).font(.system(size: 20))
+                        Image(systemName: editMode.instance.icon).font(.system(size: 20))
                     )
         }.padding().foregroundColor(model.activeEditMode == editMode ? .accentColor : .white)
     }
@@ -149,13 +158,6 @@ struct FilterPreview: View {
 }
 
 
-enum EditMode: String {
-    case starPop = "sparkles"
-    case brightness = "wand.and.stars"
-    case contrast = "cloud.fog"
-    case sky = "moon"
-}
-
 struct EditOptionsBar: View {
     @StateObject var model: ProjectEditModel
 
@@ -175,22 +177,17 @@ struct EditOptionsBar: View {
                         //Spacer()
                         EditOptionButton(model: model, editMode: .starPop, onClick: {
                             model.activeEditMode = .starPop
-                            sliderValue = model.projectEditor!.starPop
+                            sliderValue = model.projectEditor!.editOptions[.starPop] as! Double
                         })
 
                         EditOptionButton(model: model, editMode: .brightness, onClick: {
                             model.activeEditMode = .brightness
-                            sliderValue = model.projectEditor!.brightness
+                            sliderValue = model.projectEditor!.editOptions[.brightness] as! Double
                         })
 
                         EditOptionButton(model: model, editMode: .contrast, onClick: {
                             model.activeEditMode = .contrast
-                            sliderValue = model.projectEditor!.contrast
-                        })
-
-                        EditOptionButton(model: model, editMode: .sky, onClick: {
-                            model.activeEditMode = .sky
-                            sliderValue = 0.5
+                            sliderValue = model.projectEditor!.editOptions[.contrast] as! Double
                         })
                     }
                 }
@@ -199,20 +196,20 @@ struct EditOptionsBar: View {
                                                 self.sliderValue = $0
                                                 switch model.activeEditMode {
                                                    case .brightness:
-                                                       model.projectEditor!.brightness = $0
+                                                        model.projectEditor!.editOptions[.brightness] = $0
                                                    case .starPop:
-                                                       model.projectEditor!.starPop = $0
+                                                        model.projectEditor!.editOptions[.starPop] = $0
                                                    case .contrast:
-                                                       model.projectEditor!.contrast = $0
-                                                   case .sky:
-                                                       print("Doing nothing lol \($0)")
+                                                        model.projectEditor!.editOptions[.contrast] = $0
                                                 }})
                                             , in: sliderRange,
                                             step: 0.5,
                                             tick: .fraction) {
                                         sliding in
                                         model.updatePreview(enabled: sliding)
-                                    }
+                }.onAppear(perform: {
+                    self.sliderValue = self.model.getInitalSliderValue()
+                })
             } else {
                 HStack {
                     Spacer()

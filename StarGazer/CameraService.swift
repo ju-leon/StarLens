@@ -107,18 +107,6 @@ public class CameraService: NSObject {
     private var focusUpdate = false
     
     public func configure() {
-        /*
-         Setup the capture session.
-         In general, it's not safe to mutate an AVCaptureSession or any of its
-         inputs, outputs, or connections from multiple threads at the same time.
-         
-         Don't perform these tasks on the main queue because
-         AVCaptureSession.startRunning() is a blocking call, which can
-         take a long time. Dispatch session setup to the sessionQueue, so
-         that the main queue isn't blocked, which keeps the UI responsive.
-         */
-
-        /*
         let imageSize = CGSize(width: 300, height: 400)
         let color: UIColor = .black
         UIGraphicsBeginImageContextWithOptions(imageSize, true, 0)
@@ -127,7 +115,7 @@ public class CameraService: NSObject {
         context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
         self.previewPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
-        */
+        
         previewPhoto = UIImage()
         
         if let image = ProjectController.loadPreviewImage() {
@@ -136,8 +124,6 @@ public class CameraService: NSObject {
             self.galleryPreviewImage = UIImage()
         }
         
-
-
         // Start updating the users location
         if CLLocationManager.locationServicesEnabled() {
             locationManager.delegate = self
@@ -150,7 +136,6 @@ public class CameraService: NSObject {
     }
 
 
-    //        MARK: Checks for user's permisions
     public func checkForPermissions() {
         self.locationManager.requestWhenInUseAuthorization()
 
@@ -527,16 +512,31 @@ public class CameraService: NSObject {
 
 
                     }, completionHandler: { [weak self] (result, photoCaptureProcessor) in
-                        if result == .success {
-                            self?.capturePhoto()
+                        if result == .fatal_error {
+                            // Stop the capture and send the thread into processing mode
+                            self?.captureStatus = .processing
                             
                             DispatchQueue.main.async {
-                                // Let the main thread know there's more photos photo
-                                self?.numPicures += self!.isoRotation.count
-                                self?.isCameraButtonDisabled = false
+                                self?.alertError = AlertError(
+                                        title: "Our of memory",
+                                        message: "The capture had to be aborted because your device has run out of memory. If this error keeps appearing, please try to free up device memory, reduce capture size or change capture format to JPEG.",
+                                        primaryButtonTitle: "OK",
+                                        secondaryButtonTitle: nil,
+                                        primaryAction: nil,
+                                        secondaryAction: nil
+                                )
+                                self?.shouldShowAlertView = true
                             }
-
                         }
+                            
+                        self?.capturePhoto()
+                        
+                        DispatchQueue.main.async {
+                            // Let the main thread know there's more photos photo
+                            self?.numPicures += self!.isoRotation.count
+                            self?.isCameraButtonDisabled = false
+                        }
+
                         
                         // Allow settings to the camera again
                         self!.videoDeviceInput.device.unlockForConfiguration()

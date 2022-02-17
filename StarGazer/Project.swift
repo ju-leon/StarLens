@@ -23,6 +23,7 @@ enum ProjectKeys: String {
     case unprocessedPhotoURLs = "photos"
     case processingComplete = "processingComplete"
     case numImages = "numImages"
+    case editOptions = "editOptions"
 }
 
 enum ProjectError: Error {
@@ -43,6 +44,8 @@ class Project: NSObject {
     private var processingComplete = false
 
     private var coverPhoto: UIImage?
+    
+    private var editOptions: [String: Any?] = [:]
 
     init(url: URL, captureStart: Date) {
         self.url = url
@@ -72,6 +75,18 @@ class Project: NSObject {
 
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(PREVIEW_FILE_NAME).path) {
             self.coverPhoto = UIImage(contentsOfFile: url.appendingPathComponent(PREVIEW_FILE_NAME).path)
+        }
+        
+        for editOption in EditOption.allCases {
+            self.editOptions[editOption.instance.identifier] = editOption.instance.defaultValue
+        }
+        
+        if let editOptions = plist![ProjectKeys.editOptions.rawValue] as? [String: Any?] {
+            for (name, value) in editOptions {
+                if value != nil {
+                    self.editOptions[name] = value
+                }
+            }
         }
 
     }
@@ -183,6 +198,18 @@ class Project: NSObject {
         return self.numImages
     }
 
+    public func addEditOptions(editOptions: [EditOption: Any?]) {
+        for (name, value) in editOptions {
+            if value != nil {
+                self.editOptions[name.instance.identifier] = value
+            }
+        }
+    }
+    
+    public func getEditOptions() -> [String: Any?] {
+        return self.editOptions
+    }
+    
     public func save() {
         if self.coverPhoto != nil {
             let resized = ImageResizer.resize(image: self.coverPhoto!, targetWidth: 100.0)
@@ -197,11 +224,13 @@ class Project: NSObject {
         plist[ProjectKeys.metadata.rawValue] = self.metadata
         plist[ProjectKeys.processingComplete.rawValue] = self.processingComplete
         plist[ProjectKeys.numImages.rawValue] = self.numImages
+        plist[ProjectKeys.editOptions.rawValue] = self.editOptions
 
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }
 
     private static func savePlist(url: URL, projectData: [String: Any]) {
+        print(projectData)
         projectData.writeToPath(url)
         print("SAVED!")
     }

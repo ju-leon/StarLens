@@ -13,15 +13,44 @@ enum ProjectEditorErrors: Error {
     case initError
 }
 
+
+enum EditOption : CaseIterable {
+    class Instance {
+        let identifier: String
+        let icon: String
+        let defaultValue: Double
+        
+        init(identifier: String, icon: String, defaultValue: Double) {
+            self.identifier = identifier
+            self.icon = icon
+            self.defaultValue = defaultValue
+        }
+    }
+
+    
+    case starPop
+    case contrast
+    case brightness
+    
+    var instance: Instance {
+        switch self {
+        case .starPop:
+            return Instance(identifier: "STAR_POP", icon: "moon.stars.fill", defaultValue: 0.0)
+        case .contrast:
+            return Instance(identifier: "CONTRAST", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.0)
+        case .brightness:
+            return Instance(identifier: "BRIGHTNESS", icon: "circle.lefthalf.filled", defaultValue: 1.0)
+        }
+    }
+}
+
 class ProjectEditor {
     let imageEditor: ImageEditor?
     let project: Project
     var photoStack: PhotoStack?
     var updatePreview = false;
     
-    @Published var starPop: Double = 0.0
-    @Published var contrast: Double = 1.0
-    @Published var brightness: Double = 0.0
+    @Published var editOptions: [EditOption: Any?] = [:]
     
     private var editQueue: DispatchQueue = DispatchQueue(label: "StarStacker.editQueue")
     
@@ -34,6 +63,12 @@ class ProjectEditor {
         } else {
             imageEditor = nil
         }
+        
+        let projectEditOptions = project.getEditOptions()
+        print("Project edit options:  \(projectEditOptions)")
+        for option in EditOption.allCases {
+            self.editOptions[option] = projectEditOptions[option.instance.identifier]
+        }
     }
 
     func applyFilters(resultCallback: @escaping (UIImage) -> ()) {
@@ -41,9 +76,9 @@ class ProjectEditor {
             if self.imageEditor != nil {
                 while (self.updatePreview) {
                     autoreleasepool {
-                        self.imageEditor!.setContrast(self.contrast)
-                        self.imageEditor!.setStarPop(self.starPop)
-                        self.imageEditor!.setBrightness(self.brightness)
+                        self.imageEditor!.setContrast(self.editOptions[.contrast] as! Double)
+                        self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
+                        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
                         resultCallback(self.imageEditor!.getFilteredImagePreview())
                     }
                 }
@@ -81,5 +116,11 @@ class ProjectEditor {
         }
     }
 
+    func saveProject() {
+        editQueue.async {
+            self.project.addEditOptions(editOptions: self.editOptions)
+            self.project.save()
+        }
+    }
 
 }
