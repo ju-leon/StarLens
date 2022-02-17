@@ -60,11 +60,6 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
 
-        service.$flashMode.sink { [weak self] (mode) in
-                    self?.isFlashOn = mode == .on
-                }
-                .store(in: &self.subscriptions)
-
         service.$blackOutCamera.sink { [weak self] (val) in
                     self?.willCapturePhoto = val
                 }
@@ -118,11 +113,7 @@ final class CameraModel: ObservableObject {
         }
         service.blackOutCamera = false
     }
-
-    func switchFlash() {
-        service.flashMode = service.flashMode == .on ? .off : .on
-    }
-
+    
     func switchCamera(level: Float) {
         if (level == self.zoomLevel) {
             return
@@ -429,23 +420,36 @@ struct CameraView: View {
                         self.navigationModel.currentView = .projects
                     }
                 }, label:{
-                    Image(systemName: "photo.on.rectangle.angled").font(.system(size: 40)).frame(maxWidth: .infinity).foregroundColor(.white)
+                    ZStack {
+                        //Color.white
+                        Image(uiImage: self.model.service.galleryPreviewImage)
+                                    .resizable()
+                                    .aspectRatio(contentMode: .fill)
+                                    .clipped()
+                        LinearGradient(colors: [.white, .gray], startPoint: .top, endPoint: .bottom).opacity(0.4)
+                    }.frame(width: 50, height: 50, alignment: .center)
+                     .cornerRadius(15)
+
+                        
                 })
                 
-                captureButton.frame(maxWidth: .infinity)
+                Spacer()
+                
+                captureButton//.frame(maxWidth: .infinity)
 
+                Spacer()
                 
                 Button(action: {
                     withAnimation {
                         self.navigationModel.currentView = .settings
                     }
                 }, label:{
-                    Image(systemName: "gear").font(.system(size: 40)).frame(maxWidth: .infinity).foregroundColor(.white)
-                })
+                    Image(systemName: "gear").font(.system(size: 40)).foregroundColor(.white)
+                }).frame(width: 50, height: 50, alignment: .center)
 
                 //flipCameraButton
 
-            }.padding(.horizontal, 20)
+            }.padding(.horizontal, 20).frame(maxWidth: .infinity)
         }
 
     }

@@ -7,6 +7,8 @@
 
 import Foundation
 
+let PROJECTS_PREVIEW_IMAGE = "preview.jpg"
+
 public class ProjectController: NSObject {
     
     @Published var projects : [Project] = []
@@ -41,5 +43,26 @@ public class ProjectController: NSObject {
         }
     }
     
+    static var documentsUrl: URL {
+        return FileManager.default.urls(for: .documentDirectory, in: .userDomainMask).first!
+    }
+    
+    public static func storePreviewImage(image: UIImage) {
+        let fileURL = documentsUrl.appendingPathComponent(PREVIEW_FILE_NAME)
+        if let imageData = image.jpegData(compressionQuality: 1.0) {
+           try? imageData.write(to: fileURL, options: .atomic)
+        }
+    }
+    
+    public static func loadPreviewImage() -> UIImage? {
+        let fileURL = documentsUrl.appendingPathComponent(PREVIEW_FILE_NAME)
+        do {
+            let imageData = try Data(contentsOf: fileURL)
+            return UIImage(data: imageData)
+        } catch {
+            print("Error loading image : \(error)")
+        }
+        return nil
+    }
     
 }

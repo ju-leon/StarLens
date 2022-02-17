@@ -35,21 +35,12 @@ public struct AlertError {
 public class CameraService: NSObject {
     typealias PhotoCaptureSessionID = String
 
-//    MARK: Observed Properties UI must react to
-
-//    1.
-    @Published public var flashMode: AVCaptureDevice.FlashMode = .off
-//    2.
     @Published public var shouldShowAlertView = false
-//    3.
     @Published public var shouldShowSpinner = false
-//    4.
     @Published public var blackOutCamera = false
-//    5.
     @Published public var isCameraButtonDisabled = true
-//    6.
     @Published public var isCameraUnavailable = true
-//    8.
+
     @Published public var captureStatus: CaptureStatus = .preparing
 
     @Published public var previewPhoto: UIImage?
@@ -61,6 +52,8 @@ public class CameraService: NSObject {
     @Published public var processingProgress = 0
 
     @Published public var focusDistance: Double = 0.5
+    
+    @Published public var galleryPreviewImage: UIImage = UIImage()
     
     private var debugEnabled = false
     
@@ -125,6 +118,7 @@ public class CameraService: NSObject {
          that the main queue isn't blocked, which keeps the UI responsive.
          */
 
+        /*
         let imageSize = CGSize(width: 300, height: 400)
         let color: UIColor = .black
         UIGraphicsBeginImageContextWithOptions(imageSize, true, 0)
@@ -133,6 +127,15 @@ public class CameraService: NSObject {
         context.fill(CGRect(x: 0, y: 0, width: imageSize.width, height: imageSize.height))
         self.previewPhoto = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
+        */
+        previewPhoto = UIImage()
+        
+        if let image = ProjectController.loadPreviewImage() {
+            self.galleryPreviewImage = image
+        } else {
+            self.galleryPreviewImage = UIImage()
+        }
+        
 
 
         // Start updating the users location

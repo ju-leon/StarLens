@@ -302,6 +302,10 @@ public class PhotoStack {
 
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
             print("Stack exported")
+            
+            // Update preview image in camera view
+            let resized = ImageResizer.resize(image: previewPhoto, targetWidth: 100.0)
+            ProjectController.storePreviewImage(image: resized)
 
         }
     }
