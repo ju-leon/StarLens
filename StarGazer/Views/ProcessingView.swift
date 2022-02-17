@@ -55,7 +55,7 @@ struct ProcessingView : View {
             Spacer()
 
 
-        }
+        }.background(.black)
     }
 
 }

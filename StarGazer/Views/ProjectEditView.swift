@@ -393,7 +393,7 @@ struct ProjectEditView: View {
                         }
 
                     }.transition(.slide)
-                }
+                }.background(.black)
             }
         }.onAppear(perform: {
             model.setProjectEditor(project: navigationModel.currentProject)
