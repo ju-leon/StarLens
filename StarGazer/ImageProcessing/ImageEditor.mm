@@ -52,6 +52,8 @@ const int _laplacianTHRESHOLD = -25;
     
     resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.cols / 3, _stackedImage.rows / 3));
     
+    
+    
     resize(_mask, _maskPreview, cv::Size(_mask.cols / 3, _mask.rows / 3));
 
 
@@ -111,8 +113,14 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     result.convertTo(result, CV_32F, contrast, brightness);
 
     Mat foregroundNormal = foreground;
+    
     // Apply mask
-    blendMasked(result, foregroundNormal, mask, result);
+    if (!mask.empty()) {
+        blendMasked(result, foregroundNormal, mask, result);
+    } else {
+        result.convertTo(result, CV_8UC3);
+    }
+    
 }
 
 #endif

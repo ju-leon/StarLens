@@ -175,7 +175,7 @@ public:
             imageMasked.convertTo(imageMasked, CV_8UC3);
             
         } else {
-            foregroundMask = Mat::ones(segmentation.size(), CV_32FC1);
+            foregroundMask = Mat::ones(image.size(), CV_32FC1);
             std::cout << "Mask disabled" << std::endl;
             imageMasked = image.clone();
         }
@@ -193,20 +193,11 @@ public:
 
         // Match the stars with the last image
         vector<DMatch> matches;
-
-        auto start = std::chrono::high_resolution_clock::now();
         if (std::max(lastStars.size(), stars.size()) > SIMPLE_MATCHER_THRESHOLD) {
             matchStars(lastStars, stars, matches);
         } else {
             matchStarsSimple(lastStars, stars, matches);
         }
-
-        auto end = std::chrono::high_resolution_clock::now();
-
-        auto time = std::chrono::duration_cast<std::chrono::microseconds>
-                (end - start).count();
-
-        std::cout << "Matching took " << time << std::endl;
 
 
         // Extract the star centers from the matches
