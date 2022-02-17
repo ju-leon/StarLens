@@ -172,8 +172,6 @@ public class PhotoStack {
                 if self.stacker == nil {
                     self.coverPhoto = image
 
-                    print("<<<<<<<<<<<<<<<<<< Init with mask \(self.maskEnabled)")
-
                     self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
                     self.numImages += 1
                     if (self.stacker == nil) {

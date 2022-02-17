@@ -9,6 +9,23 @@ import Foundation
 import Photos
 import UIKit
 
+public enum PhotoCaptureStatus : Int {
+    /**
+     Capture suceeded, next capture can be sceduled.
+     */
+    case success = 0
+    
+    /**
+     Capture failed to a recoverable state, next capture can be sceduled.
+     */
+    case failed = 1
+    
+    /**
+     Caputure failed to an inrecoverable state. Abort capture.
+     */
+    case fatal_error = 2
+}
+
 class PhotoCaptureProcessor: NSObject {
 
     lazy var context = CIContext()
@@ -17,7 +34,7 @@ class PhotoCaptureProcessor: NSObject {
 
     private let willCapturePhotoAnimation: () -> Void
 
-    private let completionHandler: (PhotoCaptureProcessor) -> Void
+    private let completionHandler: (PhotoCaptureStatus, PhotoCaptureProcessor) -> Void
 
     private let photoProcessingHandler: (Bool) -> Void
 
@@ -39,11 +56,16 @@ class PhotoCaptureProcessor: NSObject {
     public var previewPhoto: UIImage?
 
     private let stackingResultsCallback: (PhotoStackingResult) -> Void
+    
+    /**
+     Defaults to sucess, unless any process fails
+     */
+    private var captureStatus: PhotoCaptureStatus = .success
 
 //    Init takes multiple closures to be called in each step of the photco capture process
     init(with requestedPhotoSettings: AVCapturePhotoBracketSettings,
          willCapturePhotoAnimation: @escaping () -> Void,
-         completionHandler: @escaping (PhotoCaptureProcessor) -> Void,
+         completionHandler: @escaping (PhotoCaptureStatus ,PhotoCaptureProcessor) -> Void,
          photoProcessingHandler: @escaping (Bool) -> Void,
          photoStack: PhotoStack,
          stackingResultsCallback: @escaping (PhotoStackingResult) -> Void,
@@ -92,9 +114,6 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
 
     /// - Tag: DidFinishProcessingPhoto
     func photoOutput(_ output: AVCapturePhotoOutput, didFinishProcessingPhoto photo: AVCapturePhoto, error: Error?) {
-        print("Finished processing photo \(photo.photoCount)")
-
-        //TODO: WHY??
         DispatchQueue.main.async {
             self.photoProcessingHandler(false)
         }
@@ -113,12 +132,22 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 // Write the RAW (DNG) file data to a URL.
                 try photoData.write(to: rawFileURL)
                 self.rawFileURLs.append(rawFileURL)
+                
+                let captureObject = CaptureObject(url: rawFileURL, time: self.captureTime!, metadata: self.metadata!)
+                self.previewPhoto = self.photoStack.add(
+                        captureObject: captureObject,
+                        statusUpdateCallback: self.stackingResultsCallback,
+                        previewImageCallback: self.previewImageCallback)
+                
+                
             } catch {
-                fatalError("Couldn't write DNG file to the URL.")
+                print("Storage full! Capture needs to be aborted!")
+                self.captureStatus = .fatal_error
             }
         } else {
             // Store compressed bitmap data.
-            print("Something went wrong")
+            print("Couldn't capture raw photo")
+            self.captureStatus = .fatal_error
         }
 
     }
@@ -129,9 +158,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         let dir = tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
                 .appendingPathComponent(fileName)
                 .appendingPathExtension("dng")
-        print(dir)
         return dir
-
     }
 
 
@@ -142,7 +169,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         if let error = error {
             print("Error capturing photo: \(error)")
             DispatchQueue.main.async {
-                self.completionHandler(self)
+                self.completionHandler(.fatal_error, self)
             }
             return
         } else {
@@ -156,17 +183,8 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             }
             */
 
-
-            //self.saveToPhotoLibrary(data)
-            for rawURL in rawFileURLs {
-                let captureObject = CaptureObject(url: rawURL, time: self.captureTime!, metadata: self.metadata!)
-                self.previewPhoto = self.photoStack.add(
-                        captureObject: captureObject,
-                        statusUpdateCallback: self.stackingResultsCallback,
-                        previewImageCallback: self.previewImageCallback)
-            }
             DispatchQueue.main.async {
-                self.completionHandler(self)
+                self.completionHandler(self.captureStatus, self)
             }
         }
 

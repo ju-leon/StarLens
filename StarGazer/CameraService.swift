@@ -526,16 +526,20 @@ public class CameraService: NSObject {
                         }
 
 
-                    }, completionHandler: { [weak self] (photoCaptureProcessor) in
-                        self?.capturePhoto()
+                    }, completionHandler: { [weak self] (result, photoCaptureProcessor) in
+                        if result == .success {
+                            self?.capturePhoto()
+                            
+                            DispatchQueue.main.async {
+                                // Let the main thread know there's more photos photo
+                                self?.numPicures += self!.isoRotation.count
+                                self?.isCameraButtonDisabled = false
+                            }
 
+                        }
+                        
                         // Allow settings to the camera again
                         self!.videoDeviceInput.device.unlockForConfiguration()
-
-                        // Let the main thread know there's another photo
-                        self?.numPicures += self!.isoRotation.count
-
-                        self?.isCameraButtonDisabled = false
 
                         self?.captureQueue.async {
                             self?.inProgressPhotoCaptureDelegates[photoCaptureProcessor.requestedPhotoSettings.uniqueID] = nil
