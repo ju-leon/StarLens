@@ -40,7 +40,7 @@ const int MIN_STARS_REQUIRED = 15;
 /**
  Minimum number of contours allowed  to start a star detection.
  */
-const int MAX_STARS_ALLOWED = 500;
+const int MAX_STARS_ALLOWED = 300;
 
 /**
  * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
@@ -272,6 +272,8 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
             }
         }
     }
+    
+    std::cout << "Detected " << starCenters.size() << "star centers" << std::endl;
     
     // Continously adapt threshold to account for changes in lighting if neccesary.
     if (starCenters.size() > MAX_STARS_ALLOWED) {

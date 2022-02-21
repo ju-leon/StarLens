@@ -46,9 +46,6 @@ public class PhotoStack {
         return queue
     }()
 
-    private let segmentationModel: MobileNet
-    private let modelInputDimension = [512, 512]
-
     private var captureProject: Project
 
     private var initAttempts: Int = 0
@@ -74,8 +71,6 @@ public class PhotoStack {
 
         self.location = location
 
-        self.segmentationModel = try! MobileNet()
-
         // Init the photo to a black photo
         self.coverPhoto = UIImage()
 
@@ -95,10 +90,6 @@ public class PhotoStack {
         self.STRING_ID = project.getUrl().lastPathComponent
 
         location = nil
-        
-        
-
-        self.segmentationModel = try! MobileNet()
     }
 
     deinit {
@@ -122,33 +113,7 @@ public class PhotoStack {
         return images
     }
 
-    func predict(_ image: UIImage) -> CVPixelBuffer? {
-        let resizedImage = ImageResizer.resizeImage(image, modelInputDimension)!
 
-        let ciImage = CIImage(cgImage: resizedImage.cgImage!)
-
-        var pixelBuffer: CVPixelBuffer?
-        let attrs = [kCVPixelBufferCGImageCompatibilityKey: kCFBooleanTrue,
-                     kCVPixelBufferCGBitmapContextCompatibilityKey: kCFBooleanTrue] as CFDictionary
-
-        CVPixelBufferCreate(kCFAllocatorDefault,
-                modelInputDimension[0],
-                modelInputDimension[1],
-                kCVPixelFormatType_32ARGB,
-                attrs,
-                &pixelBuffer)
-        let context = CIContext()
-        context.render(ciImage, to: pixelBuffer!)
-
-        if (pixelBuffer != nil) {
-            let out = try? self.segmentationModel.prediction(image: pixelBuffer!)
-            return out?.class_prediction
-        } else {
-            print("PixelBufferGeneration failed")
-            return nil;
-        }
-    }
-    
 
     func add(captureObject: CaptureObject,
              statusUpdateCallback: ((PhotoStackingResult) -> ())?,
@@ -178,12 +143,7 @@ public class PhotoStack {
                     /**
                     On first call, apply background//foreground segmentation
                      */
-                    let prediction = self.predict(image)
-                    var maskImage: UIImage? = nil
-                    if prediction != nil {
-                        maskImage = UIImage(pixelBuffer: prediction!)
-                    }
-
+                    let maskImage = ImageSegementation.segementImage(image: image)
                     
                     self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
                     self.numImages += 1

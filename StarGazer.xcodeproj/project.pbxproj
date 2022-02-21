@@ -18,6 +18,7 @@
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
 		055F7D2027C40FE900D2AE59 /* MobileNet.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D1F27C40FE900D2AE59 /* MobileNet.mlpackage */; };
+		055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */; };
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
@@ -98,6 +99,7 @@
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		055F7D1F27C40FE900D2AE59 /* MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = MobileNet.mlpackage; sourceTree = "<group>"; };
+		055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmentation.swift; sourceTree = "<group>"; };
 		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
 		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
 		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
@@ -278,6 +280,7 @@
 				056CBBCC2779C8AD00538E2E /* CaptureObject.swift */,
 				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
 				051F0A85276FBCBB0015C507 /* ImageResizer.swift */,
+				055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */,
 				05D4508227943EC6008DB81E /* ProjectController.swift */,
 				05D4508427943F12008DB81E /* Project.swift */,
 				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
@@ -625,6 +628,7 @@
 				056CBBD5277C6A6900538E2E /* OpticalFlowVisualizerFilter.swift in Sources */,
 				056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */,
 				051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */,
+				055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */,
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */,

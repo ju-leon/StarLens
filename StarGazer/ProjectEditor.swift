@@ -57,8 +57,12 @@ class ProjectEditor {
     init(project: Project) {
         self.project = project
 
-        if (project.getProcessingComplete()) {
-            imageEditor = ImageEditor.init(atPath: project.getUrl().appendingPathComponent(CHECKPOINT_FILE_NAME).path, numImages: Int32(project.getNumImages()))
+        let segmentation = ImageSegementation.segementImage(image: project.getCoverPhoto())
+        
+        if (project.getProcessingComplete() && segmentation != nil) {
+            imageEditor = ImageEditor.init(atPath: project.getUrl().appendingPathComponent(CHECKPOINT_FILE_NAME).path,
+                                           numImages: Int32(project.getNumImages()),
+                                           withMask: segmentation!)
             print("Success init")
         } else {
             imageEditor = nil

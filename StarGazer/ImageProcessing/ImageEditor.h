@@ -35,7 +35,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 #endif
 
-- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages;
+- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages withMask: (UIImage *) mask;
 
 
 - (void) setStarPop: (double) factor;

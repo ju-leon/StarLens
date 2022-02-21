@@ -25,9 +25,8 @@ const int _laplacianTHRESHOLD = -25;
 
 
 
-- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages {
+- (instancetype) initAtPath:(NSString *)path numImages:(int) numImages withMask: (UIImage *) mask{
     self = [super init];
-    
     
     string pathString = std::string([path UTF8String]);
     
@@ -35,25 +34,28 @@ const int _laplacianTHRESHOLD = -25;
     readMatBinary(ifs, _combinedImage);
     readMatBinary(ifs, _maxedImage);
     readMatBinary(ifs, _stackedImage);
-    readMatBinary(ifs, _mask);
     
     _combinedImage /= numImages;
     _stackedImage /= numImages;
     
-    if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty()) {
+    if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty() || ![mask isKindOfClass:[UIImage class]]) {
         return nil;
     }
     
     _maxedImage.convertTo(_maxedImage, CV_32F);
     
+    UIImage *maskRot = [mask rotateToImageOrientation];
+    _mask = [maskRot CVGrayscaleMat];
+    resize(_mask, _mask, _combinedImage.size());
+    cvtColor(_mask, _mask, COLOR_GRAY2RGB);
+    _mask.convertTo(_mask, CV_32F);
+    
+    /**
+     Resize to speedup previews during editing
+     */
     resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
-
     resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
-    
     resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.cols / 3, _stackedImage.rows / 3));
-    
-    
-    
     resize(_mask, _maskPreview, cv::Size(_mask.cols / 3, _mask.rows / 3));
 
 
@@ -116,10 +118,10 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     
     // Apply mask
     if (!mask.empty()) {
-        Mat floatMask;
-        cvtColor(mask, floatMask, COLOR_GRAY2BGR);
-        floatMask.convertTo(floatMask, CV_32FC3);
-        blendMasked(result, foregroundNormal, floatMask, result);
+        //Mat floatMask;
+        //cvtColor(mask, floatMask, COLOR_GRAY2BGR);
+        //floatMask.convertTo(floatMask, CV_32FC3);
+        blendMasked(result, foregroundNormal, mask, result);
     } else {
         result.convertTo(result, CV_8UC3);
     }
