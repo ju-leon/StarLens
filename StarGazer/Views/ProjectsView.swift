@@ -66,16 +66,6 @@ struct ProjectsView : View {
     var body: some View {
         NavigationView{
             ScrollView {
-                HStack {
-                    
-                    Text("Projects")
-                        .font(.title)
-                        .foregroundColor(.black)
-                        .padding()
-                    Spacer()
-                    
-
-                }
                 LazyVGrid(columns: twoColumnGrid) {
                     ForEach(model.projects.indices) {
                         index in

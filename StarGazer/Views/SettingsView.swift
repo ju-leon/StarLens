@@ -11,6 +11,7 @@ import Combine
 import AVFoundation
 import UIKit
 import SlidingRuler
+import ModalView
 
 struct SwitchTask: View {
     @State var text: String
@@ -29,15 +30,11 @@ struct SettingsView : View {
 
     @State var enabled = true
     
+    @State var onDone: () -> ()
+    
     var body: some View {
         NavigationView {
-                List {
-                    Button(action: {
-                        withAnimation {
-                            navigationModel.currentView = .camera
-                        }
-                    }){Text("Done")}
-                    
+                List {                   
                     Section(header: Text("General")) {
                         Toggle("Add GPS location to photo", isOn: .constant(true))
                         
@@ -84,8 +81,16 @@ struct SettingsView : View {
                 //TODO: WWhy does this cause issues??
                 //.navigationTitle("Settings")
                 .listStyle(InsetGroupedListStyle())
+                .navigationTitle("Settings")
+                .navigationBarItems(trailing:
+                    Button(action: {
+                        onDone()
+                    }, label:{
+                        Text("Done")
+                    })
+                )
                  
-            }
+        }
         
     }
     

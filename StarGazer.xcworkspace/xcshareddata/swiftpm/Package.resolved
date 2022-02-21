@@ -20,6 +20,15 @@
         }
       },
       {
+        "package": "ModalView",
+        "repositoryURL": "https://github.com/diniska/modal-view",
+        "state": {
+          "branch": null,
+          "revision": "3f1a97297112770677b507556f581f7ed561593a",
+          "version": "1.0.1"
+        }
+      },
+      {
         "package": "SlidingRuler",
         "repositoryURL": "https://github.com/Pyroh/SlidingRuler.git",
         "state": {

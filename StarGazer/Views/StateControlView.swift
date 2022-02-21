@@ -10,10 +10,10 @@ import Combine
 import AVFoundation
 import UIKit
 
+
 enum Views {
     case camera
     case projects
-    case settings
 }
 
 final class StateControlModel : ObservableObject {
@@ -32,10 +32,7 @@ struct StateControlView : View {
             CameraView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         case .projects:
             ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom)).environment(\.colorScheme, .dark)
-        case .settings:
-            SettingsView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         }
-    
     }
     
 }

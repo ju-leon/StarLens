@@ -11,6 +11,7 @@ import AVFoundation
 import UIKit
 import SlidingRuler
 import Lottie
+import ModalView
 
 final class CameraModel: ObservableObject {
     public var service = CameraService()
@@ -423,14 +424,16 @@ struct CameraView: View {
 
                 Spacer()
                 
-                Button(action: {
-                    withAnimation {
-                        self.navigationModel.currentView = .settings
-                    }
-                }, label:{
-                    Image(systemName: "gear").font(.system(size: 40)).foregroundColor(.white)
-                }).frame(width: 50, height: 50, alignment: .center)
-
+                ModalPresenter {
+                    ModalLink(destination: {
+                        dismiss in
+                        SettingsView(navigationModel: navigationModel, onDone: dismiss).environment(\.colorScheme, .dark)
+                    },
+                    label: {
+                        Image(systemName: "gear").font(.system(size: 40)).foregroundColor(.white)
+                    }).frame(width: 50, height: 50, alignment: .center)
+                }
+                
                 //flipCameraButton
 
             }.padding(.horizontal, 20).frame(maxWidth: .infinity)

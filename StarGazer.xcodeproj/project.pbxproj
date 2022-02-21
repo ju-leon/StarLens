@@ -19,6 +19,7 @@
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
 		055F7D2027C40FE900D2AE59 /* MobileNet.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D1F27C40FE900D2AE59 /* MobileNet.mlpackage */; };
 		055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */; };
+		055F7D2527C4418000D2AE59 /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = 055F7D2427C4418000D2AE59 /* ModalView */; };
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
@@ -178,6 +179,7 @@
 			buildActionMask = 2147483647;
 			files = (
 				05DE22782781CC3D007A90DE /* opencv2.framework in Frameworks */,
+				055F7D2527C4418000D2AE59 /* ModalView in Frameworks */,
 				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
 				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
 				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
@@ -433,6 +435,7 @@
 			name = StarGazer;
 			packageProductDependencies = (
 				0510811927BEE06100A50129 /* Lottie */,
+				055F7D2427C4418000D2AE59 /* ModalView */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -510,6 +513,7 @@
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
 				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -1024,6 +1028,14 @@
 				minimumVersion = 3.0.0;
 			};
 		};
+		055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/diniska/modal-view";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -1031,6 +1043,11 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
+		};
+		055F7D2427C4418000D2AE59 /* ModalView */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */;
+			productName = ModalView;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
