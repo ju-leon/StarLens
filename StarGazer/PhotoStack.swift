@@ -46,8 +46,8 @@ public class PhotoStack {
         return queue
     }()
 
-    private let segmentationModel: DeepLabClean
-    private let modelInputDimension = [513, 513]
+    private let segmentationModel: MobileNet
+    private let modelInputDimension = [512, 512]
 
     private var captureProject: Project
 
@@ -74,7 +74,7 @@ public class PhotoStack {
 
         self.location = location
 
-        self.segmentationModel = DeepLabClean()
+        self.segmentationModel = try! MobileNet()
 
         // Init the photo to a black photo
         self.coverPhoto = UIImage()
@@ -98,7 +98,7 @@ public class PhotoStack {
         
         
 
-        self.segmentationModel = DeepLabClean()
+        self.segmentationModel = try! MobileNet()
     }
 
     deinit {
@@ -122,7 +122,7 @@ public class PhotoStack {
         return images
     }
 
-    func predict(_ image: UIImage) -> MLMultiArray? {
+    func predict(_ image: UIImage) -> CVPixelBuffer? {
         let resizedImage = ImageResizer.resizeImage(image, modelInputDimension)!
 
         let ciImage = CIImage(cgImage: resizedImage.cgImage!)
@@ -142,7 +142,7 @@ public class PhotoStack {
 
         if (pixelBuffer != nil) {
             let out = try? self.segmentationModel.prediction(image: pixelBuffer!)
-            return out!.output
+            return out?.class_prediction
         } else {
             print("PixelBufferGeneration failed")
             return nil;
@@ -164,7 +164,7 @@ public class PhotoStack {
 
 
                 let prediction = self.predict(image)
-                let maskImage = UIImage(cgImage: prediction!.cgImage()!)
+                let maskImage = UIImage(pixelBuffer: prediction!)!
 
                 /**
                  Check if the stacker is called for the first time, if so, we need to init it.

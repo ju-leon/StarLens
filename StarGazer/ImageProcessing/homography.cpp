@@ -48,11 +48,8 @@ const int MAX_NUM_CONTOURS = 20000;
 const int GAUSSIAN_FILTER_SIZE = 3;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
-    mask = Mat::zeros(segmentation.size(), CV_32FC1);
-    mask.setTo(1.0, segmentation == 3);
-    mask.setTo(1.0, segmentation == 22);
-    mask.setTo(1.0, segmentation == 27);
-
+    segmentation.convertTo(mask, CV_32F);
+    
     Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
     erode(mask, mask, element);
 

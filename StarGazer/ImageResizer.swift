@@ -7,6 +7,7 @@
 
 import Foundation
 import UIKit
+import VideoToolbox
 
 enum ImageResizingError: Error {
     case cannotRetrieveFromURL
@@ -56,5 +57,18 @@ struct MemorySizer {
         bcf.countStyle = .file
         let string = bcf.string(fromByteCount: Int64(data.count))
         return string
+    }
+}
+
+extension UIImage {
+    public convenience init?(pixelBuffer: CVPixelBuffer) {
+        var cgImage: CGImage?
+        VTCreateCGImageFromCVPixelBuffer(pixelBuffer, options: nil, imageOut: &cgImage)
+
+        guard let cgImage = cgImage else {
+            return nil
+        }
+
+        self.init(cgImage: cgImage)
     }
 }

@@ -229,10 +229,8 @@ class Project: NSObject {
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }
 
-    private static func savePlist(url: URL, projectData: [String: Any]) {
-        print(projectData)
+    private static func savePlist(url: URL, projectData: [String: Any]) {        
         projectData.writeToPath(url)
-        print("SAVED!")
     }
 
     private static func loadPlist(url: URL) -> [String: Any]? {
