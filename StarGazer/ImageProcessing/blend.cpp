@@ -47,19 +47,12 @@ void blendHardLight(Mat im1, Mat im2, Mat out) {
  */
 
 void blendMasked(Mat &sky, Mat &foreground, Mat &mask, Mat &output) {
-
-    // TOO MEMORY HUNGRY FOR PRODUCTION :(
-    Mat floatMask;
-    cvtColor(mask, floatMask, COLOR_GRAY2BGR);
-    floatMask.convertTo(floatMask, CV_32FC3);
-
     Mat skyMasked, foregroundMasked;
-    skyMasked = sky.mul(floatMask);
+    skyMasked = sky.mul(mask);
     skyMasked.convertTo(skyMasked, CV_8UC3);
     
-    foregroundMasked = foreground.mul(Mat(foreground.rows, foreground.cols, CV_32FC3, Scalar(1,1,1)) - floatMask);
+    foregroundMasked = foreground.mul(Mat(foreground.rows, foreground.cols, CV_32FC3, Scalar(1,1,1)) - mask);
     foregroundMasked.convertTo(foregroundMasked, CV_8UC3);
     
     addWeighted(foregroundMasked, 1, skyMasked, 1, 0, output);
-    
 }

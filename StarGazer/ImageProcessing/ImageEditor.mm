@@ -116,7 +116,10 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     
     // Apply mask
     if (!mask.empty()) {
-        blendMasked(result, foregroundNormal, mask, result);
+        Mat floatMask;
+        cvtColor(mask, floatMask, COLOR_GRAY2BGR);
+        floatMask.convertTo(floatMask, CV_32FC3);
+        blendMasked(result, foregroundNormal, floatMask, result);
     } else {
         result.convertTo(result, CV_8UC3);
     }

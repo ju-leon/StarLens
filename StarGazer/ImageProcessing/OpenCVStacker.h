@@ -18,14 +18,14 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OpenCVStacker : NSObject
 
-- (instancetype) initWithImage:(UIImage *)image :(bool) maskEnabled;
+- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask;
 
 /**
  * Merges a new image onto the current stack.
  * SLOW! ONLY CALL ASYNC!
  * @param image
  */
-- (nullable UIImage *)addAndProcess:(UIImage *)image :(UIImage *)mask;
+- (nullable UIImage *)addAndProcess:(UIImage *)image;
 
 /**
  * Return the previously processed image.

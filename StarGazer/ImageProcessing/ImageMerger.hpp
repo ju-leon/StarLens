@@ -76,8 +76,6 @@ private:
     Mat lastImage;
 
     vector<Point2i> lastStars;
-    
-    bool maskEnabled;
 
 public:
     /**
@@ -85,10 +83,26 @@ public:
      * If not enough features are found ion the initial image, an exception is thrown.
      * @param image
      */
-    ImageMerger(Mat &image, bool maskEnabled) : maskEnabled(maskEnabled) {
+    ImageMerger(Mat &image, Mat &segmentation) {
+        Mat imageMasked;
+        if (!segmentation.empty()) {
+            Mat mask;
+            createTrackingMask(segmentation, mask);
+            resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
+            cvtColor(mask, mask, COLOR_GRAY2RGB);
+            mask.copyTo(foregroundMask);
+            
+            // Apply mask to image. Temporarily convert to float to allow soft masking.
+            image.convertTo(imageMasked, CV_32FC3);
+            multiply(imageMasked, mask, imageMasked);
+            imageMasked.convertTo(imageMasked, CV_8UC3);
+        } else {
+            image.copyTo(imageMasked);
+        }
+        
         // Find an initial threshold to be used in future images
         std::cout << "Finding initial threshold..." << std::endl;
-        threshold = getThreshold(image);
+        threshold = getThreshold(imageMasked);
         std::cout << "Initial threshold: " << threshold << std::endl;
         if (threshold == numeric_limits<float>::infinity()) {
             throw MergingException("Could not find initial threshold");
@@ -135,7 +149,7 @@ public:
      * Returns the processed image.
      */
     void getProcessed(Mat &image) {
-        if (maskEnabled) {
+        if (!foregroundMask.empty()) {
             Mat combinedNormal = currentCombined / numImages;
             Mat stackedNormal = currentStacked / numImages;
 
@@ -150,34 +164,19 @@ public:
      * Tries to merge an image on top of the current stack.
      * Aligns the image if enough stars are found.
      * @param image Image to be merged
-     * @param mask Mask segmenting foreground and background
      * @param preview A preview of the current stack will be copied to here.
      * @return True if the operation was successful, false otherwise.
      */
-    bool mergeImageOnStack(Mat &image, Mat &segmentation, Mat &preview) {
+    bool mergeImageOnStack(Mat &image, Mat &preview) {
         Mat imageMasked;
-        if (maskEnabled) {
-            std::cout << "Mask enabled" << std::endl;
-            // Convert mask to binary image
-            Mat mask;
-            createTrackingMask(segmentation, mask);
-            resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
-            
-            if (foregroundMask.empty()) {
-                mask.copyTo(foregroundMask);
-            }
-            
-            cvtColor(mask, mask, COLOR_GRAY2RGB);
-
+        if (!foregroundMask.empty()) {
             // Apply mask to image. Temporarily convert to float to allow soft masking.
             image.convertTo(imageMasked, CV_32FC3);
-            multiply(imageMasked, mask, imageMasked);
-            imageMasked.convertTo(imageMasked, CV_8UC3);
             
+            multiply(imageMasked, foregroundMask, imageMasked);
+            imageMasked.convertTo(imageMasked, CV_8UC3);
         } else {
-            foregroundMask = Mat::ones(image.size(), CV_32FC1);
-            std::cout << "Mask disabled" << std::endl;
-            imageMasked = image.clone();
+            image.copyTo(imageMasked);
         }
         
         // Compute the stars in the current image

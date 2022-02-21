@@ -162,17 +162,23 @@ public class PhotoStack {
                 let image = captureObject.toUIImage()
                 //self.savePreview(image: image)
 
-
-                let prediction = self.predict(image)
-                let maskImage = UIImage(pixelBuffer: prediction!)!
-
                 /**
                  Check if the stacker is called for the first time, if so, we need to init it.
                  */
                 if self.stacker == nil {
                     self.coverPhoto = image
 
-                    self.stacker = OpenCVStacker.init(image: image, self.maskEnabled)
+                    /**
+                    On first call, apply background//foreground segmentation
+                     */
+                    let prediction = self.predict(image)
+                    var maskImage: UIImage? = nil
+                    if prediction != nil {
+                        maskImage = UIImage(pixelBuffer: prediction!)
+                    }
+
+                    
+                    self.stacker = OpenCVStacker.init(image: image, withMask: maskImage)
                     self.numImages += 1
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")
@@ -195,7 +201,7 @@ public class PhotoStack {
                     /**
                      Otherwise, the photo can be merged
                      */
-                    if let stackedImage = self.stacker!.addAndProcess(image, maskImage) {
+                    if let stackedImage = self.stacker!.addAndProcess(image) {
                         self.coverPhoto = stackedImage
                         self.numImages += 1
                         statusUpdateCallback?(.SUCCESS)

@@ -30,17 +30,17 @@ const int MAX_AREA_THRESHOLD = 1000;
 /**
  Maxmium distance allowed to match 2 stars.
  */
-const int DISTANCE_THRESHOLD = 50;
+const int DISTANCE_THRESHOLD = 15;
 
 /**
  Minimum number of contours required to start a star detection.
  */
-const int MIN_NUM_CONTOURS = 3000;
+const int MIN_STARS_REQUIRED = 100;
 
 /**
  Minimum number of contours allowed  to start a star detection.
  */
-const int MAX_NUM_CONTOURS = 20000;
+const int MAX_STARS_ALLOWED = 1000;
 
 /**
  * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
@@ -160,7 +160,7 @@ void matchStarsSimple(std::vector<cv::Point2i> &points1,
         if (minDistance < DISTANCE_THRESHOLD) {
             matchesForward[index1] = minIndex;
             matchesBackward[minIndex] = index1;
-        }
+        } 
     }
 
     /**
@@ -181,38 +181,21 @@ void matchStarsSimple(std::vector<cv::Point2i> &points1,
  Returns infinity if no threshold could be found
  */
 float getThreshold(Mat &img) {
-    Mat imgGrayscale;
-    cvtColor(img, imgGrayscale, cv::COLOR_BGR2GRAY);
-
-
-    GaussianBlur( imgGrayscale, imgGrayscale, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_DEFAULT );
-
-    int kernel_size = 3;
-    int scale = 1;
-    int delta = 0;
-    Mat laplacian;
-    Laplacian( imgGrayscale, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
-
-
     /**
      * Only give 100 tries, abort if no threshold could be found
      */
     float threshold = -200;
     int i = 0;
     while (i++ < 100) {
-        Mat threshMat;
-        cv::threshold(laplacian, threshMat, threshold, 255, cv::THRESH_BINARY_INV);
-        threshMat.convertTo(threshMat, CV_8UC1);
+        // Compute the stars in the current image
+        vector<Point2i> stars;
+        threshold = getStarCenters(img, threshold, stars);
 
-        vector<vector<Point> > contours;
-        vector<Vec4i> hierarchy;
-        cv::findContours(threshMat, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
-
-        if (contours.size() > MAX_NUM_CONTOURS) {
+        if (stars.size() > MAX_STARS_ALLOWED) {
             // To many contours, lower threshold
             // All values we're interested in are negative -> *1.5 gives a lower value
             threshold = threshold * 1.5;
-        } else if (contours.size() < MIN_NUM_CONTOURS) {
+        } else if (stars.size() < MIN_STARS_REQUIRED) {
             // To little contours, increase threshold
             threshold = threshold * 0.8;
         } else {
@@ -258,18 +241,7 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     vector<Vec4i> hierarchy;
     cv::findContours(threshMat, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
     
-    // Continously adapt threshold to account for changes in lighting if neccesary.
-    if (contours.size() > MAX_NUM_CONTOURS) {
-        // To many contours, lower threshold
-        // All values we're interested in are negative -> *1.1 gives a lower value
-        threshold = threshold * 1.1;
-        std::cout << "Threshold too high, lowering to " << threshold << std::endl;
-    } else if (contours.size() < MIN_NUM_CONTOURS) {
-        // To little contours, increase threshold
-        threshold = threshold * 0.95;
-        std::cout << "Threshold too low, raising to " << threshold << std::endl;
-    }
-    
+
     // Find the center point in every contour
     for (vector<Point> contour : contours) {
         if (contour.size() < 2) {
@@ -296,7 +268,20 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
                 starCenters.emplace_back(Point2i(cX, cY));
             }
         }
-    }    
+    }
+    
+    // Continously adapt threshold to account for changes in lighting if neccesary.
+    if (starCenters.size() > MAX_STARS_ALLOWED) {
+        // To many contours, lower threshold
+        // All values we're interested in are negative -> *1.1 gives a lower value
+        threshold = threshold * 1.1;
+        std::cout << "Threshold too high, lowering to " << threshold << std::endl;
+    } else if (starCenters.size() < MIN_STARS_REQUIRED) {
+        // To little contours, increase threshold
+        threshold = threshold * 0.95;
+        std::cout << "Threshold too low, raising to " << threshold << std::endl;
+    }
+    
     
     return threshold;
     

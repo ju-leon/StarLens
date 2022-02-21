@@ -23,7 +23,7 @@ unique_ptr<ImageMerger> merger;
 
 #pragma mark Public
 
-- (instancetype) initWithImage:(UIImage *)image :(bool) maskEnabled {
+- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask{
     NSLog (@"OpenCVStacker initWithImage");
 
     self = [super init];
@@ -31,9 +31,15 @@ unique_ptr<ImageMerger> merger;
         if ([image isKindOfClass:[UIImage class]]) {
             UIImage *rotatedImage = [image rotateToImageOrientation];
             Mat cvImage = [rotatedImage CVMat3];
-
+            
+            Mat cvMask;
+            if (mask != nil && [mask isKindOfClass:[UIImage class]]) {
+                UIImage *rotatedMask = [mask rotateToImageOrientation];
+                cvMask = [rotatedMask CVGrayscaleMat];
+            }
+            
             try {
-                merger = make_unique<ImageMerger>(cvImage, maskEnabled);
+                merger = make_unique<ImageMerger>(cvImage, cvMask);
             } catch (const MergingException& e) {
                 NSLog(@"OpenCVStacker initWithImage: %s", e.what());
                 return nil;
@@ -47,21 +53,19 @@ unique_ptr<ImageMerger> merger;
     return self;
 }
 
-- (nullable UIImage *)addAndProcess:(UIImage *)image :(UIImage *)maskImage {
+- (nullable UIImage *)addAndProcess:(UIImage *)image {
     cv::Mat matImage;
     cv::Mat mask;
-    if ([image isKindOfClass:[UIImage class]] && [maskImage isKindOfClass:[UIImage class]]) {
+    if ([image isKindOfClass:[UIImage class]]) {
         UIImage *rotatedImage = [image rotateToImageOrientation];
         matImage = [rotatedImage CVMat3];
-
-        mask = [maskImage CVGrayscaleMat];
     } else {
         return nullptr;
     }
 
     Mat preview;
 
-    if (merger->mergeImageOnStack(matImage, mask, preview)) {
+    if (merger->mergeImageOnStack(matImage, preview)) {
        std::cout << "Merge successful" << std::endl;
     } else {
         std::cout << "Merge failed" << std::endl;
