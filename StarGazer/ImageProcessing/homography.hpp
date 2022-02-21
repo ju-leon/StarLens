@@ -18,7 +18,7 @@ bool alignImages(cv::Mat &im1, cv::Mat &movement, cv::Mat &im2, cv::Mat &im1Reg,
 
 float getThreshold(cv::Mat &img_grayscale);
 
-float getStarCenters(cv::Mat &image, float threshold, std::vector<cv::Point2i> &starCenters);
+float getStarCenters(cv::Mat &image, float threshold, cv::Mat &threshMat, std::vector<cv::Point2i> &starCenters);
 
 /**
  * Match stars based on KD_Tree KNN search. Recommended for large number of stars.

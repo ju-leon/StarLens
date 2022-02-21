@@ -35,17 +35,17 @@ const int DISTANCE_THRESHOLD = 15;
 /**
  Minimum number of contours required to start a star detection.
  */
-const int MIN_STARS_REQUIRED = 100;
+const int MIN_STARS_REQUIRED = 15;
 
 /**
  Minimum number of contours allowed  to start a star detection.
  */
-const int MAX_STARS_ALLOWED = 1000;
+const int MAX_STARS_ALLOWED = 500;
 
 /**
  * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
  */
-const int GAUSSIAN_FILTER_SIZE = 3;
+const int GAUSSIAN_FILTER_SIZE = 15;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     segmentation.convertTo(mask, CV_32F);
@@ -189,7 +189,8 @@ float getThreshold(Mat &img) {
     while (i++ < 100) {
         // Compute the stars in the current image
         vector<Point2i> stars;
-        threshold = getStarCenters(img, threshold, stars);
+        Mat contour;
+        threshold = getStarCenters(img, threshold, contour, stars);
 
         if (stars.size() > MAX_STARS_ALLOWED) {
             // To many contours, lower threshold
@@ -215,9 +216,12 @@ float getThreshold(Mat &img) {
 Extracts star centers under a athreshold using a lplacian transformation.
 After a Laplacian is applied, the iamge is thesholded and stars are detected using a contour descriptor.
 
+ @param threshMat Contains the contours of the stars used to track
+ 
 Returns a suggestion for a new threshold value. This helps to adapt to changing ligting conditions.
+ 
  */
-float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) {
+float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i> &starCenters) {
     Mat imGray;
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
     
@@ -232,7 +236,6 @@ float getStarCenters(Mat &image, float threshold, vector<Point2i> &starCenters) 
     Laplacian( imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_DEFAULT );
 
     // Only count stars that fall under the determined threshold
-    Mat threshMat;
     cv::threshold(laplacian, threshMat, threshold, 255, cv::THRESH_BINARY_INV);
     threshMat.convertTo(threshMat, CV_8UC1);
 

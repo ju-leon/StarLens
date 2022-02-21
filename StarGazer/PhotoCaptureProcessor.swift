@@ -137,7 +137,8 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 self.previewPhoto = self.photoStack.add(
                         captureObject: captureObject,
                         statusUpdateCallback: self.stackingResultsCallback,
-                        previewImageCallback: self.previewImageCallback)
+                        previewImageCallback: self.previewImageCallback,
+                        addToProject: true)
                 
                 
             } catch {

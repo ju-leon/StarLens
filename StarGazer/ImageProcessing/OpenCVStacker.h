@@ -18,7 +18,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 @interface OpenCVStacker : NSObject
 
-- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask;
+- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask visaliseTrackingPoints: (bool)enabled;
 
 /**
  * Merges a new image onto the current stack.

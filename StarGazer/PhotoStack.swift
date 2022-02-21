@@ -148,25 +148,32 @@ public class PhotoStack {
             return nil;
         }
     }
+    
 
     func add(captureObject: CaptureObject,
              statusUpdateCallback: ((PhotoStackingResult) -> ())?,
-             previewImageCallback: ((UIImage) -> Void)?) -> UIImage {
+             previewImageCallback: ((UIImage) -> Void)?,
+             addToProject: Bool = false) -> UIImage {
         self.dispatch.addOperation {
             autoreleasepool {
-
-
-                self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
-                self.captureProject.setMetadata(data: captureObject.metadata)
-
                 let image = captureObject.toUIImage()
-                //self.savePreview(image: image)
+                
+                if (addToProject) {
+                    self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
+                    self.captureProject.setMetadata(data: captureObject.metadata)
+                    self.captureProject.save()
+                }
 
                 /**
                  Check if the stacker is called for the first time, if so, we need to init it.
                  */
                 if self.stacker == nil {
                     self.coverPhoto = image
+                    
+                    if (addToProject) {
+                        self.captureProject.setCoverPhoto(image: image)
+                        self.captureProject.save()
+                    }
 
                     /**
                     On first call, apply background//foreground segmentation
@@ -178,7 +185,7 @@ public class PhotoStack {
                     }
 
                     
-                    self.stacker = OpenCVStacker.init(image: image, withMask: maskImage)
+                    self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
                     self.numImages += 1
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")
@@ -208,10 +215,9 @@ public class PhotoStack {
                     } else {
                         statusUpdateCallback?(.FAILED)
                     }
-                    previewImageCallback?(self.stacker!.getProcessedImage())
+                    previewImageCallback?(self.stacker!.getPreviewImage())
                 }
             }
-            self.captureProject.save()
         }
 
         return self.coverPhoto

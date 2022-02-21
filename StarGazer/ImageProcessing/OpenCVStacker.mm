@@ -23,7 +23,7 @@ unique_ptr<ImageMerger> merger;
 
 #pragma mark Public
 
-- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask{
+- (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask visaliseTrackingPoints: (bool)enabled{
     NSLog (@"OpenCVStacker initWithImage");
 
     self = [super init];
@@ -39,7 +39,7 @@ unique_ptr<ImageMerger> merger;
             }
             
             try {
-                merger = make_unique<ImageMerger>(cvImage, cvMask);
+                merger = make_unique<ImageMerger>(cvImage, cvMask, enabled);
             } catch (const MergingException& e) {
                 NSLog(@"OpenCVStacker initWithImage: %s", e.what());
                 return nil;

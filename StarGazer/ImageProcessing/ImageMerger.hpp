@@ -77,13 +77,23 @@ private:
 
     vector<Point2i> lastStars;
 
+    /**
+    Toggles if the stars will be rendered onto the image
+     */
+    bool visualiseTrackingPoints;
+    
+    /**
+     Mat containing the stars if visualiseTrackingPoints is enabled
+     */
+    Mat starContours;
+    
 public:
     /**
      * Creates a new image merger and tries to initialize all values.
      * If not enough features are found ion the initial image, an exception is thrown.
      * @param image
      */
-    ImageMerger(Mat &image, Mat &segmentation) {
+    ImageMerger(Mat &image, Mat &segmentation, bool visualiseTrackingPoints = false) : visualiseTrackingPoints(visualiseTrackingPoints) {
         Mat imageMasked;
         if (!segmentation.empty()) {
             Mat mask;
@@ -110,7 +120,8 @@ public:
 
         std::cout << "Finding initial stars..." << std::endl;
         //Find the star centers for the first image
-        getStarCenters(image, threshold, lastStars);
+        Mat contour;
+        getStarCenters(image, threshold, contour, lastStars);
         std::cout << "Found " << lastStars.size() << " stars" << std::endl;
 
         if (lastStars.size() < MIN_STARS_PER_IMAGE) {
@@ -142,6 +153,11 @@ public:
     void getPreview(Mat &previewImage) {
         //previewImage = currentMaxed;
         previewImage = currentMaxed.clone();
+        
+        if (visualiseTrackingPoints) {
+            std::cout << "added contours" << std::endl;
+            addWeighted(previewImage, 0.5, starContours, 5, 0.0, previewImage);
+        }
     }
 
 
@@ -181,8 +197,9 @@ public:
         
         // Compute the stars in the current image
         vector<Point2i> stars;
-        threshold = getStarCenters(imageMasked, threshold, stars);
-
+        Mat contours;
+        threshold = getStarCenters(imageMasked, threshold, contours, stars);
+        
         if (stars.size() < MIN_STARS_PER_IMAGE) {
             std::cout << "Not enough stars found" << std::endl;
             numFailed++;
@@ -224,7 +241,22 @@ public:
         // Use homography to warp image
         Mat alignedImage;
         warpPerspective(imageMasked, alignedImage, totalHomography, imageMasked.size());
-
+        
+        /**
+         Create a visulaisation of the current tracking points if requested
+         */
+        if (visualiseTrackingPoints) {
+            std::vector<cv::Mat> channels(3);
+            Mat featureVis = Mat::zeros(imageMasked.rows, imageMasked.cols, CV_8UC1);
+            channels.at(0) = contours;
+            channels.at(1) = featureVis;
+            channels.at(2) = featureVis;
+            
+            cv::merge(channels, featureVis);
+            warpPerspective(featureVis, starContours, totalHomography, featureVis.size());
+        }
+        
+        
         max(currentMaxed, alignedImage, currentMaxed);
 
         // Add image to the current stacks
