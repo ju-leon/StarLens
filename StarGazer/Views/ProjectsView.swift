@@ -35,7 +35,7 @@ struct ProjectCard: View {
                 .resizable()
                 .background(.black)
                 .frame(maxWidth: .infinity, minHeight: 200, maxHeight: 200)
-            LinearGradient(colors: [.clear, .clear, .clear, .black], startPoint: .top, endPoint: .bottom)
+            LinearGradient(colors: [.clear, .clear, .clear, .black.opacity(0.5)], startPoint: .top, endPoint: .bottom)
             VStack{
                 Spacer()
                 HStack {
@@ -64,7 +64,7 @@ struct ProjectsView : View {
     
     
     var body: some View {
-        GeometryReader { reader in
+        NavigationView{
             ScrollView {
                 HStack {
                     
@@ -74,31 +74,29 @@ struct ProjectsView : View {
                         .padding()
                     Spacer()
                     
-                    Button(action: {
-                        withAnimation {
-                            self.navigationModel.currentView = .camera
-                        }
-                    }, label:{
-                        Image(systemName: "xmark.circle.fill").font(.system(size: 30)).foregroundColor(.gray).padding()
-                    })
+
                 }
                 LazyVGrid(columns: twoColumnGrid) {
                     ForEach(model.projects.indices) {
                         index in
-                        Button(action: {
-                            self.navigationModel.currentProject = model.projects[index]
-                            withAnimation {
-                                self.navigationModel.currentView = .edit
-                            }
-                        }, label:{
+                        NavigationLink(destination: ProjectEditView(navigationModel: self.navigationModel, project: model.projects[index]), label: {
                             ProjectCard(project: model.projects[index])
                         })
                     }
                 }
                 .padding()
-                .foregroundColor(.black)
+                .navigationTitle("Projects")
+                .navigationBarItems(trailing:
+                    Button(action: {
+                        withAnimation {
+                            self.navigationModel.currentView = .camera
+                        }
+                    }, label:{
+                        Text("Done")
+//                        Image(systemName: "xmark.circle.fill").font(.system(size: 20)).foregroundColor(.gray).padding()
+                    }).padding()
+                )
             }
-            .background(.white)
         }
     }
     

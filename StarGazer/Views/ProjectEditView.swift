@@ -339,6 +339,8 @@ struct ActionOptionsBar: View {
 struct ProjectEditView: View {
     @StateObject var navigationModel: StateControlModel
     @StateObject var model = ProjectEditModel()
+    
+    @State var project: Project
 
     private let twoColumnGrid = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -356,26 +358,6 @@ struct ProjectEditView: View {
                 )
             } else {
                 VStack {
-
-                    if (model.projectEditMode == .preview) {
-                        HStack {
-                            Button(action: {
-                                withAnimation {
-                                    self.navigationModel.currentView = .projects
-                                }
-                            }) {
-                                HStack {
-                                    Image(systemName: "arrow.backward")
-                                    Text("Back")
-                                }.padding(10.0)
-
-                            }.padding().foregroundColor(.accentColor)
-
-                            Spacer()
-                        }
-                    }
-
-                    Spacer()
                     Image(uiImage: model.previewImage)
                             .resizable()
                             .aspectRatio(contentMode: .fit)
@@ -393,8 +375,8 @@ struct ProjectEditView: View {
                 }.background(.black)
             }
         }.onAppear(perform: {
-            model.setProjectEditor(project: navigationModel.currentProject)
-            model.setPreviewImage(image: navigationModel.currentProject!.getCoverPhoto())
+            model.setProjectEditor(project: project)
+            model.setPreviewImage(image: project.getCoverPhoto())
         })
     }
 

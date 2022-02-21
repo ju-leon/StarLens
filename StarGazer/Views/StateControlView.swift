@@ -13,7 +13,6 @@ import UIKit
 enum Views {
     case camera
     case projects
-    case edit
     case settings
 }
 
@@ -33,8 +32,6 @@ struct StateControlView : View {
             CameraView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         case .projects:
             ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom)).environment(\.colorScheme, .dark)
-        case .edit:
-            ProjectEditView(navigationModel: navigationModel).transition(.move(edge: .trailing)).environment(\.colorScheme, .dark)
         case .settings:
             SettingsView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         }
