@@ -46,10 +46,16 @@ const int _laplacianTHRESHOLD = -25;
     
     UIImage *maskRot = [mask rotateToImageOrientation];
     _mask = [maskRot CVGrayscaleMat];
+    
+    
+    Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
+    erode(_mask, _mask, element);
+    _mask.convertTo(_mask, CV_32F);
+    GaussianBlur( _mask,_mask, cv::Size( 19, 19), 0, 0);
+    
     resize(_mask, _mask, _combinedImage.size());
     cvtColor(_mask, _mask, COLOR_GRAY2RGB);
-    _mask.convertTo(_mask, CV_32F);
-    
+
     /**
      Resize to speedup previews during editing
      */
@@ -105,6 +111,8 @@ double brightness;
 double starPop;
 double skyPop;
 int numImgs;
+
+int maskFeather = 35;
 
 void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result) {
     // Apply skyPop
