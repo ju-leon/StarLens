@@ -1,0 +1,17 @@
+{
+  "MLModelVersionStringKey" : "1.0",
+  "MLModelDescriptionKey" : "Segementation model to seperate sky and foreground. WandB Run: confused-music-11",
+  "MLModelCreatorDefinedKey" : {
+    "com.github.apple.coremltools.source" : "torch==1.10.2+cu102",
+    "com.github.apple.coremltools.version" : "5.1.0",
+    "encoder" : "timm-mobilenetv3_large_minimal_100",
+    "lr" : "0.0001",
+    "encoder_weights" : "imagenet",
+    "mean" : "0.449",
+    "architecture" : "fpn",
+    "std" : "0.226",
+    "activation" : "sigmoid"
+  },
+  "MLModelAuthorKey" : "Leon Jungemeyer",
+  "MLModelLicenseKey" : "--"
+}

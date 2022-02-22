@@ -48,7 +48,7 @@ class ImageSegementation {
     }
     
     private static func predict(pixelBuffer: CVPixelBuffer) -> CVPixelBuffer? {
-        let segmentationModel = try? MobileNet()
+        let segmentationModel = try? FPN_MobileNet()
         if (segmentationModel == nil) {
             return nil
         }

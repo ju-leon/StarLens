@@ -1,9 +1,0 @@
-{
-  "MLModelVersionStringKey" : "1.0",
-  "MLModelDescriptionKey" : "Segementation model to seperate sky and foreground.",
-  "MLModelCreatorDefinedKey" : {
-    "com.github.apple.coremltools.version" : "5.1.0",
-    "com.github.apple.coremltools.source" : "torch==1.10.2+cu102"
-  },
-  "MLModelAuthorKey" : "Leon Jungemeyer"
-}

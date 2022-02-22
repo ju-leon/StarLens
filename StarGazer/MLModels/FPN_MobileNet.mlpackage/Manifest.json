@@ -1,24 +1,24 @@
 {
     "fileFormatVersion": "1.0.0",
     "itemInfoEntries": {
-        "0BA45538-B759-42F2-912C-5B4C76D4157A": {
-            "author": "com.apple.CoreML",
-            "description": "CoreML Model Specification",
-            "name": "mobilenet_small.mlmodel",
-            "path": "com.apple.CoreML/mobilenet_small.mlmodel"
-        },
-        "C9BF6AF1-9ADC-4402-AD2E-4B42FF6D201E": {
+        "2B994E8C-FB2D-4203-94D4-20830CC947AA": {
             "author": "com.apple.CoreML",
             "description": "External Metadata Overlay",
             "name": "Metadata.json",
             "path": "com.apple.CoreML/Metadata.json"
         },
-        "DE41B49D-8599-4661-AB80-704E38A28704": {
+        "3E4E140C-1474-4F9C-864A-71C688E21352": {
+            "author": "com.apple.CoreML",
+            "description": "CoreML Model Specification",
+            "name": "confused_music_11.mlmodel",
+            "path": "com.apple.CoreML/confused_music_11.mlmodel"
+        },
+        "A55AEA0F-E0C3-4DFD-9D4F-AA70792FD67B": {
             "author": "com.apple.CoreML",
             "description": "External FeatureDescription Overlay",
             "name": "FeatureDescriptions.json",
             "path": "com.apple.CoreML/FeatureDescriptions.json"
         }
     },
-    "rootModelIdentifier": "0BA45538-B759-42F2-912C-5B4C76D4157A"
+    "rootModelIdentifier": "3E4E140C-1474-4F9C-864A-71C688E21352"
 }
