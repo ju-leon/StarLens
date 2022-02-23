@@ -286,12 +286,12 @@
 				05D4508227943EC6008DB81E /* ProjectController.swift */,
 				05D4508427943F12008DB81E /* Project.swift */,
 				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
+				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
 				3B2A07B712EAB45B4304C926 /* Views */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
 				051F0A8B276FC0C60015C507 /* Info.plist */,
 				05B9B8C1276BDBB100FF442F /* Preview Content */,
 				3B2A085D1DE3B259F9C0B6F3 /* MLModels */,
-				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
 			);
 			path = StarGazer;
 			sourceTree = "<group>";

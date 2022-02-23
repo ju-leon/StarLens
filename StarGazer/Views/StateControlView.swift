@@ -31,7 +31,10 @@ struct StateControlView : View {
         case .camera:
             CameraView(navigationModel: navigationModel).environment(\.colorScheme, .dark)
         case .projects:
-            ProjectsView(navigationModel: navigationModel).transition(.move(edge: .bottom)).environment(\.colorScheme, .dark)
+            ProjectsView(navigationModel: navigationModel)
+                .environmentObject(ProjectsModel())
+                .transition(.move(edge: .bottom))
+                .environment(\.colorScheme, .dark)
         }
     }
     

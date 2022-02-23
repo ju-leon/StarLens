@@ -31,6 +31,8 @@ enum ProjectError: Error {
 }
 
 class Project: NSObject {
+    let id = UUID()
+    
     private var url: URL
 
     private var metadata: [String: Any]?

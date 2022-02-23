@@ -33,6 +33,10 @@ class ProjectEditModel: ObservableObject {
     public var projectEditor: ProjectEditor?
     
     private var subscriptions = Set<AnyCancellable>()
+    
+    func getProject() -> Project? {
+        return self.project
+    }
 
     func setProjectEditor(project: Project?) {
         print("Init project editor")
@@ -265,9 +269,12 @@ struct EditOptionsBar: View {
 struct ActionOptionsBar: View {
     @StateObject var model: ProjectEditModel
     @StateObject var navigationModel: StateControlModel
-
+    
     @State private var showingDeleteDialog = false
 
+    let onDelete: () -> ()
+    
+    
     var body: some View {
         HStack(spacing: 0) {
 
@@ -282,12 +289,9 @@ struct ActionOptionsBar: View {
             }.padding().foregroundColor(.red).alert(isPresented: $showingDeleteDialog) {
                 Alert(title: Text("Delete project"),
                         message: Text("This will delete the project and all it's files. This action cannot be undone.\nAre you sure?"),
-                        primaryButton: .default(Text("Cancel")),
+                        primaryButton: .cancel(Text("Cancel")),
                         secondaryButton: .destructive(Text("Delete")) {
-                            navigationModel.currentProject?.deleteProject()
-                            withAnimation {
-                                self.navigationModel.currentView = .projects
-                            }
+                            onDelete()
                         }
                 )
             }
@@ -337,9 +341,13 @@ struct ActionOptionsBar: View {
 
 
 struct ProjectEditView: View {
+    @EnvironmentObject var viewModel: ProjectsModel
+    @Environment(\.dismiss) var dismiss
+    
     @StateObject var navigationModel: StateControlModel
     @StateObject var model = ProjectEditModel()
     
+    let index: Int
     @State var project: Project
 
     private let twoColumnGrid = [GridItem(.flexible()), GridItem(.flexible())]
@@ -366,7 +374,12 @@ struct ProjectEditView: View {
 
                     ZStack {
                         if (model.projectEditMode == .preview) {
-                            ActionOptionsBar(model: model, navigationModel: navigationModel)
+                            ActionOptionsBar(model: model, navigationModel: navigationModel, onDelete: {
+                                print(self.index)
+                                viewModel.projects.remove(at: self.index)
+                                model.getProject()?.deleteProject()
+                                dismiss()
+                            })
                         } else if (model.projectEditMode == .editing) {
                             EditOptionsBar(model: model)
                         }

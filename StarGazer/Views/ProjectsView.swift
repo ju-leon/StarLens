@@ -55,24 +55,22 @@ struct ProjectCard: View {
 
 
 struct ProjectsView : View {
-    @StateObject var model = ProjectsModel()
+    @EnvironmentObject var model: ProjectsModel
     
     @StateObject var navigationModel: StateControlModel
     
     private let twoColumnGrid = [GridItem(.flexible()), GridItem(.flexible())]
-
-    
     
     var body: some View {
         NavigationView{
             ScrollView {
                 LazyVGrid(columns: twoColumnGrid) {
-                    ForEach(model.projects.indices) {
-                        index in
-                        NavigationLink(destination: ProjectEditView(navigationModel: self.navigationModel, project: model.projects[index]), label: {
+                    ForEach(Array(model.projects.enumerated()), id:\.element.id) {
+                        index, item in
+                        NavigationLink(destination: ProjectEditView(navigationModel: self.navigationModel, index: index, project: model.projects[index]), label: {
                             ProjectCard(project: model.projects[index])
                         })
-                    }
+                    }.onDelete(perform: delete)
                 }
                 .padding()
                 .navigationTitle("Projects")
@@ -88,6 +86,10 @@ struct ProjectsView : View {
                 )
             }
         }
+    }
+    
+    func delete(at offsets: IndexSet) {
+        print("WWas here")
     }
     
 }
