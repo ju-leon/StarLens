@@ -137,6 +137,15 @@ class Project: NSObject {
         }
     }
 
+    public func getProcessedPhoto() -> UIImage {
+        if FileManager.default.fileExists(atPath: url.appendingPathComponent(PROCESSED_FILE_NAME).path) {
+            return UIImage(contentsOfFile: url.appendingPathComponent(PROCESSED_FILE_NAME).path)!
+        } else {
+            return getCoverPhoto()
+        }
+    }
+
+    
     public func setCoverPhoto(image: UIImage) {
         self.coverPhoto = image
     }
@@ -216,6 +225,7 @@ class Project: NSObject {
         if self.coverPhoto != nil {
             let resized = ImageResizer.resize(image: self.coverPhoto!, targetWidth: 100.0)
             resized.saveImageToPNG(url: self.url.appendingPathComponent(PREVIEW_FILE_NAME))
+            coverPhoto!.saveImageToPNG(url: self.url.appendingPathComponent(PROCESSED_FILE_NAME))
         }
 
         var plist: [String: Any] = [:]

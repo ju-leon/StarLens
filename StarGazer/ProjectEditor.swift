@@ -120,10 +120,14 @@ class ProjectEditor {
         }
     }
 
-    func saveProject() {
+    func saveProject(resultCallback: @escaping (UIImage) -> ()) {
         editQueue.async {
             self.project.addEditOptions(editOptions: self.editOptions)
+            let coverPhoto = self.imageEditor!.getFilteredImage()
+            self.project.setCoverPhoto(image: coverPhoto)
             self.project.save()
+            
+            resultCallback(coverPhoto)
         }
     }
 

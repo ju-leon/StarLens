@@ -44,6 +44,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIImage *) getFilteredImagePreview;
 
+- (UIImage *) getFilteredImage;
+
 @end
 
 NS_ASSUME_NONNULL_END

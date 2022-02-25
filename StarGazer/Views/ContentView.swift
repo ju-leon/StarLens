@@ -321,7 +321,7 @@ struct CameraView: View {
                 ForEach(model.availableZoomLevels) {zoomLevel in
                     ZoomButton(model: model, zoomLevel: zoomLevel)
                 }
-            }.padding([.leading, .trailing], 10).padding([.top, .bottom], 5)
+            }.padding([.leading, .trailing], 8).padding([.top, .bottom], 5)
         }
         .background(.white.opacity(0.3))
         .cornerRadius(25)

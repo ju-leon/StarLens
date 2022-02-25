@@ -48,11 +48,17 @@ class ProjectEditModel: ObservableObject {
         }
     }
 
+
     func toggleEditMode() {
         if (self.projectEditMode == .preview) {
             self.projectEditMode = .editing
         } else {
-            self.projectEditor?.saveProject()
+            self.projectEditor?.saveProject(resultCallback: {
+                image  in
+                DispatchQueue.main.async {
+                    self.previewImage = image
+                }
+            })
             self.projectEditMode = .preview
         }
     }
@@ -99,6 +105,7 @@ class ProjectEditModel: ObservableObject {
                     }
                 })
     }
+    
 
     func setPreviewImage(image: UIImage) {
         self.previewImage = image
@@ -255,6 +262,7 @@ struct EditOptionsBar: View {
 
                 Button(action: {
                     withAnimation {
+                        
                         model.toggleEditMode()
                     }
                 }) {
@@ -389,7 +397,7 @@ struct ProjectEditView: View {
             }
         }.onAppear(perform: {
             model.setProjectEditor(project: project)
-            model.setPreviewImage(image: project.getCoverPhoto())
+            model.setPreviewImage(image: project.getProcessedPhoto())
         })
     }
 

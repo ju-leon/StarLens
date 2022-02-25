@@ -79,6 +79,12 @@ const int _laplacianTHRESHOLD = -25;
     return [UIImage imageWithCVMat: result];
 }
 
+- (UIImage *) getFilteredImage {
+    Mat result;
+    applyFilters(_combinedImage, _maxedImage, _stackedImage, _mask, result);
+    return [UIImage imageWithCVMat: result];
+}
+
 /**
  Set a skyPop value in range [0, 1]
  */
