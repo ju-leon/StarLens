@@ -49,7 +49,9 @@ struct ProjectCard: View {
                 }
 
             }
-        }.cornerRadius(10)
+        }
+        .cornerRadius(10)
+
     }
 }
 

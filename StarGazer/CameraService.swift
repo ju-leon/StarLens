@@ -14,6 +14,13 @@ import CoreLocation
 import CoreMotion
 import SwiftUI
 
+public struct CameraZoomLevel : Identifiable{
+    public var id = UUID()
+    
+    let zoomLevel: Float
+    let device: AVCaptureDevice
+}
+
 
 public struct AlertError {
     public var title: String = ""
@@ -55,6 +62,12 @@ public class CameraService: NSObject {
     
     @Published public var galleryPreviewImage: UIImage = UIImage()
     
+    /**
+        Values do not need to be published since they will never change during execution.
+     */
+    public var availableZoomLevels: [CameraZoomLevel] = []
+    public var activeZoomLevel: CameraZoomLevel
+    
     private var debugEnabled = false
     
     private var maskEnabled = false
@@ -83,7 +96,7 @@ public class CameraService: NSObject {
     @objc dynamic var videoDeviceInput: AVCaptureDeviceInput!
 
     // MARK: Device Configuration Properties
-    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInWideAngleCamera, .builtInDualCamera, .builtInTrueDepthCamera], mediaType: .video, position: .unspecified)
+    private let videoDeviceDiscoverySession = AVCaptureDevice.DiscoverySession(deviceTypes: [.builtInUltraWideCamera, .builtInWideAngleCamera, .builtInTelephotoCamera], mediaType: .video, position: .unspecified)
 
     // MARK: Capturing Photos
 
@@ -105,6 +118,39 @@ public class CameraService: NSObject {
     private var biasRotationIndex = 0
     
     private var focusUpdate = false
+    
+    
+    public override init() {
+        let availableCameras = videoDeviceDiscoverySession.devices
+        
+        // Init activeZoomLevelwith first available camer to silence warnings
+        // Should always we overwritten inside the switch case, since all devices should have a wide angle camera
+        self.activeZoomLevel = CameraZoomLevel(zoomLevel: -1, device: availableCameras[0])
+        super.init()
+        
+        
+        for camera in availableCameras {
+            if camera.position == .back {
+                switch camera.deviceType {
+                case .builtInTelephotoCamera:
+                    availableZoomLevels.append(CameraZoomLevel(zoomLevel: 3.0, device: camera))
+                case .builtInUltraWideCamera:
+                    availableZoomLevels.append(CameraZoomLevel(zoomLevel: 0.5, device: camera))
+                case .builtInWideAngleCamera:
+                    let zoomLevel = CameraZoomLevel(zoomLevel: 1.0, device: camera)
+                    self.activeZoomLevel = zoomLevel
+                    availableZoomLevels.append(zoomLevel)
+                default:
+                    print("Unsupported camera")
+                }
+            }
+            print(camera.activeFormat.videoFieldOfView)
+        }
+        
+        availableZoomLevels = availableZoomLevels.sorted(by: {$0.zoomLevel < $1.zoomLevel})
+        
+
+    }
     
     public func configure() {
         let imageSize = CGSize(width: 300, height: 400)

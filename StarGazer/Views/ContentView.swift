@@ -30,14 +30,16 @@ final class CameraModel: ObservableObject {
     @Published var numFailed = 0
 
     @Published var processingProgress = 0.0
-
-    @Published var zoomLevel: Float = 1.0
-
+    
     @Published var mask: Bool = false
     @Published var debug: Bool = false
     
     @Published var focusDistance: Double = 1.0
     @Published var focusDetailShown: Bool = false
+    
+    @Published var availableZoomLevels: [CameraZoomLevel] = []
+    @Published var activeZoomLevel: CameraZoomLevel
+    
     
     var alertError: AlertError!
 
@@ -47,7 +49,10 @@ final class CameraModel: ObservableObject {
 
     init() {
         self.session = service.session
-
+        
+        self.availableZoomLevels = self.service.availableZoomLevels
+        self.activeZoomLevel = service.activeZoomLevel
+        
         service.$previewPhoto.sink { [weak self] (photo) in
                     guard let pic = photo else {
                         return
@@ -91,7 +96,6 @@ final class CameraModel: ObservableObject {
                     self?.focusDistance = val
                 }
                 .store(in: &self.subscriptions)
-       
 
     }
 
@@ -116,25 +120,13 @@ final class CameraModel: ObservableObject {
         service.blackOutCamera = false
     }
     
-    func switchCamera(level: Float) {
-        if (level == self.zoomLevel) {
+    func switchCamera(level: CameraZoomLevel) {
+        if (level.id == self.activeZoomLevel.id) {
             return
         }
-
-        var backCameraDevice = AVCaptureDevice.default(.builtInWideAngleCamera, for: .video, position: .back)
-        if (level < 1.0) {
-            backCameraDevice = AVCaptureDevice.default(.builtInUltraWideCamera, for: .video, position: .back)
-        } else if (level > 1.0) {
-            backCameraDevice = AVCaptureDevice.default(.builtInTelephotoCamera, for: .video, position: .back)
-        }
-
-        if (backCameraDevice == nil) {
-            print("Illegal camera config")
-            return
-        }
-        self.zoomLevel = level
-
-        service.changeCamera(backCameraDevice!)
+        
+        self.activeZoomLevel = level
+        service.changeCamera(level.device)
     }
 
     func tapToFocus(_ point: CGPoint, _ size: CGSize) {
@@ -170,24 +162,6 @@ final class CameraModel: ObservableObject {
 
 }
 
-struct ZoomButton: View {
-    @StateObject var model = CameraModel()
-    @State var zoom: Float = 1.0
-
-    var body: some View {
-        Button(action: {
-            model.switchCamera(level: zoom)
-        }, label: {
-            Circle()
-                    .foregroundColor(zoom == model.zoomLevel ? .white.opacity(0.4) : .white.opacity(0.1))
-                    .frame(width: zoom == model.zoomLevel ? 40 : 30, height: zoom == model.zoomLevel ? 40 : 30, alignment: .center)
-                    .overlay(Text(String(zoom)).foregroundColor(
-                            .yellow
-                    ).font(.system(size: 10).bold()))
-                    .animation(.easeInOut)
-        })
-    }
-}
 
 struct OptionsBar: View {
     @StateObject var model = CameraModel()
@@ -226,42 +200,78 @@ struct OptionsBar: View {
             
 
             Spacer()
-
-            /*
-            Button(action: {
-                model.toggleAlign()
-            }, label: {
-                if model.align {
-                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "trapezoid.and.line.horizontal.fill").foregroundColor(.white)
-                } else {
-                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "perspective").foregroundColor(.white).opacity(0.5)
-                }
-            }).animation(.easeInOut(duration: 0.2))
-
-
-            Spacer()
-
-            Button(action: {
-                model.toggleEnhance()
-            }, label: {
-                if model.enhance {
-                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "wand.and.stars").foregroundColor(.white)
-                } else {
-                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "wand.and.stars.inverse").foregroundColor(.white).opacity(0.5)
-                }
-            }).animation(.easeInOut(duration: 0.2))
-
-
-            Spacer()
-             */
         }
     }
 }
 
+
+struct CameraOptionsBar : View {
+    var body: some View {
+    
+        HStack {
+            Spacer()
+            
+            Button(action: {
+                
+            }, label: {
+                Image(systemName: "gyroscope")
+                    .font(.system(size: 25))
+                    .foregroundColor(.white)
+                    .padding()
+            }).animation(.easeInOut(duration: 0.2))
+            
+            Spacer()
+            
+            Button(action: {
+                
+            }, label: {
+                
+                Image(systemName: "circle.dashed.inset.filled")
+                    .font(.system(size: 25))
+                    .foregroundColor(.white)
+                    .padding()
+            }).animation(.easeInOut(duration: 0.2))
+            
+            Spacer()
+            
+            Button(action: {
+                
+            }, label: {
+                Image(systemName: "circle.righthalf.filled")
+                    .font(.system(size: 25))
+                    .foregroundColor(.white)
+                    .padding()
+            }).animation(.easeInOut(duration: 0.2))
+            
+            Spacer()
+        }
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(Color.init(.sRGB, red: 1, green: 1, blue: 1, opacity: 0.1))
+        .cornerRadius(30)
+        .padding()
+        
+    }
+}
+
+struct ZoomButton: View {
+    @StateObject var model = CameraModel()
+    @State var zoomLevel: CameraZoomLevel
+
+    var body: some View {
+        Button(action: {
+            model.switchCamera(level: zoomLevel)
+        }, label: {
+            Circle()
+                .foregroundColor(zoomLevel.id == model.activeZoomLevel.id ? .white.opacity(0.4) : .white.opacity(0.1))
+                .frame(width: zoomLevel.id == model.activeZoomLevel.id ? 40 : 30,
+                       height: zoomLevel.id == model.activeZoomLevel.id ? 40 : 30, alignment: .center)
+                    .overlay(Text(String(zoomLevel.zoomLevel)).foregroundColor(
+                            .yellow
+                    ).font(.system(size: 10).bold()))
+                    .animation(.easeInOut)
+        })
+    }
+}
 
 struct CameraView: View {
     @ObservedObject var model = CameraModel()
@@ -307,17 +317,14 @@ struct CameraView: View {
 
     var zoomSelector: some View {
         ZStack {
-            Rectangle()
-                    .foregroundColor(.white.opacity(0.1))
-                    .cornerRadius(25)
-                    .frame(width: 130, height: 50, alignment: .center)
-
             HStack {
-                ZoomButton(model: model, zoom: 0.5)
-                ZoomButton(model: model, zoom: 1.0)
-                ZoomButton(model: model, zoom: 3.0)
-            }
+                ForEach(model.availableZoomLevels) {zoomLevel in
+                    ZoomButton(model: model, zoomLevel: zoomLevel)
+                }
+            }.padding([.leading, .trailing], 10).padding([.top, .bottom], 5)
         }
+        .background(.white.opacity(0.3))
+        .cornerRadius(25)
     }
 
 
@@ -358,6 +365,7 @@ struct CameraView: View {
                             
                         }
                         
+                        
                         SlidingRuler(value:
                                         Binding(get: {self.model.focusDistance},
                                                 set: {self.model.service.focusDistance = $0}),
@@ -370,6 +378,10 @@ struct CameraView: View {
                             model.focusUpdate(value)
                             
                         }).foregroundColor(.white).background(.black)
+                        
+                        /*
+                        CameraOptionsBar()
+                        */
                         Spacer()
                         
                     }
@@ -415,7 +427,6 @@ struct CameraView: View {
                     }.frame(width: 50, height: 50, alignment: .center)
                      .cornerRadius(15)
 
-                        
                 })
                 
                 Spacer()
