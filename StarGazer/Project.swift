@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import CoreLocation
 
 let PLIST_FILE_NAME = "data.xml"
 let PREVIEW_FILE_NAME = "preview.png"
@@ -172,6 +173,35 @@ class Project: NSObject {
         return self.captureEnd
     }
 
+    public func createMetadata(location: CLLocationCoordinate2D?) {
+        if self.metadata == nil {
+            return
+        }
+        
+        var data = self.metadata!
+
+        if var exifData = data["{Exif}"] as? [String: Any] {
+            if self.getCaptureEnd() != nil {
+                exifData["ExposureTime"] = Int(self.getCaptureEnd()!.timeIntervalSince(self.getCaptureStart()))
+            } else {
+                exifData["ExposureTime"] = 10.0
+            }
+            data["{Exif}"] = exifData
+        }
+
+        if let loc = location {
+            var locationData: [String: Any] = [:]
+
+            locationData[kCGImagePropertyGPSLatitude as String] = abs(loc.latitude)
+            locationData[kCGImagePropertyGPSLongitude as String] = abs(loc.longitude)
+            locationData[kCGImagePropertyGPSLatitudeRef as String] = loc.latitude > 0 ? "N" : "S"
+            locationData[kCGImagePropertyGPSLongitudeRef as String] = loc.longitude > 0 ? "E" : "W"
+            data[kCGImagePropertyGPSDictionary as String] = locationData
+        }
+        
+        self.metadata = data
+    }
+    
     public func getMetadata() -> [String: Any]? {
         return self.metadata
     }

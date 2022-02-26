@@ -252,26 +252,27 @@ public class PhotoStack {
                 return
             }
 
-            let imageStacked = self.stacker!.getProcessedImage()
-            self.savePhoto(image: imageStacked)
-
-            let imageMaxed = self.stacker!.getPreviewImage()
-            self.savePhoto(image: imageMaxed)
-
+            let previewPhoto = self.stacker!.getPreviewImage()
+            
             if finished {
                 self.captureProject.setNumImages(self.numImages)
                 self.captureProject.doneProcessing()
             }
-
-            let previewPhoto = self.stacker!.getPreviewImage()
-
-            self.captureProject.setCoverPhoto(image: self.stacker!.getProcessedImage())
+            
+            let processedImage = self.stacker!.getProcessedImage()
+            self.captureProject.setCoverPhoto(image: processedImage)
             self.stacker!.saveFiles(self.captureProject.getUrl().path)
-
             self.captureProject.save()
 
+            processedImage.saveToGallery(metadata: self.captureProject.getMetadata())
+            
+            /*
+            let imageStacked = self.stacker!.getProcessedImage()
+            let imageMaxed = self.stacker!.getPreviewImage()
+            */
+            
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
-            print("Stack exported")
+
             
             // Update preview image in camera view
             let resized = ImageResizer.resize(image: previewPhoto, targetWidth: 100.0)
@@ -280,21 +281,7 @@ public class PhotoStack {
         }
     }
 
-    func mergeImageData(image: UIImage, with metadata: NSDictionary) -> Data {
-        let imageData = image.pngData()!
-        let source: CGImageSource = CGImageSourceCreateWithData(imageData as NSData, nil)!
-        let UTI: CFString = CGImageSourceGetType(source)!
-        let newImageData = NSMutableData()
-        let cgImage = image.cgImage!
 
-        print(metadata)
-
-        let imageDestination: CGImageDestination = CGImageDestinationCreateWithData((newImageData as CFMutableData), UTI, 1, nil)!
-        CGImageDestinationAddImage(imageDestination, cgImage, metadata as CFDictionary)
-        CGImageDestinationFinalize(imageDestination)
-
-        return newImageData as Data
-    }
 
     func savePreview(image: UIImage) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
@@ -318,51 +305,6 @@ public class PhotoStack {
         }
     }
 
-    func savePhoto(image: UIImage) {
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-
-            // Don't continue if not authorized.
-            guard status == .authorized else {
-                return
-            }
-
-            var data = self.captureProject.getMetadata()!
-
-            if var exifData = data["{Exif}"] as? [String: Any] {
-                if self.captureProject.getCaptureEnd() != nil {
-                    exifData["ExposureTime"] = Int(self.captureProject.getCaptureEnd()!.timeIntervalSince(self.captureProject.getCaptureStart()))
-                } else {
-                    exifData["ExposureTime"] = 10.0
-                }
-                data["{Exif}"] = exifData
-            }
-
-            if let loc = self.location {
-                var locationData: [String: Any] = [:]
-
-                locationData[kCGImagePropertyGPSLatitude as String] = abs(loc.latitude)
-                locationData[kCGImagePropertyGPSLongitude as String] = abs(loc.longitude)
-                locationData[kCGImagePropertyGPSLatitudeRef as String] = loc.latitude > 0 ? "N" : "S"
-                locationData[kCGImagePropertyGPSLongitudeRef as String] = loc.longitude > 0 ? "E" : "W"
-                data[kCGImagePropertyGPSDictionary as String] = locationData
-            }
-
-            // Set to proper image orientation
-            data[kCGImagePropertyOrientation as String] = image.imageOrientation.rawValue
-
-            PHPhotoLibrary.shared().performChanges {
-                let creationRequest = PHAssetCreationRequest.forAsset()
-                creationRequest.addResource(with: .photo,
-                        data: self.mergeImageData(image: image, with: data as NSDictionary),
-                        options: nil)
-
-
-            } completionHandler: { success, error in
-                // Process the Photos library error.
-            }
-
-        }
-    }
 
     private func blendPreview(image1: UIImage, image2: UIImage) -> UIImage {
         let rect = CGRect(x: 0, y: 0, width: image1.size.width, height: image1.size.height)

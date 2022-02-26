@@ -130,5 +130,14 @@ class ProjectEditor {
             resultCallback(coverPhoto)
         }
     }
+    
+    func exportJPEG(onSucess: (()->())?, onFailed: (()->())?) {
+        editQueue.async {
+            let coverPhoto = self.imageEditor!.getFilteredImage()
+            coverPhoto.saveToGallery(metadata: self.project.getMetadata(),
+                                     onSuccess: onSucess,
+                                     onFailed: onFailed)
+        }
+    }
 
 }

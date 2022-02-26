@@ -10,6 +10,7 @@ import Combine
 import AVFoundation
 import UIKit
 import SlidingRuler
+import AlertToast
 
 enum ProjectEditMode: Int {
     case preview = 0
@@ -30,9 +31,13 @@ class ProjectEditModel: ObservableObject {
 
     @Published var activeEditMode: EditOption = .starPop
 
+    @Published var showSaveSucessDialog = false
+    @Published var showSaveFailedDialog = false
+    
     public var projectEditor: ProjectEditor?
     
     private var subscriptions = Set<AnyCancellable>()
+    
     
     func getProject() -> Project? {
         return self.project
@@ -117,6 +122,18 @@ class ProjectEditModel: ObservableObject {
         } else {
             return 0
         }
+    }
+    
+    func saveJPEG() {
+        self.projectEditor?.exportJPEG(onSucess: {
+            DispatchQueue.main.async {
+                self.showSaveSucessDialog = true
+            }
+        }, onFailed: {
+            DispatchQueue.main.async {
+                self.showSaveFailedDialog = true
+            }
+        })
     }
 }
 
@@ -278,13 +295,14 @@ struct ActionOptionsBar: View {
     @StateObject var model: ProjectEditModel
     @StateObject var navigationModel: StateControlModel
     
+    @State private var showingSaveDialog = false
     @State private var showingDeleteDialog = false
 
     let onDelete: () -> ()
     
-    
     var body: some View {
-        HStack(spacing: 0) {
+        
+        HStack {
 
             Button(action: {
                 showingDeleteDialog = true
@@ -333,16 +351,31 @@ struct ActionOptionsBar: View {
 
             Spacer()
 
+            
             Button(action: {
-                print("Button action")
+                showingSaveDialog = true
             }) {
                 HStack {
                     Image(systemName: "square.and.arrow.down.fill")
                     Text("Save")
                 }.padding(10.0)
 
-            }.padding().foregroundColor(.white)
-
+            }
+            .padding()
+            .foregroundColor(.white)
+            .confirmationDialog(
+                "Choose a format.",
+                 isPresented: $showingSaveDialog,
+                 titleVisibility: .visible
+            ) {
+                Button("JPEG (Recommended)") {
+                    self.model.saveJPEG()
+                    print("Cliecked")
+                }
+                Button("RAW") {
+                    print("Cliecked")
+                }
+            }
         }
     }
 }
@@ -393,7 +426,14 @@ struct ProjectEditView: View {
                         }
 
                     }.transition(.slide)
-                }.background(.black)
+                }
+                .background(.black)
+                .toast(isPresenting: $model.showSaveSucessDialog) {
+                    AlertToast(displayMode: .hud, type: .regular, title: "Photo saved!")
+                }
+                .toast(isPresenting: $model.showSaveFailedDialog) {
+                    AlertToast(displayMode: .hud, type: .regular, title: "Saving failed!")
+                }
             }
         }.onAppear(perform: {
             model.setProjectEditor(project: project)
