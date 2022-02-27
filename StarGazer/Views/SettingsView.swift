@@ -25,12 +25,25 @@ struct SwitchTask: View {
     }
 }
 
-struct SettingsView : View {    
+struct SettingsView : View {
     @StateObject var navigationModel: StateControlModel
 
     @State var enabled = true
-    
     @State var onDone: () -> ()
+
+    let interfaceQueue: DispatchQueue = DispatchQueue(label: "StarStacker.defaultsQueue")
+    let defaults = UserDefaults.standard
+    
+    var imageQualities = ["Medium", "High", "Very High"]
+    @State private var selectedImageQuality = 2
+    
+    var rawOptions = ["Combined", "Background + Foreground", "Background + Foreground + Mask"]
+    @State private var selectedRawExport = 0
+    
+    
+    func saveDefault(key: UserOption, value: Any) {
+        defaults.set(value, forKey: key.rawValue)
+    }
     
     var body: some View {
         NavigationView {
@@ -38,14 +51,28 @@ struct SettingsView : View {
                     Section(header: Text("General")) {
                         Toggle("Add GPS location to photo", isOn: .constant(true))
                         
-                        Toggle("Show grid", isOn: .constant(true))
+                        Toggle("Show grid", isOn: .constant(false))
                     }
                     
-                    Section(header: Text("Advanced")) {
-                        Toggle("Test", isOn: .constant(true))
-                        Text("Item 2")
-                        Text("Item 3")
+                    Section(header: Text("Photo Settings"))  {
+                        Picker(selection: $selectedImageQuality, label: Text("Photo Quality")) {
+                            ForEach(0 ..< imageQualities.count) {
+                                Text(self.imageQualities[$0])
+                            }
+                        }.onChange(of: selectedImageQuality, perform: {
+                            _ in saveDefault(key: .imageQuality, value: selectedImageQuality)
+                        })
+                        
+                        Picker(selection: $selectedRawExport, label: Text("RAW Export")) {
+                            ForEach(0 ..< rawOptions.count) {
+                                Text(self.rawOptions[$0])
+                            }
+                        }.onChange(of: selectedRawExport, perform: {
+                            _ in saveDefault(key: .rawOption, value: selectedRawExport)
+                        })
+                        
                     }
+
                     
                     Section(header: Text("Experimental"), footer: Text("This will keep all captured images, even after processing. Projects will be very large. Only use if you have use for the raw, unstacked images.")) {
                         Toggle("Keep unstacked images", isOn: .constant(true))
@@ -76,6 +103,7 @@ struct SettingsView : View {
                         //Text("PyTorch")
                     }
                     
+
                     
                 }
                 //TODO: WWhy does this cause issues??
@@ -90,7 +118,10 @@ struct SettingsView : View {
                     })
                 )
                  
-        }
+        }.onAppear(perform: {
+            self.selectedImageQuality = defaults.integer(forKey: UserOption.imageQuality.rawValue)
+            self.selectedRawExport = defaults.integer(forKey: UserOption.rawOption.rawValue)
+        })
         
     }
     
@@ -102,8 +133,6 @@ struct Licenses: View {
         List {
             Section(header: Text("OpenCV")) {
                 Text("""
-                     Copyright 2022 Leon Jungemeyer
-                     
                      Licensed under the Apache License, Version 2.0 (the "License");
                      you may not use this file except in compliance with the License.
                      You may obtain a copy of the License at
@@ -117,7 +146,22 @@ struct Licenses: View {
                      limitations under the License.
                      """)
             }
-            
+
+            Section(header: Text("Lottie")) {
+                Text("""
+                     Licensed under the Apache License, Version 2.0 (the "License");
+                     you may not use this file except in compliance with the License.
+                     You may obtain a copy of the License at
+
+                         http://www.apache.org/licenses/LICENSE-2.0
+
+                     Unless required by applicable law or agreed to in writing, software
+                     distributed under the License is distributed on an "AS IS" BASIS,
+                     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+                     See the License for the specific language governing permissions and
+                     limitations under the License.
+                     """)
+            }
         }
         .navigationTitle("Licenses")
         .listStyle(InsetGroupedListStyle())

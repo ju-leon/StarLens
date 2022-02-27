@@ -122,6 +122,7 @@ class ProjectEditModel: ObservableObject {
                 onDone: { result in
                     //TODO Handle init failed
                     DispatchQueue.main.async {
+                        self.isProcessed = true
                         self.projectEditMode = .preview
                     }
                 })
