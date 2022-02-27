@@ -57,7 +57,7 @@ class ProjectEditor {
     init(project: Project) {
         self.project = project
 
-        let segmentation = ImageSegementation.segementImage(image: project.getCoverPhoto())
+        let segmentation = ImageSegementation.segementImage(image: project.getProcessedPhoto())
         
         if (project.getProcessingComplete() && segmentation != nil) {
             imageEditor = ImageEditor.init(atPath: project.getUrl().appendingPathComponent(CHECKPOINT_FILE_NAME).path,

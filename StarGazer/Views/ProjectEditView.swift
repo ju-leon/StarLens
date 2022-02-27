@@ -34,10 +34,14 @@ class ProjectEditModel: ObservableObject {
     @Published var showSaveSucessDialog = false
     @Published var showSaveFailedDialog = false
     
+    @Published var loading = true
+    
     public var projectEditor: ProjectEditor?
     
     private var subscriptions = Set<AnyCancellable>()
     
+    private var interfaceQueue: DispatchQueue = DispatchQueue(label: "StarStacker.uiQueue")
+
     
     func getProject() -> Project? {
         return self.project
@@ -45,11 +49,23 @@ class ProjectEditModel: ObservableObject {
 
     func setProjectEditor(project: Project?) {
         print("Init project editor")
-        self.project = project
-        self.projectEditor = ProjectEditor(project: project! )
         
-        if (self.project!.getProcessingComplete()) {
-            self.isProcessed = true;
+        interfaceQueue.async {
+            self.project = project
+            self.projectEditor = ProjectEditor(project: project! )
+            
+            if (self.project!.getProcessingComplete()) {
+                DispatchQueue.main.async {
+                    self.isProcessed = true;
+                }
+            }
+            
+            let image = project!.getProcessedPhoto()
+            
+            DispatchQueue.main.async {
+                self.previewImage = image
+                self.loading = false
+            }
         }
     }
 
@@ -433,11 +449,12 @@ struct ProjectEditView: View {
                 }
                 .toast(isPresenting: $model.showSaveFailedDialog) {
                     AlertToast(displayMode: .hud, type: .regular, title: "Saving failed!")
+                }.toast(isPresenting: $model.loading) {
+                    AlertToast(type: .loading)
                 }
             }
         }.onAppear(perform: {
             model.setProjectEditor(project: project)
-            model.setPreviewImage(image: project.getProcessedPhoto())
         })
     }
 
