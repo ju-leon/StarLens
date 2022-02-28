@@ -35,7 +35,10 @@ const int _laplacianTHRESHOLD = -25;
     readMatBinary(ifs, _maxedImage);
     readMatBinary(ifs, _stackedImage);
     
+    _combinedImage.convertTo(_combinedImage, CV_32F);
     _combinedImage /= numImages;
+
+    _stackedImage.convertTo(_stackedImage, CV_32F);
     _stackedImage /= numImages;
     
     if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty() || ![mask isKindOfClass:[UIImage class]]) {

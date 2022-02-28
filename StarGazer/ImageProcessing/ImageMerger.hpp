@@ -127,8 +127,8 @@ public:
         
         // Initialize the current stacks
         image.copyTo(lastImage);
-        lastImage.convertTo(currentCombined, CV_32F);
-        lastImage.convertTo(currentStacked, CV_32F);
+        lastImage.convertTo(currentCombined, CV_16U);
+        lastImage.convertTo(currentStacked, CV_16U);
 
         currentMaxed = image.clone();
 
@@ -266,13 +266,13 @@ public:
         max(currentMaxed, alignedImage, currentMaxed);
 
         // Add image to the current stacks
-        alignedImage.convertTo(alignedImage, CV_32F);
-        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_32F);
+        alignedImage.convertTo(alignedImage, CV_16U);
+        addWeighted(currentCombined, 1, alignedImage, 1, 0.0, currentCombined, CV_16U);
 
         // Add image without alignment
         Mat doubleImage;
-        image.convertTo(doubleImage, CV_32F);
-        addWeighted(currentStacked, 1, doubleImage, 1, 0.0, currentStacked, CV_32F);
+        image.convertTo(doubleImage, CV_16U);
+        addWeighted(currentStacked, 1, doubleImage, 1, 0.0, currentStacked, CV_16U);
         
         
         // Update last image and stars
