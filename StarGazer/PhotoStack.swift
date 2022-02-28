@@ -149,7 +149,12 @@ public class PhotoStack {
                 
                 autoreleasepool
                 {
-                    self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
+                    if self.maskEnabled {
+                        self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
+                    } else {
+                        self.stacker = OpenCVStacker.init(image: image, withMask: nil, visaliseTrackingPoints: true)
+                    }
+                    
                     self.numImages += 1
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")

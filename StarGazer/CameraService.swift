@@ -74,22 +74,21 @@ public class CameraService: NSObject {
     private var alignEnabled = false
     private var enhanceEnabled = false
 
-//    MARK: Alert properties
+// MARK: Alert properties
     public var alertError: AlertError = AlertError()
 
 // MARK: Session Management Properties
 
-//    9
     public let session = AVCaptureSession()
     public let locationManager = CLLocationManager()
     public let motionManager = CMMotionManager()
-//    10
+
     var isSessionRunning = false
-//    12
     var isConfigured = false
-//    13
     var setupResult: SessionSetupResult = .success
-//    14
+    
+    let defaults = UserDefaults.standard
+
     // Communicate with the session and other session objects on this queue.
     private let sessionQueue = DispatchQueue(label: "session queue")
 
@@ -370,10 +369,10 @@ public class CameraService: NSObject {
         for x in 4...7 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
         }
-
+        
         self.captureQueue.async {
             self.photoStack = PhotoStack(
-                    mask: self.maskEnabled,
+                    mask: self.defaults.bool(forKey: UserOption.isMaskEnabled.rawValue),
                     align: self.alignEnabled,
                     enhance: self.enhanceEnabled,
                     location: self.location
@@ -541,7 +540,8 @@ public class CameraService: NSObject {
                             rawPixelFormatType: rawFormat,
                             processedFormat: nil,
                             bracketedSettings: self.isoRotation.map {
-                                if self.debugEnabled {
+                                if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
+                                ) {
                                     return autoExpSetting(Float($0) / Float($0))
                                 } else {
                                     return manualExpSetting(maxExposure, $0)

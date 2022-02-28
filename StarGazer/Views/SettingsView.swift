@@ -40,6 +40,8 @@ struct SettingsView : View {
     var rawOptions = ["Combined", "Background + Foreground", "Background + Foreground + Mask"]
     @State private var selectedRawExport = 0
     
+    @State private var applyMask = true
+    @State private var shortExposure = true
     
     func saveDefault(key: UserOption, value: Any) {
         defaults.set(value, forKey: key.rawValue)
@@ -76,6 +78,18 @@ struct SettingsView : View {
                     
                     Section(header: Text("Experimental"), footer: Text("This will keep all captured images, even after processing. Projects will be very large. Only use if you have use for the raw, unstacked images.")) {
                         Toggle("Keep unstacked images", isOn: .constant(true))
+                    }
+                    
+                    Section(header: Text("Debug")) {
+                        Toggle("Apply mask", isOn: $applyMask).onChange(of: applyMask, perform: {
+                            _ in
+                            saveDefault(key: .isMaskEnabled, value: applyMask)
+                        })
+                        
+                        Toggle("Short exposure", isOn: $shortExposure).onChange(of: shortExposure, perform: {
+                            _ in
+                            saveDefault(key: .shortExposure, value: shortExposure)
+                        })
                     }
                     
                     Section(header: Text("About"),
@@ -121,6 +135,8 @@ struct SettingsView : View {
         }.onAppear(perform: {
             self.selectedImageQuality = defaults.integer(forKey: UserOption.imageQuality.rawValue)
             self.selectedRawExport = defaults.integer(forKey: UserOption.rawOption.rawValue)
+            self.applyMask = defaults.bool(forKey: UserOption.isMaskEnabled.rawValue)
+            self.shortExposure = defaults.bool(forKey: UserOption.shortExposure.rawValue)
         })
         
     }
