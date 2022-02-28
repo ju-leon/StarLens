@@ -120,31 +120,35 @@ public class PhotoStack {
              previewImageCallback: ((UIImage) -> Void)?,
              addToProject: Bool = false) -> UIImage {
         self.dispatch.addOperation {
+            
+            let image = captureObject.toUIImage()
             autoreleasepool {
-                let image = captureObject.toUIImage()
-                
                 if (addToProject) {
                     self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
                     self.captureProject.setMetadata(data: captureObject.metadata)
                     self.captureProject.save()
                 }
+                
+            }
+
+            /**
+             Check if the stacker is called for the first time, if so, we need to init it.
+             */
+            if self.stacker == nil {
+                self.coverPhoto = image
+                
+                if (addToProject) {
+                    self.captureProject.setCoverPhoto(image: image)
+                    self.captureProject.save()
+                }
 
                 /**
-                 Check if the stacker is called for the first time, if so, we need to init it.
+                On first call, apply background//foreground segmentation
                  */
-                if self.stacker == nil {
-                    self.coverPhoto = image
-                    
-                    if (addToProject) {
-                        self.captureProject.setCoverPhoto(image: image)
-                        self.captureProject.save()
-                    }
-
-                    /**
-                    On first call, apply background//foreground segmentation
-                     */
-                    let maskImage = ImageSegementation.segementImage(image: image)
-                    
+                let maskImage = ImageSegementation.segementImage(image: image)
+                
+                autoreleasepool
+                {
                     self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
                     self.numImages += 1
                     if (self.stacker == nil) {
@@ -163,11 +167,13 @@ public class PhotoStack {
                         previewImageCallback?(self.coverPhoto)
                         statusUpdateCallback?(PhotoStackingResult.SUCCESS)
                     }
+                }
 
-                } else {
-                    /**
-                     Otherwise, the photo can be merged
-                     */
+            } else {
+                /**
+                 Otherwise, the photo can be merged
+                 */
+                autoreleasepool {
                     if let stackedImage = self.stacker!.addAndProcess(image) {
                         self.coverPhoto = stackedImage
                         self.numImages += 1
@@ -175,9 +181,15 @@ public class PhotoStack {
                     } else {
                         statusUpdateCallback?(.FAILED)
                     }
-                    previewImageCallback?(self.stacker!.getPreviewImage())
                 }
+                
+                var previewImage = UIImage()
+                autoreleasepool {
+                    previewImage = self.stacker!.getPreviewImage()
+                }
+                previewImageCallback?(previewImage)
             }
+        
         }
 
         return self.coverPhoto
@@ -192,27 +204,6 @@ public class PhotoStack {
 
     func getCoverPhoto() -> UIImage {
         return coverPhoto
-    }
-
-    func alignImage(request: VNRequest, frame: CIImage, index: Int) -> CIImage? {
-        // 1
-        guard
-                let results = request.results as? [VNImageTranslationAlignmentObservation],
-                let result = results.first
-                else {
-            return nil
-        }
-        // 2
-
-        var transform = result.alignmentTransform
-
-        print(transform)
-
-        transform.tx = 1000
-        transform.ty = 1000
-
-        print(transform)
-        return frame.transformed(by: CGAffineTransform(rotationAngle: 0.1 * CGFloat(index)))
     }
 
     func autoEnhance(_ image: CIImage) -> CIImage {
@@ -251,8 +242,11 @@ public class PhotoStack {
                 statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
                 return
             }
-
-            let previewPhoto = self.stacker!.getPreviewImage()
+            
+            var previewPhoto = UIImage()
+            autoreleasepool {
+                previewPhoto = self.stacker!.getPreviewImage()
+            }
             
             if finished {
                 self.captureProject.setNumImages(self.numImages)
@@ -261,7 +255,9 @@ public class PhotoStack {
             
             let processedImage = self.stacker!.getProcessedImage()
             self.captureProject.setCoverPhoto(image: processedImage)
-            self.stacker!.saveFiles(self.captureProject.getUrl().path)
+            autoreleasepool {
+                self.stacker!.saveFiles(self.captureProject.getUrl().path)
+            }
             self.captureProject.save()
 
             processedImage.saveToGallery(metadata: self.captureProject.getMetadata())
@@ -277,7 +273,8 @@ public class PhotoStack {
             // Update preview image in camera view
             let resized = ImageResizer.resize(image: previewPhoto, targetWidth: 100.0)
             ProjectController.storePreviewImage(image: resized)
-
+            
+            self.stacker?.deallocMerger()
         }
     }
 

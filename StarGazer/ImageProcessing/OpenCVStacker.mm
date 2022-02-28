@@ -91,4 +91,7 @@ unique_ptr<ImageMerger> merger;
     merger->saveToDirectory(std::string([path UTF8String]));
 }
 
+- (void) deallocMerger {
+    merger.reset();
+}
 @end

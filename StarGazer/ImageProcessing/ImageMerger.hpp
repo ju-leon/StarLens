@@ -95,17 +95,14 @@ public:
      */
     ImageMerger(Mat &image, Mat &segmentation, bool visualiseTrackingPoints = false) : visualiseTrackingPoints(visualiseTrackingPoints) {
         Mat imageMasked;
+        
         if (!segmentation.empty()) {
-            Mat mask;
-            createTrackingMask(segmentation, mask);
-            resize(mask, mask, image.size(), 0, 0, INTER_LINEAR);
-            cvtColor(mask, mask, COLOR_GRAY2RGB);
-            mask.copyTo(foregroundMask);
+            createTrackingMask(segmentation, foregroundMask);
+            resize(foregroundMask, foregroundMask, image.size(), 0, 0, INTER_LINEAR);
             
-            // Apply mask to image. Temporarily convert to float to allow soft masking.
-            image.convertTo(imageMasked, CV_32FC3);
-            multiply(imageMasked, mask, imageMasked);
-            imageMasked.convertTo(imageMasked, CV_8UC3);
+            // Apply mask to image.
+            image.copyTo(imageMasked);
+            imageMasked.setTo(cv::Scalar(0, 0, 0), foregroundMask);
         } else {
             image.copyTo(imageMasked);
         }
@@ -138,6 +135,9 @@ public:
         // Init the total homography matrix as identity
         totalHomography = Mat::eye(3, 3, CV_64FC1);
 
+        size_t sizeInBytes = currentCombined.total() * currentCombined.elemSize();
+        std::cout << "Size in bytes: " << sizeInBytes << std::endl;
+        
         numImages = 1;
         numFailed = 0;
     }
@@ -168,8 +168,16 @@ public:
         if (!foregroundMask.empty()) {
             Mat combinedNormal = currentCombined / numImages;
             Mat stackedNormal = currentStacked / numImages;
+            
+            Mat invertedMask;
+            cv::bitwise_not(foregroundMask, invertedMask);
 
-            blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
+            combinedNormal.setTo(cv::Scalar(0, 0, 0), foregroundMask);
+            stackedNormal.setTo(cv::Scalar(0, 0, 0), invertedMask);
+            
+            addWeighted(combinedNormal, 1, stackedNormal, 1, 0, image);
+            image.convertTo(image, CV_8UC3);
+            //blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
         } else {
             Mat combinedNormal = currentCombined / numImages;
             combinedNormal.convertTo(image, CV_8UC3);
@@ -186,11 +194,9 @@ public:
     bool mergeImageOnStack(Mat &image, Mat &preview) {
         Mat imageMasked;
         if (!foregroundMask.empty()) {
-            // Apply mask to image. Temporarily convert to float to allow soft masking.
-            image.convertTo(imageMasked, CV_32FC3);
-            
-            multiply(imageMasked, foregroundMask, imageMasked);
-            imageMasked.convertTo(imageMasked, CV_8UC3);
+            // Apply mask to image.
+            image.copyTo(imageMasked);
+            imageMasked.setTo(cv::Scalar(0, 0, 0), foregroundMask);
         } else {
             image.copyTo(imageMasked);
         }

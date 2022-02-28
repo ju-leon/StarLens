@@ -423,7 +423,7 @@ struct CameraView: View {
                                     .resizable()
                                     .aspectRatio(contentMode: .fill)
                                     .clipped()
-                        LinearGradient(colors: [.white, .gray], startPoint: .top, endPoint: .bottom).opacity(0.4)
+                        //LinearGradient(colors: [.white, .gray], startPoint: .top, endPoint: .bottom).opacity(0.4)
                     }.frame(width: 50, height: 50, alignment: .center)
                      .cornerRadius(15)
 

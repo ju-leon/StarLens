@@ -30,9 +30,14 @@ class CaptureObject {
     }
     
     func toUIImage() -> UIImage {
-        let newImage = CIImage(contentsOf: url)!
-        let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!
-        return UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+        var uiImage : UIImage = UIImage()
+        autoreleasepool {
+            let newImage = CIImage(contentsOf: url)!
+            let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!
+        
+            uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+        }
+        return uiImage
     }
     
     func deleteReference() {

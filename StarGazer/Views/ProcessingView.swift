@@ -53,9 +53,7 @@ struct ProcessingView : View {
                     .cornerRadius(40)
 
             Spacer()
-
-
-        }.background(.black)
+        }
     }
 
 }

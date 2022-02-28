@@ -48,12 +48,12 @@ const int MAX_STARS_ALLOWED = 300;
 const int GAUSSIAN_FILTER_SIZE = 15;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
-    segmentation.convertTo(mask, CV_32F);
+    mask = segmentation;
     
     Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
     erode(mask, mask, element);
 
-    GaussianBlur(mask, mask, cv::Size(25, 25), 0);
+    //GaussianBlur(mask, mask, cv::Size(25, 25), 0);
 }
 
 void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {

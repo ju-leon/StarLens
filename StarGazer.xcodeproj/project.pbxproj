@@ -14,7 +14,6 @@
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
 		0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FB27BF01D50060ABA0 /* shutterstill.json */; };
 		0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FE27BF02310060ABA0 /* shutterprep.json */; };
-		054763EE27C994F100D15B25 /* shutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 054763ED27C994F100D15B25 /* shutter.json */; };
 		054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 054763F027CA2B2E00D15B25 /* AlertToast */; };
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
@@ -37,6 +36,7 @@
 		05BE420827AF1EDD00F45670 /* ImageEditor.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05BE420627AF1EDD00F45670 /* ImageEditor.mm */; };
 		05BE420A27AF32EC00F45670 /* ProjectEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE420927AF32EC00F45670 /* ProjectEditor.swift */; };
 		05C65CE527CC0E96001ADE0F /* UserOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C65CE427CC0E96001ADE0F /* UserOptions.swift */; };
+		05C65CE727CC14EB001ADE0F /* shutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 05C65CE627CC14EB001ADE0F /* shutter.json */; };
 		05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CEB59D27723D8800EDDE7D /* PhotoStack.swift */; };
 		05D338AB27A47A86008BB868 /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D338AA27A47A85008BB868 /* ProjectEditView.swift */; };
 		05D4507F279378BF008DB81E /* blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05D4507D279378BF008DB81E /* blend.cpp */; };
@@ -98,7 +98,6 @@
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0536C3FB27BF01D50060ABA0 /* shutterstill.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterstill.json; sourceTree = "<group>"; };
 		0536C3FE27BF02310060ABA0 /* shutterprep.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterprep.json; sourceTree = "<group>"; };
-		054763ED27C994F100D15B25 /* shutter.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutter.json; sourceTree = "<group>"; };
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmentation.swift; sourceTree = "<group>"; };
@@ -125,6 +124,7 @@
 		05BE420727AF1EDD00F45670 /* ImageEditor.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = ImageEditor.h; sourceTree = "<group>"; };
 		05BE420927AF32EC00F45670 /* ProjectEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditor.swift; sourceTree = "<group>"; };
 		05C65CE427CC0E96001ADE0F /* UserOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserOptions.swift; sourceTree = "<group>"; };
+		05C65CE627CC14EB001ADE0F /* shutter.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutter.json; sourceTree = "<group>"; };
 		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
 		05D338AA27A47A85008BB868 /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		05D4507D279378BF008DB81E /* blend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blend.cpp; sourceTree = "<group>"; };
@@ -223,7 +223,7 @@
 		0510811D27BEE52E00A50129 /* Lottie */ = {
 			isa = PBXGroup;
 			children = (
-				054763ED27C994F100D15B25 /* shutter.json */,
+				05C65CE627CC14EB001ADE0F /* shutter.json */,
 				0536C3FE27BF02310060ABA0 /* shutterprep.json */,
 				0536C3FB27BF01D50060ABA0 /* shutterstill.json */,
 			);
@@ -542,7 +542,7 @@
 				0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */,
 				05B9B8C3276BDBB100FF442F /* Preview Assets.xcassets in Resources */,
 				05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */,
-				054763EE27C994F100D15B25 /* shutter.json in Resources */,
+				05C65CE727CC14EB001ADE0F /* shutter.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -38,6 +38,7 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (void) saveFiles: (NSString *) path;
 
+- (void) deallocMerger;
 @end
 
 NS_ASSUME_NONNULL_END
