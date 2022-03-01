@@ -475,9 +475,14 @@ public class CameraService: NSObject {
                 
 
                 while (self.focusUpdate) {
-                    usleep(1000)
+                    var doneChangingFocus = false;
+                    device.setFocusModeLocked(lensPosition: Float(self.focusDistance), completionHandler: { _ in
+                        doneChangingFocus = true
+                    })
                     
-                    device.setFocusModeLocked(lensPosition: Float(self.focusDistance))
+                    while (!doneChangingFocus) {
+                        usleep(1000)
+                    }
                 }
                 device.unlockForConfiguration()
             } catch {
