@@ -75,13 +75,29 @@ unique_ptr<ImageMerger> merger;
     return [UIImage imageWithCVMat:preview];
 }
 
-- (UIImage *)getProcessedImage {
+/**
+ Returns the processed image from all the currently added images.
+ If the init operation of the merger has failed, returns nil
+ */
+- (nullable UIImage *)getProcessedImage {
+    if (merger == nullptr) {
+        return nil;
+    }
+    
     Mat preview;
     merger->getProcessed(preview);
     return [UIImage imageWithCVMat:preview];
 }
 
-- (UIImage *)getPreviewImage {
+/**
+ Returns the processed images from all the currently added iamges.
+ If the init operation of the merger has failed, returns nil
+ */
+- (nullable UIImage *)getPreviewImage {
+    if (merger == nullptr) {
+        return nil;
+    }
+    
     Mat preview;
     merger->getPreview(preview);
     return [UIImage imageWithCVMat:preview];

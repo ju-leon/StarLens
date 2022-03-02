@@ -190,7 +190,10 @@ public class PhotoStack {
                 
                 var previewImage = UIImage()
                 autoreleasepool {
-                    previewImage = self.stacker!.getPreviewImage()
+                    let image = self.stacker!.getPreviewImage()
+                    if image != nil {
+                        previewImage = image!
+                    }
                 }
                 previewImageCallback?(previewImage)
             }
@@ -243,6 +246,7 @@ public class PhotoStack {
 
     func saveStack(finished: Bool, statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
         self.dispatch.addOperation {
+            print("Attempting to save stack")
             if (self.stacker == nil) {
                 statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
                 return
@@ -250,7 +254,10 @@ public class PhotoStack {
             
             var previewPhoto = UIImage()
             autoreleasepool {
-                previewPhoto = self.stacker!.getPreviewImage()
+                let image = self.stacker!.getPreviewImage()
+                if image != nil {
+                    previewPhoto = image!
+                }
             }
             
             if finished {
@@ -259,13 +266,17 @@ public class PhotoStack {
             }
             
             let processedImage = self.stacker!.getProcessedImage()
-            self.captureProject.setCoverPhoto(image: processedImage)
+            if processedImage != nil {
+                self.captureProject.setCoverPhoto(image: processedImage!)
+            } else {
+                self.captureProject.setCoverPhoto(image: previewPhoto)
+            }
             autoreleasepool {
                 self.stacker!.saveFiles(self.captureProject.getUrl().path)
             }
             self.captureProject.save()
 
-            processedImage.saveToGallery(metadata: self.captureProject.getMetadata())
+            processedImage?.saveToGallery(metadata: self.captureProject.getMetadata())
             
             /*
             let imageStacked = self.stacker!.getProcessedImage()

@@ -156,7 +156,9 @@ public:
         
         if (visualiseTrackingPoints) {
             std::cout << "added contours" << std::endl;
-            addWeighted(previewImage, 0.5, starContours, 5, 0.0, previewImage);
+            if (!starContours.empty()) {
+                addWeighted(previewImage, 0.5, starContours, 5, 0.0, previewImage);
+            }
         }
     }
 

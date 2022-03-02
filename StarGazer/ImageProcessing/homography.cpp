@@ -186,7 +186,7 @@ float getThreshold(Mat &img) {
      */
     float threshold = -200;
     int i = 0;
-    while (i++ < 100) {
+    while (i++ < 30) {
         // Compute the stars in the current image
         vector<Point2i> stars;
         Mat contour;

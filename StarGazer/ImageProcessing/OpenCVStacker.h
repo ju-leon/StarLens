@@ -32,9 +32,9 @@ NS_ASSUME_NONNULL_BEGIN
  * Can be called at any point to get a preview.
  * @return
  */
-- (UIImage *)getProcessedImage;
+- (nullable UIImage *)getProcessedImage;
 
-- (UIImage *)getPreviewImage;
+- (nullable UIImage *)getPreviewImage;
 
 - (void) saveFiles: (NSString *) path;
 
