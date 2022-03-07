@@ -564,10 +564,13 @@ public class CameraService: NSObject {
 
                     }, completionHandler: { [weak self] (result, photoCaptureProcessor) in
                         if result == .fatal_error {
-                            // Stop the capture and send the thread into processing mode
-                            self?.captureStatus = .processing
-                            
+
                             DispatchQueue.main.async {
+                                // Stop the capture and send the thread into processing mode
+                                self?.captureStatus = .processing
+                                // Call capturePhoto again to make the system recognize it should start processing
+                                self?.capturePhoto()
+                                
                                 self?.alertError = AlertError(
                                         title: "Our of memory",
                                         message: "The capture had to be aborted because your device has run out of memory. If this error keeps appearing, please try to free up device memory, reduce capture size or change capture format to JPEG.",
@@ -578,9 +581,9 @@ public class CameraService: NSObject {
                                 )
                                 self?.shouldShowAlertView = true
                             }
+                        } else {
+                            self?.capturePhoto()
                         }
-                            
-                        self?.capturePhoto()
                         
                         DispatchQueue.main.async {
                             // Let the main thread know there's more photos photo
@@ -677,7 +680,9 @@ public class CameraService: NSObject {
     }
 
     public func abortCapture() {
-        self.captureStatus = .failed
+        DispatchQueue.main.async {
+            self.captureStatus = .failed
+        }
 
         //TODO: Delete the stack
 
@@ -699,18 +704,23 @@ public class CameraService: NSObject {
     private func resetCamera(deletingStack: Bool) {
         print("Camera reset")
         self.start()
-        self.blackOutCamera = false
-        self.captureStatus = .ready
-        self.processingProgress = 0
-        self.numPicures = 0
-        self.numProcessed = 0
-        self.numFailed = 0
-        self.photoStack = nil
+        DispatchQueue.main.async {
+            self.blackOutCamera = false
+            self.captureStatus = .ready
+            self.processingProgress = 0
+            self.numPicures = 0
+            self.numProcessed = 0
+            self.numFailed = 0
+            self.photoStack = nil
+        }
     }
 
     func processLater() {
         photoStack!.suspendProcessing()
-        self.captureStatus = .preparing
+        DispatchQueue.main.async {
+            self.captureStatus = .preparing
+        }
+
         photoStack!.saveStack(finished: false, statusUpdateCallback: {
             _ in
             self.stop()
