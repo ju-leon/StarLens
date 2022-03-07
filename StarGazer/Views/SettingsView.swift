@@ -42,6 +42,7 @@ struct SettingsView : View {
     
     @State private var applyMask = true
     @State private var shortExposure = true
+    @State private var rawEnabled = true
     
     func saveDefault(key: UserOption, value: Any) {
         defaults.set(value, forKey: key.rawValue)
@@ -90,6 +91,11 @@ struct SettingsView : View {
                             _ in
                             saveDefault(key: .shortExposure, value: shortExposure)
                         })
+                        
+                        Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
+                            _ in
+                            saveDefault(key: .rawEnabled, value: rawEnabled)
+                        })
                     }
                     
                     Section(header: Text("About"),
@@ -137,6 +143,7 @@ struct SettingsView : View {
             self.selectedRawExport = defaults.integer(forKey: UserOption.rawOption.rawValue)
             self.applyMask = defaults.bool(forKey: UserOption.isMaskEnabled.rawValue)
             self.shortExposure = defaults.bool(forKey: UserOption.shortExposure.rawValue)
+            self.rawEnabled = defaults.bool(forKey: UserOption.rawEnabled.rawValue)
         })
         
     }

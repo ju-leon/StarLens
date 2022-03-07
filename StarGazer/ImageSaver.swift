@@ -13,16 +13,18 @@ import SwiftUI
 
 
 extension UIImage {
-    func saveImageToPNG(url: URL) {
+    func saveImageToPNG(url: URL) -> Bool {
         if let data = self.pngData() {
             do {
                 try data.write(to: url)
+                return true
             } catch {
                 print(error.localizedDescription)
             }
         } else {
             print("Couldnt convert data")
         }
+        return false
     }
 
     func saveImageToJPG(url: URL) {

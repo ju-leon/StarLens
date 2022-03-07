@@ -18,4 +18,5 @@ enum UserOption : String {
     case isDebugEnabled = "debug"
     case isMaskEnabled = "mask"
     case shortExposure = "short-exposure"
+    case rawEnabled = "raw-enabled"
 }

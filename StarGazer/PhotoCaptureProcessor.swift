@@ -133,7 +133,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 try photoData.write(to: rawFileURL)
                 self.rawFileURLs.append(rawFileURL)
                 
-                let captureObject = CaptureObject(url: rawFileURL, time: self.captureTime!, metadata: self.metadata!)
+                let captureObject = CaptureObject(url: rawFileURL, time: self.captureTime!, metadata: self.metadata!, isRaw: true)
                 self.previewPhoto = self.photoStack.add(
                         captureObject: captureObject,
                         statusUpdateCallback: self.stackingResultsCallback,
@@ -146,9 +146,33 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
                 self.captureStatus = .fatal_error
             }
         } else {
+            guard let uiImage = UIImage(data: photoData) else {
+                print("Unable to generate UIImage from image data.");
+                self.captureStatus = .fatal_error
+                return
+            }
+            
+            let pngFileUrl = makeUniquePNGFileURL()
+            //Try to write the photo to file
+            if uiImage.saveImageToPNG(url: pngFileUrl) {
+                self.rawFileURLs.append(pngFileUrl)
+                
+                let captureObject = CaptureObject(url: pngFileUrl, time: self.captureTime!, metadata: self.metadata!, isRaw: true)
+                self.previewPhoto = self.photoStack.add(
+                        captureObject: captureObject,
+                        statusUpdateCallback: self.stackingResultsCallback,
+                        previewImageCallback: self.previewImageCallback,
+                        addToProject: true)
+            } else {
+                print("Storage full! Capture needs to be aborted!")
+                self.captureStatus = .fatal_error
+            }
+            
+            
+            
             // Store compressed bitmap data.
             print("Couldn't capture raw photo")
-            self.captureStatus = .fatal_error
+
         }
 
     }
@@ -159,6 +183,15 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
         let dir = tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
                 .appendingPathComponent(fileName)
                 .appendingPathExtension("dng")
+        return dir
+    }
+    
+    private func makeUniquePNGFileURL() -> URL {
+        let tempDir = FileManager.default.temporaryDirectory
+        let fileName = ProcessInfo.processInfo.globallyUniqueString
+        let dir = tempDir.appendingPathComponent(self.photoStack.STRING_ID, isDirectory: true)
+                .appendingPathComponent(fileName)
+                .appendingPathExtension("png")
         return dir
     }
 

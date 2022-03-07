@@ -108,7 +108,9 @@ class ProjectEditor {
             self.photoStack = PhotoStack(project: self.project)
 
             for photoURL in self.project.getUnprocessedPhotoURLS() {
-                let captureObject = CaptureObject(url: self.project.getUrl().appendingPathComponent(photoURL), time: Date(), metadata: self.project.getMetadata()!)
+                let isRaw = photoURL.hasSuffix(".dng")
+                
+                let captureObject = CaptureObject(url: self.project.getUrl().appendingPathComponent(photoURL), time: Date(), metadata: self.project.getMetadata()!, isRaw: isRaw)
                 let _ = self.photoStack?.add(
                         captureObject: captureObject,
                         statusUpdateCallback: statusUpdateCallback,

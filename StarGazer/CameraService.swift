@@ -517,6 +517,7 @@ public class CameraService: NSObject {
                         photoOutputConnection.videoOrientation = .portrait
                     }
 
+                    
                     let query = self.photoOutput.isAppleProRAWEnabled ?
                             {
                                 AVCapturePhotoOutput.isAppleProRAWPixelFormat($0)
@@ -525,10 +526,10 @@ public class CameraService: NSObject {
                                 AVCapturePhotoOutput.isBayerRAWPixelFormat($0)
                             }
 
-                    guard let rawFormat =
-                    self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query) else {
-                        fatalError("No RAW format found.")
-                    }
+                    //guard let rawFormat =
+                    //self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query) else {
+                    //    fatalError("No RAW format found.")
+                    //}
 
                     let processedFormat = [AVVideoCodecKey: AVVideoCodecType.hevc]
 
@@ -541,21 +542,42 @@ public class CameraService: NSObject {
 
                     let maxExposure = self.videoDeviceInput.device.activeFormat.maxExposureDuration
 
-                    let photoSettings = AVCapturePhotoBracketSettings(
-                            rawPixelFormatType: rawFormat,
-                            processedFormat: nil,
-                            bracketedSettings: self.isoRotation.map {
-                                if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
-                                ) {
-                                    return autoExpSetting(Float($0) / Float($0))
-                                } else {
-                                    return manualExpSetting(maxExposure, $0)
+                    var photoSettings : AVCapturePhotoBracketSettings? = nil
+                    
+                    if self.defaults.bool(forKey: UserOption.rawEnabled.rawValue) {
+                        print("Capturing RAW")
+                        
+                        //TODO: Make sure to only end up here if the device actually supports RAW
+                        photoSettings = AVCapturePhotoBracketSettings(
+                                rawPixelFormatType: self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query)!,
+                                processedFormat: nil,
+                                bracketedSettings: self.isoRotation.map {
+                                    if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
+                                    ) {
+                                        return autoExpSetting(Float($0) / Float($0))
+                                    } else {
+                                        return manualExpSetting(maxExposure, $0)
+                                    }
                                 }
-                            }
-                    )
+                        )
+                    } else {
+                        photoSettings = AVCapturePhotoBracketSettings(
+                                rawPixelFormatType: 0,
+                                processedFormat: processedFormat,
+                                bracketedSettings: self.isoRotation.map {
+                                    if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
+                                    ) {
+                                        return autoExpSetting(Float($0) / Float($0))
+                                    } else {
+                                        return manualExpSetting(maxExposure, $0)
+                                    }
+                                }
+                        )
+                    }
+                    
 
 
-                    let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings, willCapturePhotoAnimation: { [weak self] in
+                    let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings!, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.
                         DispatchQueue.main.async {
                             self?.blackOutCamera = true
@@ -634,7 +656,7 @@ public class CameraService: NSObject {
                     //let current_exposure_ISO : Float = (self.videoDeviceInput.device.iso)
 
                     DispatchQueue.main.async {
-                        self.photoOutput.capturePhoto(with: photoSettings, delegate: photoCaptureProcessor)
+                        self.photoOutput.capturePhoto(with: photoSettings!, delegate: photoCaptureProcessor)
                     }
                 }
             } else if self.captureStatus == .processing {
