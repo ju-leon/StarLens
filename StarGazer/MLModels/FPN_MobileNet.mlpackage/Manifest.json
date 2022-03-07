@@ -1,24 +1,24 @@
 {
     "fileFormatVersion": "1.0.0",
     "itemInfoEntries": {
-        "2B994E8C-FB2D-4203-94D4-20830CC947AA": {
-            "author": "com.apple.CoreML",
-            "description": "External Metadata Overlay",
-            "name": "Metadata.json",
-            "path": "com.apple.CoreML/Metadata.json"
-        },
-        "3E4E140C-1474-4F9C-864A-71C688E21352": {
-            "author": "com.apple.CoreML",
-            "description": "CoreML Model Specification",
-            "name": "confused_music_11.mlmodel",
-            "path": "com.apple.CoreML/confused_music_11.mlmodel"
-        },
-        "A55AEA0F-E0C3-4DFD-9D4F-AA70792FD67B": {
+        "086D0379-B6E0-4616-9508-3AC835F6BB2B": {
             "author": "com.apple.CoreML",
             "description": "External FeatureDescription Overlay",
             "name": "FeatureDescriptions.json",
             "path": "com.apple.CoreML/FeatureDescriptions.json"
+        },
+        "2393B613-F750-4C23-A4A6-BEDA6C35834C": {
+            "author": "com.apple.CoreML",
+            "description": "CoreML Model Specification",
+            "name": "segmentation.mlmodel",
+            "path": "com.apple.CoreML/segmentation.mlmodel"
+        },
+        "A8400138-F03A-4C97-BACC-CC2D0E46548E": {
+            "author": "com.apple.CoreML",
+            "description": "External Metadata Overlay",
+            "name": "Metadata.json",
+            "path": "com.apple.CoreML/Metadata.json"
         }
     },
-    "rootModelIdentifier": "3E4E140C-1474-4F9C-864A-71C688E21352"
+    "rootModelIdentifier": "2393B613-F750-4C23-A4A6-BEDA6C35834C"
 }

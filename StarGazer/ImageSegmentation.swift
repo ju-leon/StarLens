@@ -17,6 +17,7 @@ class ImageSegementation {
      */
     public static func segementImage(image: UIImage) -> UIImage? {
         let resizedImage = ImageResizer.resizeImage(image, modelInputDimension)!
+        
         if let cgImage = resizedImage.cgImage {
             let ciImage = CIImage(cgImage: cgImage)
             

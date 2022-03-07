@@ -118,7 +118,7 @@ public:
         std::cout << "Finding initial stars..." << std::endl;
         //Find the star centers for the first image
         Mat contour;
-        getStarCenters(image, threshold, contour, lastStars);
+        getStarCenters(imageMasked, threshold, contour, lastStars);
         std::cout << "Found " << lastStars.size() << " stars" << std::endl;
 
         if (lastStars.size() < MIN_STARS_PER_IMAGE) {
@@ -217,6 +217,8 @@ public:
 
         // Match the stars with the last image
         vector<DMatch> matches;
+        std::cout << "Last star size: " << lastStars.size() << ", new stars size: " << stars.size() << std::endl;
+        
         if (std::max(lastStars.size(), stars.size()) > SIMPLE_MATCHER_THRESHOLD) {
             matchStars(lastStars, stars, matches);
         } else {

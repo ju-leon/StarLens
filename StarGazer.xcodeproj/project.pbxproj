@@ -17,9 +17,9 @@
 		054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 054763F027CA2B2E00D15B25 /* AlertToast */; };
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
+		05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */; };
 		055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */; };
 		055F7D2527C4418000D2AE59 /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = 055F7D2427C4418000D2AE59 /* ModalView */; };
-		055F7D2727C5716900D2AE59 /* FPN_MobileNet.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D2627C5716900D2AE59 /* FPN_MobileNet.mlpackage */; };
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
@@ -100,8 +100,8 @@
 		0536C3FE27BF02310060ABA0 /* shutterprep.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterprep.json; sourceTree = "<group>"; };
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
+		05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = FPN_MobileNet.mlpackage; sourceTree = "<group>"; };
 		055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmentation.swift; sourceTree = "<group>"; };
-		055F7D2627C5716900D2AE59 /* FPN_MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = FPN_MobileNet.mlpackage; sourceTree = "<group>"; };
 		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
 		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
 		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
@@ -403,7 +403,7 @@
 		3B2A085D1DE3B259F9C0B6F3 /* MLModels */ = {
 			isa = PBXGroup;
 			children = (
-				055F7D2627C5716900D2AE59 /* FPN_MobileNet.mlpackage */,
+				05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */,
 			);
 			path = MLModels;
 			sourceTree = "<group>";
@@ -641,7 +641,6 @@
 				051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */,
 				05C65CE527CC0E96001ADE0F /* UserOptions.swift in Sources */,
 				055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */,
-				055F7D2727C5716900D2AE59 /* FPN_MobileNet.mlpackage in Sources */,
 				05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */,
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */,
@@ -658,6 +657,7 @@
 				05D4508327943EC6008DB81E /* ProjectController.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
+				05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */,
 				05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
 				056CBBD4277C6A6900538E2E /* OpticalFlowVisualizer.metal in Sources */,

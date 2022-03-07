@@ -33,12 +33,12 @@ const int MAX_AREA_THRESHOLD = 1000;
 const int DISTANCE_THRESHOLD = 15;
 
 /**
- Minimum number of contours required to start a star detection.
+ Minimum number of stars required to start a star detection
  */
 const int MIN_STARS_REQUIRED = 15;
 
 /**
- Minimum number of contours allowed  to start a star detection.
+ Maximum number of stars allowed  to start a star detection.
  */
 const int MAX_STARS_ALLOWED = 300;
 
@@ -52,7 +52,11 @@ void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     
     Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
     erode(mask, mask, element);
-
+    
+    // Invert the mask
+    threshold(mask, mask, 0, 255, cv::THRESH_BINARY_INV);
+    
+    
     //GaussianBlur(mask, mask, cv::Size(25, 25), 0);
 }
 
@@ -273,7 +277,7 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
         }
     }
     
-    std::cout << "Detected " << starCenters.size() << "star centers" << std::endl;
+    std::cout << "Detected " << starCenters.size() << " star centers" << std::endl;
     
     // Continously adapt threshold to account for changes in lighting if neccesary.
     if (starCenters.size() > MAX_STARS_ALLOWED) {
