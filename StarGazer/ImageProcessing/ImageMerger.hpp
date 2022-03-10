@@ -162,6 +162,30 @@ public:
         }
     }
 
+    void equalizeIntensity(const Mat& inputImage, Mat &outputImage)
+    {
+        Mat ycrcb;
+
+        cvtColor(inputImage,ycrcb,COLOR_RGB2Lab);
+
+        vector<Mat> channels;
+        split(ycrcb,channels);
+
+        auto clahe = createCLAHE(2.0, cv::Size(8,8));
+        
+        clahe->apply(channels[0], channels[0]);
+        
+        clahe->setClipLimit(0.5);
+        
+        clahe->apply(channels[1], channels[1]);
+        clahe->apply(channels[2], channels[2]);
+
+        Mat result;
+        merge(channels,ycrcb);
+
+        cvtColor(ycrcb,outputImage,COLOR_Lab2RGB);
+    }
+    
 
     /**
      * Returns the processed image.
@@ -174,11 +198,21 @@ public:
             Mat invertedMask;
             cv::bitwise_not(foregroundMask, invertedMask);
 
+            combinedNormal.convertTo(combinedNormal, CV_8UC3);
+            stackedNormal.convertTo(stackedNormal, CV_8UC3);
+            
+            equalizeIntensity(combinedNormal, combinedNormal);
+            equalizeIntensity(stackedNormal, stackedNormal);
+            
             combinedNormal.setTo(cv::Scalar(0, 0, 0), foregroundMask);
             stackedNormal.setTo(cv::Scalar(0, 0, 0), invertedMask);
             
+                  
             addWeighted(combinedNormal, 1, stackedNormal, 1, 0, image);
-            image.convertTo(image, CV_8UC3);
+
+            
+
+            
             //blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
         } else {
             Mat combinedNormal = currentCombined / numImages;

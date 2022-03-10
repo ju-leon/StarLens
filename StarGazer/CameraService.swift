@@ -366,7 +366,7 @@ public class CameraService: NSObject {
         self.captureStatus = .starting
         
         self.isoRotation = []
-        for x in 4...7 {
+        for x in 2...5 {
             self.isoRotation.append(self.videoDeviceInput.device.activeFormat.maxISO / Float(x))
         }
         
