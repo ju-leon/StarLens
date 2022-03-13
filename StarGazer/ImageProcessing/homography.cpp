@@ -35,7 +35,7 @@ const int DISTANCE_THRESHOLD = 15;
 /**
  Minimum number of stars required to start a star detection
  */
-const int MIN_STARS_REQUIRED = 15;
+const int MIN_STARS_REQUIRED = 10;
 
 /**
  Maximum number of stars allowed  to start a star detection.
@@ -283,11 +283,11 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
     if (starCenters.size() > MAX_STARS_ALLOWED) {
         // To many contours, lower threshold
         // All values we're interested in are negative -> *1.1 gives a lower value
-        threshold = threshold * 1.1;
+        threshold = threshold * 1.05;
         std::cout << "Threshold too high, lowering to " << threshold << std::endl;
     } else if (starCenters.size() < MIN_STARS_REQUIRED) {
         // To little contours, increase threshold
-        threshold = threshold * 0.95;
+        threshold = threshold * 0.98;
         std::cout << "Threshold too low, raising to " << threshold << std::endl;
     }
     

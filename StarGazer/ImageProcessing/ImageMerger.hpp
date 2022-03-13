@@ -14,8 +14,10 @@
 #include <fstream>
 #include <chrono>
 
+#include "StarMatcher.hpp"
 #include "SaveBinaryCV.hpp"
 #include "blend.hpp"
+
 
 using namespace std;
 using namespace cv;
@@ -86,7 +88,13 @@ private:
      Mat containing the stars if visualiseTrackingPoints is enabled
      */
     Mat starContours;
-    
+
+    /**
+     Matcher used to align new images.
+     Needs to be intialized at the beginning of the process.
+     */
+    std::unique_ptr<StarMatcher> matcher;
+
 public:
     /**
      * Creates a new image merger and tries to initialize all values.
@@ -124,7 +132,10 @@ public:
         if (lastStars.size() < MIN_STARS_PER_IMAGE) {
             throw MergingException("Not enough stars found in initial image");
         }
-        
+
+        // Initialize the matcher
+        matcher = std::make_unique<StarMatcher>(lastStars);
+
         // Initialize the current stacks
         image.copyTo(lastImage);
         lastImage.convertTo(currentCombined, CV_16U);
@@ -252,12 +263,15 @@ public:
         // Match the stars with the last image
         vector<DMatch> matches;
         std::cout << "Last star size: " << lastStars.size() << ", new stars size: " << stars.size() << std::endl;
-        
+
+        /*
         if (std::max(lastStars.size(), stars.size()) > SIMPLE_MATCHER_THRESHOLD) {
             matchStars(lastStars, stars, matches);
         } else {
             matchStarsSimple(lastStars, stars, matches);
         }
+         */
+        matcher->matchStars(stars, matches);
 
 
         // Extract the star centers from the matches
@@ -279,12 +293,20 @@ public:
         // Find homography
         auto h = findHomography(matched_points2, matched_points1, RANSAC);
 
+        // If no homography was found, return
+        if (h.empty()) {
+            std::cout << "No homography found" << std::endl;
+            numFailed++;
+            getPreview(preview);
+            return false;
+        }
+
         // Append to the current total homography
         totalHomography = totalHomography * h;
 
         // Use homography to warp image
         Mat alignedImage;
-        warpPerspective(image, alignedImage, totalHomography, imageMasked.size());
+        warpPerspective(image, alignedImage, h, imageMasked.size());
         
         /**
          Create a visulaisation of the current tracking points if requested
@@ -296,8 +318,8 @@ public:
             channels.at(1) = featureVis;
             channels.at(2) = featureVis;
             
-            cv::merge(channels, featureVis);
-            warpPerspective(featureVis, starContours, totalHomography, featureVis.size());
+            cv::merge(channels, starContours);
+            //warpPerspective(starContours, starContours, h, featureVis.size());
         }
         
         
@@ -315,7 +337,9 @@ public:
         
         // Update last image and stars
         lastImage = image;
-        lastStars = stars;
+        
+        
+        //lastStars = stars;
         numImages++;
 
         getPreview(preview);

@@ -3,7 +3,7 @@ platform :ios, '10.0'
 target 'StarGazer' do
   use_frameworks!
     
-  #pod 'OpenCV', '4.3.0'
+  pod 'OpenCV', '4.3.0'
 
   target 'StarGazerTests' do
     inherit! :search_paths
