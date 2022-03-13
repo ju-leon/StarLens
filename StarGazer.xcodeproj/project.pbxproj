@@ -66,6 +66,7 @@
 		3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */; };
 		3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */; };
 		3B2A0AC74BE999EEA6281B19 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A01974F64B6F47AF2F12B /* CaptureView.swift */; };
+		3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */; };
 		3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0AF963F942431EE0A19B /* ProcessingView.swift */; };
 		6948A4D8FA4A8EA88A4AC16E /* Pods_StarGazer_StarGazerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */; };
 		8A13B089EC51684D47BE9933 /* Pods_StarGazer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */; };
@@ -160,6 +161,7 @@
 		05DE22772781CC3D007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		2D82E9966AD2135A50A7F875 /* Pods-StarGazer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer/Pods-StarGazer.debug.xcconfig"; sourceTree = "<group>"; };
 		3B2A01974F64B6F47AF2F12B /* CaptureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
+		3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceOrientationManager.swift; sourceTree = "<group>"; };
 		3B2A0AF963F942431EE0A19B /* ProcessingView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ProcessingView.swift; sourceTree = "<group>"; };
 		3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CameraPreview.swift; sourceTree = "<group>"; };
 		3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = ImageSaver.swift; sourceTree = "<group>"; };
@@ -294,6 +296,7 @@
 				051F0A8B276FC0C60015C507 /* Info.plist */,
 				05B9B8C1276BDBB100FF442F /* Preview Content */,
 				3B2A085D1DE3B259F9C0B6F3 /* MLModels */,
+				3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */,
 			);
 			path = StarGazer;
 			sourceTree = "<group>";
@@ -518,10 +521,10 @@
 			);
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
-				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */,
+				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */,
 				055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */,
-				054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */,
-				05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */,
+				054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */,
+				05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -674,6 +677,7 @@
 				0510811C27BEE51000A50129 /* LottieView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
+				3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1044,7 +1048,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
+		0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
 			requirement = {
@@ -1052,7 +1056,7 @@
 				minimumVersion = 3.0.0;
 			};
 		};
-		054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
+		054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast.git";
 			requirement = {
@@ -1068,7 +1072,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */ = {
+		05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Pyroh/SlidingRuler.git";
 			requirement = {
@@ -1081,12 +1085,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		0510811927BEE06100A50129 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */;
+			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */;
 			productName = Lottie;
 		};
 		054763F027CA2B2E00D15B25 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */;
+			package = 054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */;
 			productName = AlertToast;
 		};
 		055F7D2427C4418000D2AE59 /* ModalView */ = {
@@ -1096,7 +1100,7 @@
 		};
 		05D9F46527DBF4A3005A219A /* SlidingRuler */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */;
+			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */;
 			productName = SlidingRuler;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -39,6 +39,8 @@ public class PhotoStack {
     private var captureObjects: [CaptureObject] = []
     private var stacker: OpenCVStacker?
 
+    private var orientation: UIImage.Orientation = .up
+
     private var dispatch: OperationQueue = {
         var queue = OperationQueue()
         queue.name = "Stacking Queue"
@@ -103,6 +105,23 @@ public class PhotoStack {
         self.captureProject.setCaptureEnd(date: Date())
     }
 
+    func setDeviceOrientation(_ orientation: AVCaptureVideoOrientation) {
+        switch orientation {
+        case .portrait:
+            self.orientation = .up
+        case .portraitUpsideDown:
+            self.orientation = .down
+        case .landscapeLeft:
+            self.orientation = .right
+        case .landscapeRight:
+            self.orientation = .left
+        default:
+            self.orientation = .up
+        }
+
+        self.captureProject.setOrientation(orientation: self.orientation)
+    }
+
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
         var images: [UIImage] = []
         for captureObject in fromCaptureArray {
@@ -114,13 +133,12 @@ public class PhotoStack {
     }
 
 
-
     func add(captureObject: CaptureObject,
              statusUpdateCallback: ((PhotoStackingResult) -> ())?,
              previewImageCallback: ((UIImage) -> Void)?,
              addToProject: Bool = false) -> UIImage {
         self.dispatch.addOperation {
-            
+
             let image = captureObject.toUIImage()
             autoreleasepool {
                 if (addToProject) {
@@ -128,7 +146,7 @@ public class PhotoStack {
                     self.captureProject.setMetadata(data: captureObject.metadata)
                     self.captureProject.save()
                 }
-                
+
             }
 
             /**
@@ -136,7 +154,7 @@ public class PhotoStack {
              */
             if self.stacker == nil {
                 self.coverPhoto = image
-                
+
                 if (addToProject) {
                     self.captureProject.setCoverPhoto(image: image)
                     self.captureProject.save()
@@ -146,15 +164,14 @@ public class PhotoStack {
                 On first call, apply background//foreground segmentation
                  */
                 let maskImage = ImageSegementation.segementImage(image: image)
-                
-                autoreleasepool
-                {
+
+                autoreleasepool {
                     if self.maskEnabled {
                         self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
                     } else {
                         self.stacker = OpenCVStacker.init(image: image, withMask: nil, visaliseTrackingPoints: true)
                     }
-                    
+
                     self.numImages += 1
                     if (self.stacker == nil) {
                         print("Failed to init OpenCVStacker")
@@ -187,7 +204,7 @@ public class PhotoStack {
                         statusUpdateCallback?(.FAILED)
                     }
                 }
-                
+
                 var previewImage = UIImage()
                 autoreleasepool {
                     let image = self.stacker!.getPreviewImage()
@@ -197,7 +214,7 @@ public class PhotoStack {
                 }
                 previewImageCallback?(previewImage)
             }
-        
+
         }
 
         return self.coverPhoto
@@ -251,7 +268,7 @@ public class PhotoStack {
                 statusUpdateCallback?(PhotoStackingResult.INIT_FAILED)
                 return
             }
-            
+
             var previewPhoto = UIImage()
             autoreleasepool {
                 let image = self.stacker!.getPreviewImage()
@@ -259,12 +276,12 @@ public class PhotoStack {
                     previewPhoto = image!
                 }
             }
-            
+
             if finished {
                 self.captureProject.setNumImages(self.numImages)
                 self.captureProject.doneProcessing()
             }
-            
+
             let processedImage = self.stacker!.getProcessedImage()
             if processedImage != nil {
                 self.captureProject.setCoverPhoto(image: processedImage!)
@@ -274,26 +291,27 @@ public class PhotoStack {
             autoreleasepool {
                 self.stacker!.saveFiles(self.captureProject.getUrl().path)
             }
+
             self.captureProject.save()
 
-            processedImage?.saveToGallery(metadata: self.captureProject.getMetadata())
-            
+
+            processedImage?.saveToGallery(metadata: self.captureProject.getMetadata(), orientation: self.captureProject.getOrientation())
+
             /*
             let imageStacked = self.stacker!.getProcessedImage()
             let imageMaxed = self.stacker!.getPreviewImage()
             */
-            
+
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
 
-            
+
             // Update preview image in camera view
             let resized = ImageResizer.resize(image: previewPhoto, targetWidth: 100.0)
             ProjectController.storePreviewImage(image: resized)
-            
+
             self.stacker?.deallocMerger()
         }
     }
-
 
 
     func savePreview(image: UIImage) {

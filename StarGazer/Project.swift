@@ -25,6 +25,7 @@ enum ProjectKeys: String {
     case processingComplete = "processingComplete"
     case numImages = "numImages"
     case editOptions = "editOptions"
+    case orientation = "orientation"
 }
 
 enum ProjectError: Error {
@@ -49,6 +50,8 @@ class Project: NSObject {
     private var coverPhoto: UIImage?
     
     private var editOptions: [String: Any?] = [:]
+
+    private var orientation: UIImage.Orientation = .up
 
     init(url: URL, captureStart: Date) {
         self.url = url
@@ -75,6 +78,8 @@ class Project: NSObject {
         self.processingComplete = plist![ProjectKeys.processingComplete.rawValue] as! Bool
 
         self.numImages = plist![ProjectKeys.numImages.rawValue] as! Int
+
+        self.orientation = UIImage.Orientation(rawValue: plist![ProjectKeys.orientation.rawValue] as! Int)!
 
         if FileManager.default.fileExists(atPath: url.appendingPathComponent(PREVIEW_FILE_NAME).path) {
             self.coverPhoto = UIImage(contentsOfFile: url.appendingPathComponent(PREVIEW_FILE_NAME).path)
@@ -173,6 +178,14 @@ class Project: NSObject {
         return self.captureEnd
     }
 
+    public func setOrientation(orientation: UIImage.Orientation) {
+        self.orientation = orientation
+    }
+
+    public func getOrientation() -> UIImage.Orientation {
+        return self.orientation
+    }
+
     public func createMetadata(location: CLLocationCoordinate2D?) {
         if self.metadata == nil {
             return
@@ -198,7 +211,7 @@ class Project: NSObject {
             locationData[kCGImagePropertyGPSLongitudeRef as String] = loc.longitude > 0 ? "E" : "W"
             data[kCGImagePropertyGPSDictionary as String] = locationData
         }
-        
+
         self.metadata = data
     }
     
@@ -267,6 +280,7 @@ class Project: NSObject {
         plist[ProjectKeys.processingComplete.rawValue] = self.processingComplete
         plist[ProjectKeys.numImages.rawValue] = self.numImages
         plist[ProjectKeys.editOptions.rawValue] = self.editOptions
+        plist[ProjectKeys.orientation.rawValue] = self.orientation.rawValue
 
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }

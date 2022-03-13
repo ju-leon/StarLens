@@ -157,7 +157,7 @@ extension PhotoCaptureProcessor: AVCapturePhotoCaptureDelegate {
             if uiImage.saveImageToPNG(url: pngFileUrl) {
                 self.rawFileURLs.append(pngFileUrl)
                 
-                let captureObject = CaptureObject(url: pngFileUrl, time: self.captureTime!, metadata: self.metadata!, isRaw: true)
+                let captureObject = CaptureObject(url: pngFileUrl, time: self.captureTime!, metadata: self.metadata!, isRaw: false)
                 self.previewPhoto = self.photoStack.add(
                         captureObject: captureObject,
                         statusUpdateCallback: self.stackingResultsCallback,

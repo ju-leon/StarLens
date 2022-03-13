@@ -34,20 +34,13 @@ class CaptureObject {
     func toUIImage() -> UIImage {
         var uiImage : UIImage = UIImage()
         
-        if isRaw {
-            autoreleasepool {
-                let newImage = CIImage(contentsOf: url)!
-                let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!
-            
-                uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
-            }
+        autoreleasepool {
+            let newImage = CIImage(contentsOf: url)!
+            let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!
 
-        } else {
-            let image = loadImage(filename: url)
-            if image != nil {
-                uiImage = image!
-            }
+            uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
         }
+
         return uiImage
     }
     
