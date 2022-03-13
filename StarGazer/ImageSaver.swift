@@ -38,29 +38,56 @@ extension UIImage {
             print("Couldnt convert data")
         }
     }
-    
-    
-    func saveToGallery(metadata: [String: Any]?, onSuccess: (()->())? = nil, onFailed: (()->())? = nil) {
+
+
+    func saveToGallery(metadata: [String: Any]?, orientation: UIImage.Orientation = .up, onSuccess: (() -> ())? = nil, onFailed: (() -> ())? = nil) {
         PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
 
             // Don't continue if not authorized.
             guard status == .authorized else {
                 return
             }
-            
+
             var data = metadata
-            
+
+            var exportImage = self
             if data != nil {
                 // Set to proper image orientation
-                data![kCGImagePropertyOrientation as String] = self.imageOrientation.rawValue
+                /*
+                var orientation : UIImage.Orientation = .up
+                if let imageOrientation = data![kCGImagePropertyOrientation as String] as? Int{
+                    orientation = UIImage.Orientation(rawValue: imageOrientation)!
+                }
+                */
+                var exifOrientation = 1
+                switch orientation {
+                case .up:
+                    exifOrientation = 1
+                case .down:
+                    exifOrientation = 3
+                    exportImage = self.rotate(radians: .pi)!
+                case .left:
+                    exifOrientation = 8
+                    exportImage = self.rotate(radians: .pi / 2 * 3)!
+                case .right:
+                    exifOrientation = 6
+                    exportImage = self.rotate(radians: .pi / 2)!
+                default:
+                    exifOrientation = 1
+                }
+
+                print("Exif orientation: \(exifOrientation)")
+                print("Image orientation: \(orientation.rawValue)")
+
+                data![kCGImagePropertyOrientation as String] = 1
             } else {
                 data = [:]
             }
-            
+
             PHPhotoLibrary.shared().performChanges {
                 let creationRequest = PHAssetCreationRequest.forAsset()
                 creationRequest.addResource(with: .photo,
-                        data: self.mergeImageData(image: self, with: data! as NSDictionary),
+                        data: self.mergeImageData(image: exportImage, with: data! as NSDictionary),
                         options: nil)
 
 
@@ -71,12 +98,34 @@ extension UIImage {
                 } else {
                     onFailed?()
                 }
-                
+
             }
 
         }
     }
-    
+
+    private func rotate(radians: Float) -> UIImage? {
+        var newSize = CGRect(origin: CGPoint.zero, size: self.size).applying(CGAffineTransform(rotationAngle: CGFloat(radians))).size
+        // Trim off the extremely small float value to prevent core graphics from rounding it up
+        newSize.width = floor(newSize.width)
+        newSize.height = floor(newSize.height)
+
+        UIGraphicsBeginImageContextWithOptions(newSize, false, self.scale)
+        let context = UIGraphicsGetCurrentContext()!
+
+        // Move origin to middle
+        context.translateBy(x: newSize.width/2, y: newSize.height/2)
+        // Rotate around middle
+        context.rotate(by: CGFloat(radians))
+        // Draw the image at its center
+        self.draw(in: CGRect(x: -self.size.width/2, y: -self.size.height/2, width: self.size.width, height: self.size.height))
+
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
+    }
+
     private func mergeImageData(image: UIImage, with metadata: NSDictionary) -> Data {
         let imageData = image.pngData()!
         let source: CGImageSource = CGImageSourceCreateWithData(imageData as NSData, nil)!
@@ -90,4 +139,5 @@ extension UIImage {
 
         return newImageData as Data
     }
+
 }
