@@ -14,47 +14,52 @@ import AVFoundation
 class DeviceOrientationManager {
     private let queue: OperationQueue
     let motionManager: CMMotionManager
-
-    init() {
+    let onOrientationUpdate: (AVCaptureVideoOrientation) -> Void
+    var orientation: AVCaptureVideoOrientation
+    
+    init(onOrientationUpdate:  @escaping (AVCaptureVideoOrientation) -> Void) {
         queue = OperationQueue()
         queue.maxConcurrentOperationCount = 1
 
         motionManager = CMMotionManager()
-        motionManager.accelerometerUpdateInterval = 0.2
-        motionManager.gyroUpdateInterval = 0.2
+        motionManager.accelerometerUpdateInterval = 0.5
+        motionManager.gyroUpdateInterval = 0.5
+        
+        self.onOrientationUpdate = onOrientationUpdate
+        self.orientation = .portrait
     }
 
-    private func outputAccelertionData(_ acceleration: CMAcceleration, onDone: @escaping (AVCaptureVideoOrientation) -> Void) {
-        var orientation = AVCaptureVideoOrientation.portrait
+    private func outputAccelertionData(_ acceleration: CMAcceleration) {
+        var newOrientation = AVCaptureVideoOrientation.portrait
 
         if acceleration.x >= 0.75 {
-            orientation = .landscapeLeft
-            print("landscapeLeft")
+            newOrientation = .landscapeLeft
         } else if acceleration.x <= -0.75 {
-            orientation = .landscapeRight
-            print("landscapeRight")
+            newOrientation = .landscapeRight
         } else if acceleration.y <= -0.75 {
-            orientation = .portrait
-            print("portrait")
-
+            newOrientation = .portrait
         } else if acceleration.y >= 0.75 {
-            orientation = .portraitUpsideDown
-            print("portraitUpsideDown")
+            newOrientation = .portraitUpsideDown
         }
-
-        self.motionManager.stopAccelerometerUpdates()
-        onDone(orientation)
+        
+        if newOrientation != self.orientation {
+            print("Changed orientation to \(newOrientation.rawValue)")
+            self.orientation = newOrientation
+            self.onOrientationUpdate(orientation)
+        }
     }
 
-    func getDeviceOrientation(resultCallback:  @escaping (AVCaptureVideoOrientation) -> Void) {
+    func startUpdatingOrientation() {
         self.motionManager.startAccelerometerUpdates(to: self.queue, withHandler: {
             (accelerometerData, error) -> Void in
             if error == nil {
-                self.outputAccelertionData((accelerometerData?.acceleration)! , onDone: resultCallback)
-            } else {
-                resultCallback(AVCaptureVideoOrientation.portrait)
+                self.outputAccelertionData((accelerometerData?.acceleration)!)
             }
         })
+    }
+    
+    func stopUpdateingOrientation() {
+        self.motionManager.stopAccelerometerUpdates()
     }
 
 }

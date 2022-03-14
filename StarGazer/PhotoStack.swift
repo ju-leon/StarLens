@@ -55,7 +55,7 @@ public class PhotoStack {
 
     private var numImages = 0
 
-    init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?) {
+    init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?, orientation: AVCaptureVideoOrientation) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
 
         let tempDir = FileManager.default.temporaryDirectory
@@ -78,6 +78,23 @@ public class PhotoStack {
 
         self.captureProject = Project(url: tempDir.appendingPathComponent(self.STRING_ID),
                 captureStart: Date())
+        
+        // Set the photo project to tthe proper orientation
+        switch orientation {
+        case .portrait:
+            self.orientation = .up
+        case .portraitUpsideDown:
+            self.orientation = .down
+        case .landscapeLeft:
+            self.orientation = .right
+        case .landscapeRight:
+            self.orientation = .left
+        default:
+            self.orientation = .up
+        }
+
+        self.captureProject.setOrientation(orientation: self.orientation)
+        
     }
 
     init(project: Project) {
@@ -103,23 +120,6 @@ public class PhotoStack {
 
     func markEndCapture() {
         self.captureProject.setCaptureEnd(date: Date())
-    }
-
-    func setDeviceOrientation(_ orientation: AVCaptureVideoOrientation) {
-        switch orientation {
-        case .portrait:
-            self.orientation = .up
-        case .portraitUpsideDown:
-            self.orientation = .down
-        case .landscapeLeft:
-            self.orientation = .right
-        case .landscapeRight:
-            self.orientation = .left
-        default:
-            self.orientation = .up
-        }
-
-        self.captureProject.setOrientation(orientation: self.orientation)
     }
 
     func toUIImageArray(fromCaptureArray: [CaptureObject]) -> [UIImage] {
@@ -161,9 +161,12 @@ public class PhotoStack {
                 }
 
                 /**
-                On first call, apply background//foreground segmentation
+                 On first call, apply background//foreground segmentation.
+                 Make sure the image is rotated upright
                  */
-                let maskImage = ImageSegementation.segementImage(image: image)
+                
+                let rotatedImage = UIImage(cgImage: image.cgImage!, scale: 1.0, orientation: self.orientation)
+                let maskImage = ImageSegementation.segementImage(image: rotatedImage)
 
                 autoreleasepool {
                     if self.maskEnabled {

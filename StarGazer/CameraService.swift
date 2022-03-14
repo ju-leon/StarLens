@@ -118,11 +118,14 @@ public class CameraService: NSObject {
     private var biasRotationIndex = 0
 
     private var focusUpdate = false
+    
+    private var orientation = AVCaptureVideoOrientation.portrait
+    private var orientationManager = DeviceOrientationManager(onOrientationUpdate: {_ in})
 
 
     public override init() {
         let availableCameras = videoDeviceDiscoverySession.devices
-
+        
         // Init activeZoomLevelwith first available camer to silence warnings
         // Should always we overwritten inside the switch case, since all devices should have a wide angle camera
         self.activeZoomLevel = CameraZoomLevel(zoomLevel: -1, device: availableCameras[0])
@@ -148,10 +151,17 @@ public class CameraService: NSObject {
         }
 
         availableZoomLevels = availableZoomLevels.sorted(by: { $0.zoomLevel < $1.zoomLevel })
-
+        
+        self.orientationManager = DeviceOrientationManager(onOrientationUpdate: { orientation in
+            self.orientation = orientation
+        })
 
     }
 
+    deinit {
+        self.orientationManager.stopUpdateingOrientation()
+    }
+    
     public func configure() {
         let imageSize = CGSize(width: 300, height: 400)
         let color: UIColor = .black
@@ -177,6 +187,9 @@ public class CameraService: NSObject {
             locationManager.requestLocation()
         }
 
+        // Start updating device orientation
+        orientationManager.startUpdatingOrientation()
+        
         self.configureCaptureSession()
 
     }
@@ -376,20 +389,14 @@ public class CameraService: NSObject {
                     mask: self.defaults.bool(forKey: UserOption.isMaskEnabled.rawValue),
                     align: self.alignEnabled,
                     enhance: self.enhanceEnabled,
-                    location: self.location
+                    location: self.location,
+                    orientation: self.orientation
             )
 
             DispatchQueue.main.async {
                 self.captureStatus = .capturing
                 self.capturePhoto()
             }
-
-
-            // Get the current device orientation, once the orientation determined,
-            // start the capture
-
-            let orientationManager = DeviceOrientationManager()
-            orientationManager.getDeviceOrientation(resultCallback: self.photoStack!.setDeviceOrientation)
 
         }
     }
