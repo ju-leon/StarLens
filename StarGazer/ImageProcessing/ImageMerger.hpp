@@ -94,6 +94,17 @@ private:
      Needs to be intialized at the beginning of the process.
      */
     std::unique_ptr<StarMatcher> matcher;
+    
+    void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage) {
+        vector<Mat> channels;
+        split(inputImage,channels);
+        
+        cv::multiply(channels[0], mask, channels[0], 1.0, CV_8U);
+        cv::multiply(channels[1], mask, channels[1], 1.0, CV_8U);
+        cv::multiply(channels[2], mask, channels[2], 1.0, CV_8U);
+
+        merge(channels, outputImage);
+    }
 
 public:
     /**
@@ -109,8 +120,7 @@ public:
             resize(foregroundMask, foregroundMask, image.size(), 0, 0, INTER_LINEAR);
             
             // Apply mask to image.
-            image.copyTo(imageMasked);
-            imageMasked.setTo(cv::Scalar(0, 0, 0), foregroundMask);
+            applyMask(image, foregroundMask, imageMasked);
         } else {
             image.copyTo(imageMasked);
         }
@@ -206,24 +216,15 @@ public:
             Mat combinedNormal = currentCombined / numImages;
             Mat stackedNormal = currentStacked / numImages;
             
-            Mat invertedMask;
-            cv::bitwise_not(foregroundMask, invertedMask);
-
             combinedNormal.convertTo(combinedNormal, CV_8UC3);
+            applyMask(combinedNormal, foregroundMask, combinedNormal);
+            
             stackedNormal.convertTo(stackedNormal, CV_8UC3);
-            
-            equalizeIntensity(combinedNormal, combinedNormal);
-            equalizeIntensity(stackedNormal, stackedNormal);
-            
-            combinedNormal.setTo(cv::Scalar(0, 0, 0), foregroundMask);
-            stackedNormal.setTo(cv::Scalar(0, 0, 0), invertedMask);
-            
+            applyMask(stackedNormal, 1 - foregroundMask, stackedNormal);
                   
             addWeighted(combinedNormal, 1, stackedNormal, 1, 0, image);
 
-            
-
-            
+            equalizeIntensity(image, image);
             //blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
         } else {
             Mat combinedNormal = currentCombined / numImages;
@@ -242,8 +243,7 @@ public:
         Mat imageMasked;
         if (!foregroundMask.empty()) {
             // Apply mask to image.
-            image.copyTo(imageMasked);
-            imageMasked.setTo(cv::Scalar(0, 0, 0), foregroundMask);
+            applyMask(image, foregroundMask, imageMasked);
         } else {
             image.copyTo(imageMasked);
         }
@@ -271,7 +271,8 @@ public:
             matchStarsSimple(lastStars, stars, matches);
         }
          */
-        matcher->matchStars(stars, matches);
+        Mat featureVis = Mat::zeros(imageMasked.rows, imageMasked.cols, CV_8UC1);
+        matcher->matchStars(stars, matches, featureVis);
 
 
         // Extract the star centers from the matches
@@ -313,7 +314,6 @@ public:
          */
         if (visualiseTrackingPoints) {
             std::vector<cv::Mat> channels(3);
-            Mat featureVis = Mat::zeros(imageMasked.rows, imageMasked.cols, CV_8UC1);
             channels.at(0) = contours;
             channels.at(1) = featureVis;
             channels.at(2) = featureVis;

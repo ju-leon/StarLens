@@ -27,7 +27,15 @@ struct Constellation {
     int index;
     Point3f distances;
 
-    Constellation(int index, const Point3f &distances) : index(index), distances(distances) {
+    Point2i base;
+    Point2i left;
+    Point2i right;
+
+    Constellation(int index, const Point3f &distances) : index(index), distances(distances), base(0, 0), left(0, 0), right(0, 0) {
+    }
+
+    Constellation(int index, const Point3f &distances, const Point2i &base, const Point2i &left, const Point2i &right) :
+            index(index), distances(distances), base(base), left(left), right(right) {
     }
 
     /*
@@ -59,7 +67,7 @@ private:
             features.push_back(row);
         }
 
-        cv::flann::GenericIndex<cv::flann::L2<float>> starTree(features, cvflann::AutotunedIndexParams(),cv::flann::L2<float>());
+        cv::flann::GenericIndex<cv::flann::L2<float>> starTree(features, cvflann::KDTreeIndexParams(),cv::flann::L2<float>());
 
         // Reserve space for constellations using Gauss formula
         int numberOfTriangles = (int) (stars.size() * stars.size());
@@ -103,7 +111,7 @@ private:
                     longDistance = sqrt(longDistance);
 
                     // Add the constellation to the list
-                    constellations.push_back(Constellation(i, Point3f(shortDistance, longDistance, dist)));
+                    constellations.push_back(Constellation(i, Point3f(shortDistance, longDistance, dist), stars[i], stars[indices[j]], stars[indices[k]]));
                 }
             }
         }
@@ -112,7 +120,7 @@ private:
 
 public:
     StarMatcher(vector<Point2i> &stars) {
-        generateConstellations(stars, baseConstellations, 5);
+        generateConstellations(stars, baseConstellations, 7);
 
         cv::Mat_<float> features(0, 3);
         for (auto &constellation: baseConstellations) {
@@ -124,9 +132,9 @@ public:
 
     }
 
-    void matchStars(vector<Point2i> &stars, vector<DMatch> &matches) {
+    void matchStars(vector<Point2i> &stars, vector<DMatch> &matches, Mat &constellationVis) {
         vector<Constellation> constellations;
-        generateConstellations(stars, constellations, 3);
+        generateConstellations(stars, constellations, 5);
 
         for (auto &constellation: constellations) {
             // Query the closest base constellation for every new constellation
@@ -141,6 +149,11 @@ public:
             // Add the match to the list if the distance is smaller than the threshold
             if (dists[0] < constellation.length() * MAX_DISTANCE_THRESHOLD) {
                 matches.push_back(DMatch(baseConstellations[indices[0]].index, constellation.index, dists[0]));
+
+                // Draw the constellation
+                line(constellationVis, constellation.base, constellation.left, Scalar(255, 0, 255), 1);
+                line(constellationVis, constellation.base, constellation.right, Scalar(255, 0, 255), 1);
+                line(constellationVis, constellation.left, constellation.right, Scalar(255, 0, 255), 1);
             }
 
         }

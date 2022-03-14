@@ -31,7 +31,7 @@ unique_ptr<ImageMerger> merger;
         if ([image isKindOfClass:[UIImage class]]) {
             UIImage *rotatedImage = [image rotateToImageOrientation];
             Mat cvImage = [rotatedImage CVMat3];
-            
+
             Mat cvMask;
             if (mask != nil && [mask isKindOfClass:[UIImage class]]) {
                 UIImage *rotatedMask = [mask rotateToImageOrientation];

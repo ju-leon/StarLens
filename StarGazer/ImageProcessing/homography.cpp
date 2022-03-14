@@ -54,10 +54,11 @@ void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     erode(mask, mask, element);
     
     // Invert the mask
-    threshold(mask, mask, 0, 255, cv::THRESH_BINARY_INV);
+    threshold(mask, mask, 0, 1, cv::THRESH_BINARY);
     
+    mask.convertTo(mask, CV_32F);
     
-    //GaussianBlur(mask, mask, cv::Size(25, 25), 0);
+    GaussianBlur(mask, mask, cv::Size(25, 25), 0);
 }
 
 void pointsToMat(std::vector<cv::Point2i> &points, cv::Mat &mat) {
