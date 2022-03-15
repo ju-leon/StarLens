@@ -342,7 +342,7 @@ struct ActionOptionsBar: View {
 
             Spacer()
 
-            if (model.isProcessed) {
+            if (false) {
                 Button(action: {
                     withAnimation {
                         model.toggleEditMode()

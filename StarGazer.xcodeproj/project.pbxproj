@@ -291,12 +291,12 @@
 				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
 				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
 				05C65CE427CC0E96001ADE0F /* UserOptions.swift */,
+				3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */,
 				3B2A07B712EAB45B4304C926 /* Views */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
 				051F0A8B276FC0C60015C507 /* Info.plist */,
 				05B9B8C1276BDBB100FF442F /* Preview Content */,
 				3B2A085D1DE3B259F9C0B6F3 /* MLModels */,
-				3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */,
 			);
 			path = StarGazer;
 			sourceTree = "<group>";
@@ -521,10 +521,10 @@
 			);
 			mainGroup = 05B9B8AF276BDBAF00FF442F;
 			packageReferences = (
-				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */,
+				0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */,
 				055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */,
-				054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */,
-				05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */,
+				054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */,
+				05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -1048,7 +1048,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCRemoteSwiftPackageReference section */
-		0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */ = {
+		0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/airbnb/lottie-ios.git";
 			requirement = {
@@ -1056,7 +1056,7 @@
 				minimumVersion = 3.0.0;
 			};
 		};
-		054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */ = {
+		054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/elai950/AlertToast.git";
 			requirement = {
@@ -1072,7 +1072,7 @@
 				minimumVersion = 1.0.0;
 			};
 		};
-		05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */ = {
+		05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Pyroh/SlidingRuler.git";
 			requirement = {
@@ -1085,12 +1085,12 @@
 /* Begin XCSwiftPackageProductDependency section */
 		0510811927BEE06100A50129 /* Lottie */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios.git" */;
+			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
 		054763F027CA2B2E00D15B25 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast.git" */;
+			package = 054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */;
 			productName = AlertToast;
 		};
 		055F7D2427C4418000D2AE59 /* ModalView */ = {
@@ -1100,7 +1100,7 @@
 		};
 		05D9F46527DBF4A3005A219A /* SlidingRuler */ = {
 			isa = XCSwiftPackageProductDependency;
-			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler.git" */;
+			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */;
 			productName = SlidingRuler;
 		};
 /* End XCSwiftPackageProductDependency section */

@@ -165,8 +165,8 @@ public class PhotoStack {
                  Make sure the image is rotated upright
                  */
                 
-                let rotatedImage = UIImage(cgImage: image.cgImage!, scale: 1.0, orientation: self.orientation)
-                let maskImage = ImageSegementation.segementImage(image: rotatedImage)
+                //let rotatedImage = UIImage(cgImage: image.cgImage!, scale: 1.0, orientation: self.orientation)
+                let maskImage = ImageSegementation.segementImage(image: image)
 
                 autoreleasepool {
                     if self.maskEnabled {

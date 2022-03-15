@@ -183,16 +183,20 @@ public:
         }
     }
 
+    /**
+     Applies CLAHE to all channels.
+     @param inputImage 3-channel 8U Mat with RGB channel ordering
+     */
     void equalizeIntensity(const Mat& inputImage, Mat &outputImage)
     {
         Mat ycrcb;
 
         cvtColor(inputImage,ycrcb,COLOR_RGB2Lab);
-
+        
         vector<Mat> channels;
         split(ycrcb,channels);
 
-        auto clahe = createCLAHE(2.0, cv::Size(8,8));
+        auto clahe = createCLAHE(1.5, cv::Size(8,8));
         
         clahe->apply(channels[0], channels[0]);
         
@@ -205,6 +209,7 @@ public:
         merge(channels,ycrcb);
 
         cvtColor(ycrcb,outputImage,COLOR_Lab2RGB);
+
     }
     
 
@@ -225,6 +230,7 @@ public:
             addWeighted(combinedNormal, 1, stackedNormal, 1, 0, image);
 
             equalizeIntensity(image, image);
+            
             //blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
         } else {
             Mat combinedNormal = currentCombined / numImages;
@@ -305,9 +311,12 @@ public:
         // Append to the current total homography
         totalHomography = totalHomography * h;
 
+        // Before warping the image, apply single frame image processing
+        //equalizeIntensity(image, image);
+        
         // Use homography to warp image
         Mat alignedImage;
-        warpPerspective(image, alignedImage, h, imageMasked.size());
+        warpPerspective(image, alignedImage, h, imageMasked.size(), INTER_LINEAR, BORDER_REPLICATE);
         
         /**
          Create a visulaisation of the current tracking points if requested
@@ -321,8 +330,7 @@ public:
             cv::merge(channels, starContours);
             //warpPerspective(starContours, starContours, h, featureVis.size());
         }
-        
-        
+                
         max(currentMaxed, alignedImage, currentMaxed);
 
         // Add image to the current stacks
