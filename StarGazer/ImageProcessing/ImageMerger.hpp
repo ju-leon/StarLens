@@ -38,12 +38,12 @@ private:
     /**
      * Number of stars required in the first image to start matching
      */
-    const int MIN_STARS_PER_IMAGE = 10;
+    const int MIN_STARS_PER_IMAGE = 7;
 
     /**
      * Minimum stars matched in a new image to be added to the stack
      */
-    const int MIN_MATCHED_STARS =  6;
+    const int MIN_MATCHED_STARS =  5;
 
     /**
      * Threshold user which brute force matcher will be used.
