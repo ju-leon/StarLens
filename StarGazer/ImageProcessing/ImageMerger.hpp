@@ -35,8 +35,15 @@ struct MergingException : public exception {
 
 class ImageMerger {
 private:
-    const int MIN_STARS_PER_IMAGE = 5;
-    const int MIN_MATCHED_STARS = 5;
+    /**
+     * Number of stars required in the first image to start matching
+     */
+    const int MIN_STARS_PER_IMAGE = 10;
+
+    /**
+     * Minimum stars matched in a new image to be added to the stack
+     */
+    const int MIN_MATCHED_STARS =  6;
 
     /**
      * Threshold user which brute force matcher will be used.
@@ -298,7 +305,7 @@ public:
         std::cout << "Found " << matched_points1.size() << " points to match" << std::endl;
 
         // Find homography
-        auto h = findHomography(matched_points2, matched_points1, RANSAC);
+        auto h = findHomography(matched_points2, matched_points1, RANSAC, 3, noArray(), 2000, 0.995);
 
         // If no homography was found, return
         if (h.empty()) {

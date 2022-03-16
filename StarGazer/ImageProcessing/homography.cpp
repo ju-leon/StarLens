@@ -40,12 +40,17 @@ const int MIN_STARS_REQUIRED = 10;
 /**
  Maximum number of stars allowed  to start a star detection.
  */
-const int MAX_STARS_ALLOWED = 300;
+const int MAX_STARS_ALLOWED = 500;
 
 /**
  * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
  */
 const int GAUSSIAN_FILTER_SIZE = 15;
+
+/**
+ * Kernel size of the box filter applied before estimating the light pollution.
+ */
+const int LIGHT_POLLUTION_FILTER_SIZE = 151;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     mask = segmentation;
@@ -227,11 +232,17 @@ Returns a suggestion for a new threshold value. This helps to adapt to changing 
  
  */
 float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i> &starCenters) {
-    Mat imGray;
+    Mat imGray, lightPollution;
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
     
     // Blur the image first to be less sensitive to noise
-    GaussianBlur( imGray, imGray, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_DEFAULT );
+    GaussianBlur( imGray, imGray, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_REPLICATE);
+
+    //Estimate light pollution from image
+    cv::blur(imGray, lightPollution, Size(LIGHT_POLLUTION_FILTER_SIZE,LIGHT_POLLUTION_FILTER_SIZE), cv::Point(-1,-1), BORDER_REPLICATE);
+
+    // Subtract light pollution from image
+    cv::subtract(imGray, lightPollution, imGray);
 
     // Detect the stars using a Laplacian
     Mat laplacian;
@@ -256,7 +267,7 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
             continue;
         }
 
-        // Find the convex hull of the contour to determin contours that are invalid
+        // Find the convex hull of the contour to determine contours that are invalid
         auto area = cv::contourArea(contour);
         std::vector<Point> convexHull;
         cv::convexHull(contour, convexHull);
@@ -265,9 +276,11 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
         if (convexHullArea == 0) {
             continue;
         }
-        
+
+        float ratio = area / convexHullArea;
+
         // Only select stars over a certain size
-        if (area > MIN_AREA_THRESHOLD && area < MAX_AREA_THRESHOLD) {
+        if (ratio > ROUNDNESS_THRESHOLD && area > MIN_AREA_THRESHOLD && area < MAX_AREA_THRESHOLD) {
             Moments moment = cv::moments(contour);
             
             if (moment.m00 != 0) {
