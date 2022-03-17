@@ -62,7 +62,7 @@ private:
      Generate constellations betweem stars.
      @param maxTriagles Specifies the number of nearest neigbors considered for every star for constellation generation
      */
-    void generateConstellations(vector<Point2i> &stars, vector<Constellation> &constellations, int knn = 10) {
+    void generateConstellations(vector<Point2i> &stars, vector<Constellation> &constellations, int knn) {
         auto maxTriangles = knn < stars.size() ? knn : stars.size();
         /*
          Convert list of stars to features that can be passed to KNN Searcher
@@ -93,8 +93,8 @@ private:
             std::vector<float> query;
             query.push_back(stars[i].x);
             query.push_back(stars[i].y);
-            std::vector<int> indices(maxTriangles);
-            std::vector<float> dists(maxTriangles);
+            std::vector<int> indices(maxTriangles + 1);
+            std::vector<float> dists(maxTriangles + 1);
             starTree.knnSearch(query, indices, dists, maxTriangles, cvflann::SearchParams());
 
             // Calculate distances between every pair of points
@@ -142,6 +142,7 @@ public:
 
     void matchStars(vector<Point2i> &stars, vector<DMatch> &matches, Mat &constellationVis) {
         vector<Constellation> constellations;
+        std::cout << "Generating consts" << std::endl;
         generateConstellations(stars, constellations, 5);
 
         for (auto &constellation: constellations) {
@@ -150,8 +151,8 @@ public:
             query.push_back(constellation.distances.x);
             query.push_back(constellation.distances.y);
             query.push_back(constellation.distances.z);
-            std::vector<int> indices(1);
-            std::vector<float> dists(1);
+            std::vector<int> indices(2);
+            std::vector<float> dists(2);
             constellationTree->knnSearch(query, indices, dists, 1, cvflann::SearchParams());
 
             // Add the match to the list if the distance is smaller than the threshold
