@@ -60,10 +60,14 @@ private:
 
     /**
      Generate constellations betweem stars.
-     @param maxTriagles Specifies the number of nearest neigbors considered for every star for constellation generation
      */
     void generateConstellations(vector<Point2i> &stars, vector<Constellation> &constellations, int knn) {
-        auto maxTriangles = knn < stars.size() ? knn : stars.size();
+        // Make sure to not query more neighbors than there are stars...
+        auto maxTriangles = stars.size() < knn ? stars.size() : knn;
+        maxTriangles -= 1;
+        
+        std::cout << "Max triangles: "  << maxTriangles << std::endl;
+        
         /*
          Convert list of stars to features that can be passed to KNN Searcher
          */
@@ -93,14 +97,14 @@ private:
             std::vector<float> query;
             query.push_back(stars[i].x);
             query.push_back(stars[i].y);
-            std::vector<int> indices(maxTriangles + 1);
-            std::vector<float> dists(maxTriangles + 1);
+            std::vector<int> indices(maxTriangles);
+            std::vector<float> dists(maxTriangles);
             starTree.knnSearch(query, indices, dists, maxTriangles, cvflann::SearchParams());
 
             // Calculate distances between every pair of points
             // The "closest" point will always be the point we're querying from, so we skip it (start from 1)
-            for (int j = 1; j < indices.size(); j++) {
-                for (int k = j + 1; k < indices.size(); k++) {
+            for (int j = 1; j < maxTriangles && j < indices.size(); j++) {
+                for (int k = j + 1; k < maxTriangles && k < indices.size(); k++) {
                     // Should never happen...
                     if (indices[j] == indices[k]) {
                         continue;
@@ -136,14 +140,14 @@ public:
                     << constellation.distances.x, constellation.distances.y, constellation.distances.z);
             features.push_back(row);
         }
-        constellationTree = std::make_unique<cv::flann::GenericIndex<cv::flann::L2_Simple<float>>>(features, cvflann::KDTreeIndexParams());
+        constellationTree = std::make_unique<cv::flann::GenericIndex<cv::flann::L2_Simple<float>>>(features, cvflann::LinearIndexParams());
 
     }
 
     void matchStars(vector<Point2i> &stars, vector<DMatch> &matches, Mat &constellationVis) {
         vector<Constellation> constellations;
         std::cout << "Generating consts" << std::endl;
-        generateConstellations(stars, constellations, 5);
+        generateConstellations(stars, constellations, 6);
 
         for (auto &constellation: constellations) {
             // Query the closest base constellation for every new constellation
