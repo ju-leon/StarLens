@@ -19,13 +19,13 @@ const float ROUNDNESS_THRESHOLD = 0.8;
 /**
  Minimum area required to be counted as a star.
  */
-const int MIN_AREA_THRESHOLD = 5;
+const int MIN_AREA_THRESHOLD = 1;
 
 /**
  Maximum area to be counted as a star.
  Prevent clouds from being counted as stars.
  */
-const int MAX_AREA_THRESHOLD = 1000;
+const int MAX_AREA_THRESHOLD = 200;
 
 /**
  Maxmium distance allowed to match 2 stars.
@@ -40,12 +40,12 @@ const int MIN_STARS_REQUIRED = 10;
 /**
  Maximum number of stars allowed  to start a star detection.
  */
-const int MAX_STARS_ALLOWED = 500;
+const int MAX_STARS_ALLOWED = 100;
 
 /**
  * Kernel size of the gaussian filter applied before a laplacian transform to find star centers.
  */
-const int GAUSSIAN_FILTER_SIZE = 7;
+const int GAUSSIAN_FILTER_SIZE = 3;
 
 /**
  * Kernel size of the box filter applied before estimating the light pollution.
@@ -54,15 +54,15 @@ const int LIGHT_POLLUTION_FILTER_SIZE = 251;
 
 void createTrackingMask(cv::Mat &segmentation, cv::Mat &mask) {
     mask = segmentation;
-    
+
     Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(4, 4), cv::Point(2, 2));
     erode(mask, mask, element);
-    
+
     // Invert the mask
     threshold(mask, mask, 0, 1, cv::THRESH_BINARY);
-    
+
     mask.convertTo(mask, CV_32F);
-    
+
     GaussianBlur(mask, mask, cv::Size(25, 25), 0);
 }
 
@@ -170,7 +170,7 @@ void matchStarsSimple(std::vector<cv::Point2i> &points1,
         if (minDistance < DISTANCE_THRESHOLD) {
             matchesForward[index1] = minIndex;
             matchesBackward[minIndex] = index1;
-        } 
+        }
     }
 
     /**
@@ -194,39 +194,35 @@ float getThreshold(Mat &img) {
     /**
      * Only give 100 tries, abort if no threshold could be found
      */
-    float threshold = -200;
+    float threshold = 127;
+    
+    float currentLower = 0;
+    float currentHigher = 255;
+    
     int i = 0;
-    while (i++ < 30) {
+    while (i++ < 100) {
         // Compute the stars in the current image
-        vector<Point2i> stars;
+        vector <Point2i> stars;
         Mat contour;
         getStarCenters(img, threshold, contour, stars);
 
         std::cout << "Found " << stars.size() << " stars with threshold " << threshold << std::endl;
+        
         if (stars.size() > MAX_STARS_ALLOWED) {
-            int starsToMany = double(MAX_STARS_ALLOWED - stars.size()) / MAX_STARS_ALLOWED;
-            std::cout << "Too many stars: " << stars.size() << " stars, " << starsToMany << " stars to many" << std::endl;
-            // To many contours, lower threshold
-            // All values we're interested in are negative -> *1.5 gives a lower value
-            threshold = threshold - (30 * starsToMany);
+            currentLower = threshold;
+            threshold = (currentLower + currentHigher) / 2.0;
         } else if (stars.size() < MIN_STARS_REQUIRED) {
-            double starsMissing = double(MIN_STARS_REQUIRED - stars.size()) / MIN_STARS_REQUIRED;
-            std::cout << "Stars missing: " << starsMissing << std::endl;
-            // To little contours, increase threshold
-            threshold = threshold + (30 * starsMissing);
-
-
+            currentHigher = threshold;
+            threshold = (currentLower + currentHigher) / 2.0;
         } else {
             return threshold;
         }
-
-        std::cout << "Threshold: " << threshold << std::endl;
-
         
+
         // Check if the threshold is still within an allowed range. If not, no star recognition is possible.
-        if (threshold >= 0 || threshold < -2000) {
-            return std::numeric_limits<float>::infinity();
-        }
+        //if (threshold >= 0 || threshold < -2000) {
+        //    return std::numeric_limits<float>::infinity();
+        //}
     }
     return numeric_limits<float>::infinity();
 }
@@ -240,38 +236,38 @@ After a Laplacian is applied, the iamge is thesholded and stars are detected usi
 Returns a suggestion for a new threshold value. This helps to adapt to changing ligting conditions.
  
  */
-float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i> &starCenters) {
+float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector <Point2i> &starCenters) {
     Mat imGray, lightPollution;
     cvtColor(image, imGray, cv::COLOR_BGR2GRAY);
-    
+
     // Blur the image first to be less sensitive to noise
-    GaussianBlur( imGray, imGray, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_REPLICATE);
+    GaussianBlur(imGray, imGray, Size(GAUSSIAN_FILTER_SIZE, GAUSSIAN_FILTER_SIZE), 0, 0, BORDER_REPLICATE);
 
     //Estimate light pollution from image
-    cv::blur(imGray, lightPollution, Size(LIGHT_POLLUTION_FILTER_SIZE,LIGHT_POLLUTION_FILTER_SIZE), cv::Point(-1,-1), BORDER_REPLICATE);
+    cv::blur(imGray, lightPollution, Size(LIGHT_POLLUTION_FILTER_SIZE, LIGHT_POLLUTION_FILTER_SIZE), cv::Point(-1, -1), BORDER_REPLICATE);
 
     // Subtract light pollution from image
     cv::subtract(imGray, lightPollution, imGray);
 
     // Detect the stars using a Laplacian
-    Mat laplacian;
-    int kernel_size = 3;
-    int scale = 1;
-    int delta = 0;
-    Laplacian( imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_REPLICATE);
+    //Mat laplacian;
+    //int kernel_size = 3;
+    //int scale = 1;
+    //int delta = 0;
+    //Laplacian(imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_REPLICATE);
 
     // Only count stars that fall under the determined threshold
-    cv::threshold(laplacian, threshMat, threshold, 255, cv::THRESH_BINARY_INV);
+    cv::threshold(imGray, threshMat, threshold, 255, cv::THRESH_BINARY);
     threshMat.convertTo(threshMat, CV_8UC1);
 
     // Detect contour in the filtered features
-    vector<vector<Point> > contours;
-    vector<Vec4i> hierarchy;
+    vector <vector<Point>> contours;
+    vector <Vec4i> hierarchy;
     cv::findContours(threshMat, contours, hierarchy, RETR_LIST, CHAIN_APPROX_SIMPLE);
-    
+
 
     // Find the center point in every contour
-    for (vector<Point> contour : contours) {
+    for (vector <Point> contour: contours) {
         if (contour.size() < 2) {
             continue;
         }
@@ -281,7 +277,7 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
         std::vector<Point> convexHull;
         cv::convexHull(contour, convexHull);
         auto convexHullArea = cv::contourArea(convexHull);
-        
+
         if (convexHullArea == 0) {
             continue;
         }
@@ -291,7 +287,7 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
         // Only select stars over a certain size
         if (ratio > ROUNDNESS_THRESHOLD && area > MIN_AREA_THRESHOLD && area < MAX_AREA_THRESHOLD) {
             Moments moment = cv::moments(contour);
-            
+
             if (moment.m00 != 0) {
                 int cX = moment.m10 / moment.m00;
                 int cY = moment.m01 / moment.m00;
@@ -299,22 +295,22 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector<Point2i
             }
         }
     }
-    
+
     std::cout << "Detected " << starCenters.size() << " star centers" << std::endl;
-    
+
     // Continously adapt threshold to account for changes in lighting if neccesary.
     if (starCenters.size() > MAX_STARS_ALLOWED) {
         // To many contours, lower threshold
         // All values we're interested in are negative -> *1.1 gives a lower value
         threshold = threshold * 1.01;
-        std::cout << "Threshold too high, lowering to " << threshold << std::endl;
+        //std::cout << "Threshold too high, lowering to " << threshold << std::endl;
     } else if (starCenters.size() < MIN_STARS_REQUIRED) {
         // To little contours, increase threshold
         threshold = threshold * 0.99;
-        std::cout << "Threshold too low, raising to " << threshold << std::endl;
+        //std::cout << "Threshold too low, raising to " << threshold << std::endl;
     }
-    
-    
+
+
     return threshold;
-    
+
 }

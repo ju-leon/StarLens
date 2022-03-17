@@ -51,7 +51,7 @@ public class PhotoStack {
     private var captureProject: Project
 
     private var initAttempts: Int = 0
-    private var MAX_INIT_ATTEMPTS: Int = 3
+    private var MAX_INIT_ATTEMPTS: Int = 1
 
     private var numImages = 0
 

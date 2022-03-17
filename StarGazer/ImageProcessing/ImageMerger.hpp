@@ -36,9 +36,9 @@ struct MergingException : public exception {
 class ImageMerger {
 private:
     /**
-     * Number of stars required in the first image to start matching
+     * Number of stars required in an image to start matching
      */
-    const int MIN_STARS_PER_IMAGE = 7;
+    const int MIN_STARS_PER_IMAGE = 5;
 
     /**
      * Minimum stars matched in a new image to be added to the stack
@@ -95,7 +95,12 @@ private:
      Mat containing the stars if visualiseTrackingPoints is enabled
      */
     Mat starContours;
-
+    
+    /**
+    Determinat used to continously monitor stacking. Determinat should only change slightly between frames.
+     */
+    double currentDeterminant = 1.0;
+    
     /**
      Matcher used to align new images.
      Needs to be intialized at the beginning of the process.
@@ -315,6 +320,18 @@ public:
             return false;
         }
 
+        // Homogrpahies should always (almost) perserve the size of an image -> det around 1
+        auto ratio = cv::determinant(h) / currentDeterminant;
+        std::cout << "Determinat ratio: " << ratio << std::endl;
+        
+        if (ratio < 0.9 || ratio > 1.1) {
+            std::cout << "Homography scale invalid" << std::endl;
+            numFailed++;
+            getPreview(preview);
+            return false;
+        }
+        currentDeterminant = cv::determinant(h);
+        
         // Append to the current total homography
         totalHomography = totalHomography * h;
 

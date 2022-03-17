@@ -23,6 +23,12 @@ using namespace std;
  */
 const float MAX_DISTANCE_THRESHOLD = 0.01;
 
+/**
+ * Min size a triangle needs to be to be counted as a feature.
+ * Prevents to close stars that cannot prvide accurate alignment from being matched.
+ */
+const float MIN_TRINAGLE_SIZE = 100;
+
 struct Constellation {
     int index;
     Point3f distances;
@@ -89,7 +95,7 @@ private:
             query.push_back(stars[i].y);
             std::vector<int> indices(maxTriangles);
             std::vector<float> dists(maxTriangles);
-            starTree.knnSearch(query, indices, dists, maxTriangles, cvflann::SearchParams(128));
+            starTree.knnSearch(query, indices, dists, maxTriangles, cvflann::SearchParams());
 
             // Calculate distances between every pair of points
             // The "closest" point will always be the point we're querying from, so we skip it (start from 1)
@@ -110,8 +116,10 @@ private:
                     shortDistance = sqrt(shortDistance);
                     longDistance = sqrt(longDistance);
 
-                    // Add the constellation to the list
-                    constellations.push_back(Constellation(i, Point3f(shortDistance, longDistance, dist), stars[i], stars[indices[j]], stars[indices[k]]));
+                    // Add the constellation to the list if the legth requirtent is met
+                    if (dist + longDistance + shortDistance > MIN_TRINAGLE_SIZE) {
+                        constellations.push_back(Constellation(i, Point3f(shortDistance, longDistance, dist), stars[i], stars[indices[j]], stars[indices[k]]));
+                    }
                 }
             }
         }
@@ -120,7 +128,7 @@ private:
 
 public:
     StarMatcher(vector<Point2i> &stars) {
-        generateConstellations(stars, baseConstellations, 7);
+        generateConstellations(stars, baseConstellations, stars.size());
 
         cv::Mat_<float> features(0, 3);
         for (auto &constellation: baseConstellations) {
