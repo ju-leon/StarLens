@@ -17,7 +17,7 @@
 #include "StarMatcher.hpp"
 #include "SaveBinaryCV.hpp"
 #include "blend.hpp"
-
+#include "enhance.hpp"
 
 using namespace std;
 using namespace cv;
@@ -106,17 +106,6 @@ private:
      Needs to be intialized at the beginning of the process.
      */
     std::unique_ptr<StarMatcher> matcher;
-    
-    void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage) {
-        vector<Mat> channels;
-        split(inputImage,channels);
-        
-        cv::multiply(channels[0], mask, channels[0], 1.0, CV_8U);
-        cv::multiply(channels[1], mask, channels[1], 1.0, CV_8U);
-        cv::multiply(channels[2], mask, channels[2], 1.0, CV_8U);
-
-        merge(channels, outputImage);
-    }
 
 public:
     /**
@@ -193,37 +182,7 @@ public:
                 addWeighted(previewImage, 0.5, starContours, 5, 0.0, previewImage);
             }
         }
-    }
-
-    /**
-     Applies CLAHE to all channels.
-     @param inputImage 3-channel 8U Mat with RGB channel ordering
-     */
-    void equalizeIntensity(const Mat& inputImage, Mat &outputImage)
-    {
-        Mat ycrcb;
-
-        cvtColor(inputImage,ycrcb,COLOR_RGB2Lab);
-        
-        vector<Mat> channels;
-        split(ycrcb,channels);
-
-        auto clahe = createCLAHE(1.5, cv::Size(8,8));
-        
-        clahe->apply(channels[0], channels[0]);
-        
-        clahe->setClipLimit(0.5);
-        
-        clahe->apply(channels[1], channels[1]);
-        clahe->apply(channels[2], channels[2]);
-
-        Mat result;
-        merge(channels,ycrcb);
-
-        cvtColor(ycrcb,outputImage,COLOR_Lab2RGB);
-
-    }
-    
+    } 
 
     /**
      * Returns the processed image.
@@ -241,7 +200,7 @@ public:
                   
             addWeighted(combinedNormal, 1, stackedNormal, 1, 0, image);
 
-            equalizeIntensity(image, image);
+            autoEnhance(image, image);
             
             //blendMasked(combinedNormal, stackedNormal, foregroundMask, image);
         } else {

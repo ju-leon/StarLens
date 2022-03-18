@@ -353,13 +353,13 @@
 			children = (
 				05EE7B5127E51BFB0047EF8F /* Export */,
 				05DE2259277DB51F007A90DE /* Extensions */,
+				05EE7B5027E51BB90047EF8F /* Alignment */,
+				05EE7B5227E51C110047EF8F /* Enhancement */,
 				05DE2242277D08C6007A90DE /* OpenCVStacker.h */,
 				05DE2243277D08C6007A90DE /* OpenCVStacker.mm */,
 				05752DF227A5E6E6004B5461 /* ImageMerger.hpp */,
 				05BE420727AF1EDD00F45670 /* ImageEditor.h */,
 				05BE420627AF1EDD00F45670 /* ImageEditor.mm */,
-				05EE7B5027E51BB90047EF8F /* Alignment */,
-				05EE7B5227E51C110047EF8F /* Enhancement */,
 				05DE224F277D12F5007A90DE /* PrefixHeader.pch */,
 				05DE2245277D08FB007A90DE /* StarGazer-Bridging-Header.h */,
 			);
@@ -380,9 +380,9 @@
 		05EE7B5027E51BB90047EF8F /* Alignment */ = {
 			isa = PBXGroup;
 			children = (
+				05D9F45F27DBE611005A219A /* StarMatcher.hpp */,
 				05DE225E277DB711007A90DE /* homography.hpp */,
 				05DE225D277DB711007A90DE /* homography.cpp */,
-				05D9F45F27DBE611005A219A /* StarMatcher.hpp */,
 			);
 			path = Alignment;
 			sourceTree = "<group>";
@@ -390,8 +390,8 @@
 		05EE7B5127E51BFB0047EF8F /* Export */ = {
 			isa = PBXGroup;
 			children = (
-				058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */,
 				058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */,
+				058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */,
 			);
 			path = Export;
 			sourceTree = "<group>";
@@ -401,8 +401,8 @@
 			children = (
 				05D4507E279378BF008DB81E /* blend.hpp */,
 				05D4507D279378BF008DB81E /* blend.cpp */,
-				05EE7B4D27E51BB50047EF8F /* enhance.cpp */,
 				05EE7B4E27E51BB50047EF8F /* enhance.hpp */,
+				05EE7B4D27E51BB50047EF8F /* enhance.cpp */,
 				05DE2264277E3E3A007A90DE /* hdrmerge.hpp */,
 				05DE2263277E3E3A007A90DE /* hdrmerge.cpp */,
 			);

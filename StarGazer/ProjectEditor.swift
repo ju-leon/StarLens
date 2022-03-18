@@ -29,17 +29,17 @@ enum EditOption : CaseIterable {
 
     
     case starPop
-    case contrast
-    case brightness
+    case lightPollution
+    case noiseReduction
     
     var instance: Instance {
         switch self {
         case .starPop:
             return Instance(identifier: "STAR_POP", icon: "moon.stars.fill", defaultValue: 0.0)
-        case .contrast:
-            return Instance(identifier: "CONTRAST", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.0)
-        case .brightness:
-            return Instance(identifier: "BRIGHTNESS", icon: "circle.lefthalf.filled", defaultValue: 1.0)
+        case .noiseReduction:
+            return Instance(identifier: "NOISE_REDUCTION", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.0)
+        case .lightPollution:
+            return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0)
         }
     }
 }
@@ -80,9 +80,9 @@ class ProjectEditor {
             if self.imageEditor != nil {
                 while (self.updatePreview) {
                     autoreleasepool {
-                        self.imageEditor!.setContrast(self.editOptions[.contrast] as! Double)
                         self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
-                        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
+                        self.imageEditor!.setNoiseReduction(self.editOptions[.noiseReduction] as! Double)
+                        self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
                         resultCallback(self.imageEditor!.getFilteredImagePreview())
                     }
                 }

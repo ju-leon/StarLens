@@ -43,16 +43,15 @@ void blendHardLight(Mat im1, Mat im2, Mat out) {
 }
 
 /**
- Returns masked image as CV_UC3
+ Applies a mask to an image. Supports soft masks if mask is float in range [0-1].
  */
+void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage) {
+    vector<Mat> channels;
+    split(inputImage,channels);
+    
+    cv::multiply(channels[0], mask, channels[0], 1.0, CV_8U);
+    cv::multiply(channels[1], mask, channels[1], 1.0, CV_8U);
+    cv::multiply(channels[2], mask, channels[2], 1.0, CV_8U);
 
-void blendMasked(Mat &sky, Mat &foreground, Mat &mask, Mat &output) {
-    Mat skyMasked, foregroundMasked;
-    skyMasked = sky.mul(mask);
-    skyMasked.convertTo(skyMasked, CV_8UC3);
-    
-    foregroundMasked = foreground.mul(Mat(foreground.rows, foreground.cols, CV_32FC3, Scalar(1,1,1)) - mask);
-    foregroundMasked.convertTo(foregroundMasked, CV_8UC3);
-    
-    addWeighted(foregroundMasked, 1, skyMasked, 1, 0, output);
+    merge(channels, outputImage);
 }

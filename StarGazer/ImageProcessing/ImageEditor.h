@@ -39,8 +39,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 
 - (void) setStarPop: (double) factor;
-- (void) setBrightness: (double) factor;
-- (void) setContrast: (double) factor;
+- (void) setNoiseReduction: (double) factor;
+- (void) setLightPolReduction: (double) factor;
 
 - (UIImage *) getFilteredImagePreview;
 

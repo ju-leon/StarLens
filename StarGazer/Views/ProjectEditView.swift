@@ -225,14 +225,14 @@ struct EditOptionsBar: View {
                             sliderValue = model.projectEditor!.editOptions[.starPop] as! Double
                         })
 
-                        EditOptionButton(model: model, editMode: .brightness, onClick: {
-                            model.activeEditMode = .brightness
-                            sliderValue = model.projectEditor!.editOptions[.brightness] as! Double
+                        EditOptionButton(model: model, editMode: .lightPollution, onClick: {
+                            model.activeEditMode = .lightPollution
+                            sliderValue = model.projectEditor!.editOptions[.lightPollution] as! Double
                         })
 
-                        EditOptionButton(model: model, editMode: .contrast, onClick: {
-                            model.activeEditMode = .contrast
-                            sliderValue = model.projectEditor!.editOptions[.contrast] as! Double
+                        EditOptionButton(model: model, editMode: .noiseReduction, onClick: {
+                            model.activeEditMode = .noiseReduction
+                            sliderValue = model.projectEditor!.editOptions[.noiseReduction] as! Double
                         })
                     }
                 }
@@ -240,12 +240,12 @@ struct EditOptionsBar: View {
                                            set: {
                                                 self.sliderValue = $0
                                                 switch model.activeEditMode {
-                                                   case .brightness:
-                                                        model.projectEditor!.editOptions[.brightness] = $0
+                                                   case .noiseReduction:
+                                                        model.projectEditor!.editOptions[.noiseReduction] = $0
                                                    case .starPop:
                                                         model.projectEditor!.editOptions[.starPop] = $0
-                                                   case .contrast:
-                                                        model.projectEditor!.editOptions[.contrast] = $0
+                                                   case .lightPollution:
+                                                        model.projectEditor!.editOptions[.lightPollution] = $0
                                                 }})
                                             , in: sliderRange,
                                             step: 0.5,
@@ -342,7 +342,7 @@ struct ActionOptionsBar: View {
 
             Spacer()
 
-            if (false) {
+            if (model.isProcessed) {
                 Button(action: {
                     withAnimation {
                         model.toggleEditMode()
