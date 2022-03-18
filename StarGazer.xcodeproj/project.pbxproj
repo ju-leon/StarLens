@@ -53,7 +53,6 @@
 		05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2257277DB420007A90DE /* UIImageOpenCV.mm */; };
 		05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */ = {isa = PBXBuildFile; fileRef = 05DE225B277DB540007A90DE /* UIImageRotate.mm */; };
 		05DE225F277DB711007A90DE /* homography.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE225D277DB711007A90DE /* homography.cpp */; };
-		05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2260277DC3FC007A90DE /* foreground.cpp */; };
 		05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05DE2263277E3E3A007A90DE /* hdrmerge.cpp */; };
 		05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE226B2781CA20007A90DE /* UIKit.framework */; };
 		05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE226D2781CAC9007A90DE /* AVFoundation.framework */; };
@@ -61,6 +60,7 @@
 		05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22712781CAF1007A90DE /* CoreVideo.framework */; };
 		05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22732781CAFA007A90DE /* QuartzCore.framework */; };
 		05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE22752781CB0A007A90DE /* Foundation.framework */; };
+		05EE7B4F27E51BB50047EF8F /* enhance.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05EE7B4D27E51BB50047EF8F /* enhance.cpp */; };
 		3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0FE462ACA9CE3BBD2D62 /* StateControlView.swift */; };
 		3B2A03360DC479D2EB69D1CF /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0F6AA3500E160EEAF037 /* ContentView.swift */; };
 		3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0C84CD2D4803328C6E94 /* CameraPreview.swift */; };
@@ -148,8 +148,6 @@
 		05DE225B277DB540007A90DE /* UIImageRotate.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; path = UIImageRotate.mm; sourceTree = "<group>"; };
 		05DE225D277DB711007A90DE /* homography.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = homography.cpp; sourceTree = "<group>"; };
 		05DE225E277DB711007A90DE /* homography.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = homography.hpp; sourceTree = "<group>"; };
-		05DE2260277DC3FC007A90DE /* foreground.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = foreground.cpp; sourceTree = "<group>"; };
-		05DE2261277DC3FC007A90DE /* foreground.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = foreground.hpp; sourceTree = "<group>"; };
 		05DE2263277E3E3A007A90DE /* hdrmerge.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = hdrmerge.cpp; sourceTree = "<group>"; };
 		05DE2264277E3E3A007A90DE /* hdrmerge.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = hdrmerge.hpp; sourceTree = "<group>"; };
 		05DE226B2781CA20007A90DE /* UIKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = UIKit.framework; path = System/Library/Frameworks/UIKit.framework; sourceTree = SDKROOT; };
@@ -159,6 +157,8 @@
 		05DE22732781CAFA007A90DE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		05DE22752781CB0A007A90DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
 		05DE22772781CC3D007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
+		05EE7B4D27E51BB50047EF8F /* enhance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = enhance.cpp; sourceTree = "<group>"; };
+		05EE7B4E27E51BB50047EF8F /* enhance.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = enhance.hpp; sourceTree = "<group>"; };
 		2D82E9966AD2135A50A7F875 /* Pods-StarGazer.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer/Pods-StarGazer.debug.xcconfig"; sourceTree = "<group>"; };
 		3B2A01974F64B6F47AF2F12B /* CaptureView.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = CaptureView.swift; sourceTree = "<group>"; };
 		3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = DeviceOrientationManager.swift; sourceTree = "<group>"; };
@@ -351,25 +351,17 @@
 		05DE223C277D0799007A90DE /* ImageProcessing */ = {
 			isa = PBXGroup;
 			children = (
+				05EE7B5127E51BFB0047EF8F /* Export */,
 				05DE2259277DB51F007A90DE /* Extensions */,
 				05DE2242277D08C6007A90DE /* OpenCVStacker.h */,
 				05DE2243277D08C6007A90DE /* OpenCVStacker.mm */,
 				05752DF227A5E6E6004B5461 /* ImageMerger.hpp */,
-				05D9F45F27DBE611005A219A /* StarMatcher.hpp */,
-				05DE225E277DB711007A90DE /* homography.hpp */,
-				05DE225D277DB711007A90DE /* homography.cpp */,
-				05D4507E279378BF008DB81E /* blend.hpp */,
-				05D4507D279378BF008DB81E /* blend.cpp */,
-				05DE2261277DC3FC007A90DE /* foreground.hpp */,
-				05DE2260277DC3FC007A90DE /* foreground.cpp */,
-				05DE2264277E3E3A007A90DE /* hdrmerge.hpp */,
-				05DE2263277E3E3A007A90DE /* hdrmerge.cpp */,
-				05DE224F277D12F5007A90DE /* PrefixHeader.pch */,
-				05DE2245277D08FB007A90DE /* StarGazer-Bridging-Header.h */,
 				05BE420727AF1EDD00F45670 /* ImageEditor.h */,
 				05BE420627AF1EDD00F45670 /* ImageEditor.mm */,
-				058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */,
-				058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */,
+				05EE7B5027E51BB90047EF8F /* Alignment */,
+				05EE7B5227E51C110047EF8F /* Enhancement */,
+				05DE224F277D12F5007A90DE /* PrefixHeader.pch */,
+				05DE2245277D08FB007A90DE /* StarGazer-Bridging-Header.h */,
 			);
 			path = ImageProcessing;
 			sourceTree = "<group>";
@@ -383,6 +375,38 @@
 				05DE225B277DB540007A90DE /* UIImageRotate.mm */,
 			);
 			path = Extensions;
+			sourceTree = "<group>";
+		};
+		05EE7B5027E51BB90047EF8F /* Alignment */ = {
+			isa = PBXGroup;
+			children = (
+				05DE225E277DB711007A90DE /* homography.hpp */,
+				05DE225D277DB711007A90DE /* homography.cpp */,
+				05D9F45F27DBE611005A219A /* StarMatcher.hpp */,
+			);
+			path = Alignment;
+			sourceTree = "<group>";
+		};
+		05EE7B5127E51BFB0047EF8F /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */,
+				058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
+		05EE7B5227E51C110047EF8F /* Enhancement */ = {
+			isa = PBXGroup;
+			children = (
+				05D4507E279378BF008DB81E /* blend.hpp */,
+				05D4507D279378BF008DB81E /* blend.cpp */,
+				05EE7B4D27E51BB50047EF8F /* enhance.cpp */,
+				05EE7B4E27E51BB50047EF8F /* enhance.hpp */,
+				05DE2264277E3E3A007A90DE /* hdrmerge.hpp */,
+				05DE2263277E3E3A007A90DE /* hdrmerge.cpp */,
+			);
+			path = Enhancement;
 			sourceTree = "<group>";
 		};
 		3B2A07B712EAB45B4304C926 /* Views */ = {
@@ -649,7 +673,6 @@
 				05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */,
 				05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */,
 				05D338AB27A47A86008BB868 /* ProjectEditView.swift in Sources */,
-				05DE2262277DC3FC007A90DE /* foreground.cpp in Sources */,
 				05D4507F279378BF008DB81E /* blend.cpp in Sources */,
 				0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */,
 				05DE2265277E3E3B007A90DE /* hdrmerge.cpp in Sources */,
@@ -678,6 +701,7 @@
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 				3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */,
+				05EE7B4F27E51BB50047EF8F /* enhance.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
