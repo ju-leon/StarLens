@@ -300,74 +300,55 @@ struct CameraView: View {
 
     var captureView: some View {
         VStack {
+            
             if model.captureStatus != .capturing {
+                Spacer()
+                VStack {
+                    Spacer()
+                    ZStack(alignment: .bottom) {
+                        GeometryReader {
+                            geometry in
+                                CameraPreview(tappedCallback: { point in
+                                    model.tapToFocus(point, geometry.size)
+                                }, session: model.session)
+                                        .onAppear {
+                                            model.configure()
+                                        }
+                                        .alert(isPresented: $model.showAlertError, content: {
+                                            Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
+                                                model.alertError.primaryAction?()
+                                            }))
+                                        })
 
-                GeometryReader {
-                    geometry in
-                    VStack(alignment: .center) {
-                        Spacer()
-                        ZStack {
-                            CameraPreview(tappedCallback: { point in
-                                model.tapToFocus(point, geometry.size)
-                            }, session: model.session)
-                                    .onAppear {
-                                        model.configure()
-                                    }
-                                    .alert(isPresented: $model.showAlertError, content: {
-                                        Alert(title: Text(model.alertError.title), message: Text(model.alertError.message), dismissButton: .default(Text(model.alertError.primaryButtonTitle), action: {
-                                            model.alertError.primaryAction?()
-                                        }))
-                                    })
-
-                                    .overlay(
-                                            Group {
-                                                if model.willCapturePhoto {
-                                                    Color.black
+                                        .overlay(
+                                                Group {
+                                                    if model.willCapturePhoto {
+                                                        Color.black
+                                                    }
                                                 }
-                                            }
-                                    )
-                                    .animation(.easeInOut)
-                            VStack {
-                                Spacer()
-                                zoomSelector.padding()
-                                //TODO: Properly align
-                            }
-                            
+                                        )
+                                        .animation(.easeInOut)
                         }
-                        SegmentedPicker(focusValue: Binding(get: {self.model.focusDistance},
-                                                            set: {self.model.service.focusDistance = $0}),
-                                        onFocusChanged: {
-                                            (value) in
-                                            model.focusUpdate(value)
-                                        },
-                                        isoValue: Binding(get: {self.model.currentIso},
-                                                          set: {self.model.service.activeIso = $0}),
-                                        isoMin: Binding(get: {self.model.minIso}, set: {_ in}),
-                                        isoMax: Binding(get: {self.model.maxIso}, set: {_ in})
-                        )
-                        
-                        /*
-                        SlidingRuler(value:
-                                        Binding(get: {self.model.focusDistance},
-                                                set: {self.model.service.focusDistance = $0}),
-                                     in: 0...1,
-                                     step: 0.5,
-                                     tick: .fraction,
-                                     onEditingChanged: {
-                            (value) in
-                            
-                            model.focusUpdate(value)
-                            
-                        }).foregroundColor(.white).background(.black)
-                        */
-                        /*
-                        CameraOptionsBar()
-                        */
-                        Spacer()
+                        zoomSelector.padding()
                         
                     }
-
+                    Spacer()
                 }
+                
+                SegmentedPicker(focusValue: Binding(get: {self.model.focusDistance},
+                                                    set: {self.model.service.focusDistance = $0}),
+                                onFocusChanged: {
+                                    (value) in
+                                    model.focusUpdate(value)
+                                },
+                                isoValue: Binding(get: {self.model.currentIso},
+                                                  set: {self.model.service.activeIso = $0}),
+                                isoMin: Binding(get: {self.model.minIso}, set: {_ in}),
+                                isoMax: Binding(get: {self.model.maxIso}, set: {_ in})
+                )
+                Spacer(minLength: 20)
+                
+                
             } else {
                 Spacer()
                 HStack {
@@ -389,10 +370,6 @@ struct CameraView: View {
             }
 
             HStack {
-                //capturedPhotoThumbnail
-
-                //Spacer().frame(maxWidth: .infinity)
-
                 Button(action: {
                     withAnimation {
                         self.navigationModel.currentView = .projects

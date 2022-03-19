@@ -46,12 +46,10 @@ struct SizeAwareViewModifier: ViewModifier {
 
 struct SegmentedPicker: View {
     private static let ActiveSegmentColor: Color = Color(.tertiarySystemBackground)
-    private static let BackgroundColor: Color = Color(.secondarySystemBackground)
+    private static let BackgroundColor: Color = .black//Color(.secondarySystemBackground)
     private static let ShadowColor: Color = Color.black.opacity(0.2)
     private static let TextColor: Color = Color(.secondaryLabel)
     private static let SelectedTextColor: Color = .red
-
-    private static let TextFont: Font = .system(size: 12)
     
     private static let SegmentCornerRadius: CGFloat = 20
     private static let ShadowRadius: CGFloat = 4
@@ -90,7 +88,7 @@ struct SegmentedPicker: View {
     
     private let onFocusChanged: (Bool) -> ()
     
-    private let items: [String] = ["Focus", "ISO", "More"]
+    private let items: [String] = ["FOCUS", "ISO", "MORE"]
     
     init(focusValue: Binding<Double>,
          onFocusChanged: @escaping (Bool) -> (),
@@ -119,30 +117,32 @@ struct SegmentedPicker: View {
             }
             .padding(SegmentedPicker.PickerPadding)
             
-            if self.expanded {
-                Divider()
-                if (selection == 0) {
-                    SlidingRuler(value: $focusValue,
-                                 in: 0...1,
-                                 step: 0.5,
-                                 tick: .fraction,
-                                 onEditingChanged: onFocusChanged)
-                } else if (selection == 1) {
-                    SlidingRuler(value: $isoValue,
-                                 in: isoMin...isoMax,
-                                 step: 500.0,
-                                 tick: .unit,
-                                 onEditingChanged: {
-                        (value) in
-                        
-                        //model.focusUpdate(value)
-                        
-                    })
-                    
-                }
+            if (expanded) {
+                VStack {
+                    Divider()
+                    ZStack {
+                        SlidingRuler(value: $focusValue,
+                                     in: 0...1,
+                                     step: 0.5,
+                                     tick: .fraction,
+                                     onEditingChanged: onFocusChanged
+                        ).padding(.bottom).opacity(selection == 0 ? 1 : 0)
+                        SlidingRuler(value: $isoValue,
+                                     in: isoMin...isoMax,
+                                     step: 500.0,
+                                     tick: .unit,
+                                     onEditingChanged: {
+                            (value) in
+                            
+                            //model.focusUpdate(value)
+                            
+                        }).padding(.bottom).opacity(selection == 1 ? 1 : 0)
+                    }
+                }.transition(.scale)
             }
 
         }
+        .transition(.scale)
         .background(SegmentedPicker.BackgroundColor)
         .clipShape(RoundedRectangle(cornerRadius: SegmentedPicker.SegmentCornerRadius))
 
@@ -170,6 +170,7 @@ struct SegmentedPicker: View {
                 // Watch for the size of the
                 .modifier(SizeAwareViewModifier(viewSize: self.$segmentSize))
                 .onTapGesture { self.onItemTap(index: index) }
+                .font(.system(size: 16, weight: .bold, design: .monospaced))
                 .eraseToAnyView()
     }
 
@@ -178,11 +179,12 @@ struct SegmentedPicker: View {
         guard index < self.items.count else {
             return
         }
-        
-        if (index == self.selection || !self.expanded) {
-            self.expanded.toggle()
+        withAnimation {
+            if (index == self.selection || !self.expanded) {
+                self.expanded.toggle()
+            }
+            self.selection = index
         }
-        self.selection = index
     }
     
 }
