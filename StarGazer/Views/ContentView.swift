@@ -40,6 +40,9 @@ final class CameraModel: ObservableObject {
     @Published var availableZoomLevels: [CameraZoomLevel] = []
     @Published var activeZoomLevel: CameraZoomLevel
     
+    @Published var minIso: Float = 100.0
+    @Published var maxIso: Float = 100.0
+    @Published var currentIso: Float = 400.0
     
     var alertError: AlertError!
 
@@ -94,6 +97,21 @@ final class CameraModel: ObservableObject {
         
         service.$focusDistance.sink { [weak self] (val) in
                     self?.focusDistance = val
+                }
+                .store(in: &self.subscriptions)
+        
+        service.$minIso.sink { [weak self] (val) in
+                    self?.minIso = val
+                }
+                .store(in: &self.subscriptions)
+        
+        service.$maxIso.sink { [weak self] (val) in
+                    self?.maxIso = val
+                }
+                .store(in: &self.subscriptions)
+
+        service.$activeIso.sink { [weak self] (val) in
+                    self?.currentIso = val
                 }
                 .store(in: &self.subscriptions)
 
@@ -161,49 +179,6 @@ final class CameraModel: ObservableObject {
     }
 
 }
-
-
-struct OptionsBar: View {
-    @StateObject var model = CameraModel()
-
-    var body: some View {
-        HStack {
-
-            Spacer()
-
-            Button(action: {
-                model.toggleMask()
-            }, label: {
-                if model.mask {
-                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "moon.stars.fill").foregroundColor(.white)
-                } else {
-                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "moon.stars").foregroundColor(.white).opacity(0.5)
-                }
-            }).animation(.easeInOut(duration: 0.2))
-            
-            Spacer()
-            
-            Button(action: {
-                model.toggleDebug()
-            }, label: {
-                if model.debug {
-                    //Label("HDR", systemImage: "square.stack.3d.up.fill").foregroundColor(.white)
-                    Image(systemName: "chevron.left.forwardslash.chevron.right").foregroundColor(.white)
-                } else {
-                    //Label("HDR", systemImage: "square.stack.3d.up").foregroundColor(.white).opacity(0.5)
-                    Image(systemName: "chevron.left.forwardslash.chevron.right").foregroundColor(.white).opacity(0.5)
-                }
-            }).animation(.easeInOut(duration: 0.2))
-            
-            
-
-            Spacer()
-        }
-    }
-}
-
 
 struct CameraOptionsBar : View {
     var body: some View {
@@ -277,11 +252,6 @@ struct CameraView: View {
     @ObservedObject var model = CameraModel()
     @StateObject var navigationModel: StateControlModel
     
-
-    @State var currentZoomFactor: CGFloat = 1.0
-
-    @State var currentFocus: CGFloat = 0.7
-    
     var captureButton: some View {
         Button(action: {
             if model.captureStatus == .ready {
@@ -335,7 +305,7 @@ struct CameraView: View {
                 GeometryReader {
                     geometry in
                     VStack(alignment: .center) {
-                        OptionsBar(model: model).padding()
+                        Spacer()
                         ZStack {
                             CameraPreview(tappedCallback: { point in
                                 model.tapToFocus(point, geometry.size)
@@ -364,8 +334,19 @@ struct CameraView: View {
                             }
                             
                         }
+                        SegmentedPicker(focusValue: Binding(get: {self.model.focusDistance},
+                                                            set: {self.model.service.focusDistance = $0}),
+                                        onFocusChanged: {
+                                            (value) in
+                                            model.focusUpdate(value)
+                                        },
+                                        isoValue: Binding(get: {self.model.currentIso},
+                                                          set: {self.model.service.activeIso = $0}),
+                                        isoMin: Binding(get: {self.model.minIso}, set: {_ in}),
+                                        isoMax: Binding(get: {self.model.maxIso}, set: {_ in})
+                        )
                         
-                        
+                        /*
                         SlidingRuler(value:
                                         Binding(get: {self.model.focusDistance},
                                                 set: {self.model.service.focusDistance = $0}),
@@ -378,7 +359,7 @@ struct CameraView: View {
                             model.focusUpdate(value)
                             
                         }).foregroundColor(.white).background(.black)
-                        
+                        */
                         /*
                         CameraOptionsBar()
                         */

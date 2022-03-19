@@ -62,6 +62,10 @@ public class CameraService: NSObject {
 
     @Published public var galleryPreviewImage: UIImage = UIImage()
 
+    @Published public var minIso: Float = 0
+    @Published public var maxIso: Float = 0
+    @Published public var activeIso: Float = 400.0
+    
     /**
         Values do not need to be published since they will never change during execution.
      */
@@ -143,6 +147,9 @@ public class CameraService: NSObject {
                     let zoomLevel = CameraZoomLevel(zoomLevel: 1.0, device: camera)
                     self.activeZoomLevel = zoomLevel
                     availableZoomLevels.append(zoomLevel)
+                    
+                    self.minIso = camera.activeFormat.minISO
+                    self.maxIso = camera.activeFormat.maxISO
                 default:
                     print("Unsupported camera")
                 }
@@ -374,6 +381,16 @@ public class CameraService: NSObject {
         self.debugEnabled = enabled
     }
 
+    private func clip(value: Float, min: Float, max: Float) -> Float {
+        if value < min {
+            return min
+        }
+        if value > max {
+            return max
+        }
+        return value
+    }
+    
     //    MARK: Capture Photo
 
     public func startTimelapse() {
@@ -440,6 +457,8 @@ public class CameraService: NSObject {
             //self.adjustViewfinderSettings()
 
             DispatchQueue.main.async {
+                self.minIso = device.activeFormat.minISO
+                self.maxIso = device.activeFormat.maxISO
                 self.blackOutCamera = false
             }
         }
@@ -568,7 +587,10 @@ public class CameraService: NSObject {
                                     ) {
                                         return autoExpSetting(Float($0) / Float($0))
                                     } else {
-                                        return manualExpSetting(maxExposure, $0)
+                                        return manualExpSetting(maxExposure,
+                                                                self.clip(value: self.activeIso,
+                                                                          min: self.videoDeviceInput.device.activeFormat.minISO,
+                                                                          max: self.videoDeviceInput.device.activeFormat.maxISO))
                                     }
                                 }
                         )
@@ -581,7 +603,10 @@ public class CameraService: NSObject {
                                     ) {
                                         return autoExpSetting(Float($0) / Float($0))
                                     } else {
-                                        return manualExpSetting(maxExposure, $0)
+                                        return manualExpSetting(maxExposure,
+                                                                self.clip(value: self.activeIso,
+                                                                          min: self.videoDeviceInput.device.activeFormat.minISO,
+                                                                          max: self.videoDeviceInput.device.activeFormat.maxISO))
                                     }
                                 }
                         )
