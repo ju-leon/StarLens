@@ -166,7 +166,6 @@ public class CameraService: NSObject {
     }
 
     deinit {
-        self.orientationManager.stopUpdateingOrientation()
     }
     
     public func configure() {
@@ -319,6 +318,8 @@ public class CameraService: NSObject {
     /// - Tag: Stop capture session
     public func stop(completion: (() -> ())? = nil) {
         self.captureQueue.async {
+            self.orientationManager.stopUpdateingOrientation()
+            
             if self.isSessionRunning {
                 if self.setupResult == .success {
                     self.session.stopRunning()

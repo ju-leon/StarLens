@@ -430,6 +430,8 @@ struct CameraView: View {
                     captureView
                 }
             }
-        }
+        }.onDisappear(perform: {
+            model.service.stop()
+        })
     }
 }
