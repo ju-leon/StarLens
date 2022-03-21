@@ -127,11 +127,12 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     // Apply skyPop
     addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result);
     
-    // Apply contrast and brightness
-    result.convertTo(result, CV_8U);
-
+    equalizeIntensityHighRes(result, result);
+    
     reduceLightPollution(result, result, lightPol);
     
+    result.convertTo(result, CV_8U);
+
     Mat foregroundNormal;
     foreground.convertTo(foregroundNormal, CV_8U);
     
@@ -151,10 +152,40 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
         result.convertTo(result, CV_8UC3);
     }
     
-    autoEnhance(result, result);
     //noiseReduction(result, result, noiseReductionLevel);
 
 }
+
+void equalizeIntensityHighRes(const Mat& inputImage, Mat &outputImage)
+{
+    Mat ycrcb;
+    
+    inputImage.convertTo(outputImage, CV_16U);
+    outputImage *= 256;
+    
+    cvtColor(outputImage,ycrcb,COLOR_RGB2YCrCb);
+    
+    vector<Mat> channels;
+    split(ycrcb,channels);
+
+    
+    auto clahe = createCLAHE(1.5, cv::Size(8,8));
+    
+    clahe->apply(channels[0], channels[0]);
+    
+    clahe->setClipLimit(0.5);
+    
+    //clahe->apply(channels[1], channels[1]);
+    //clahe->apply(channels[2], channels[2]);
+    
+    merge(channels,ycrcb);
+
+    cvtColor(ycrcb,outputImage,COLOR_YCrCb2RGB);
+    
+    outputImage /= 256;
+    outputImage.convertTo(outputImage, CV_16U);
+}
+
 
 #endif
 

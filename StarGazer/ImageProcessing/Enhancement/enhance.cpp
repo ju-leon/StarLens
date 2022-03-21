@@ -61,7 +61,8 @@ void reduceLightPollution(const Mat &inputImage, Mat &outputImage, float intensi
     
     // Subtract light pollution from image
     cv::subtract(inputImage, pollution, outputImage);
-
+    
+    outputImage = outputImage * (intensity + 1);
 }
 
 
