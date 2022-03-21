@@ -256,6 +256,11 @@ float getStarCenters(Mat &image, float threshold, Mat &threshMat, vector <Point2
     //int delta = 0;
     //Laplacian(imGray, laplacian, CV_16S, kernel_size, scale, delta, BORDER_REPLICATE);
 
+    // detect the stars using canny edge detection
+    Mat edges;
+    Canny(imGray, edges, threshold, threshold * 2, 3, false);
+
+    
     // Only count stars that fall under the determined threshold
     cv::threshold(imGray, threshMat, threshold, 255, cv::THRESH_BINARY);
     threshMat.convertTo(threshMat, CV_8UC1);

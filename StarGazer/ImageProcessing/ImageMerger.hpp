@@ -299,7 +299,7 @@ public:
         
         // Use homography to warp image
         Mat alignedImage;
-        warpPerspective(image, alignedImage, h, imageMasked.size(), INTER_LINEAR, BORDER_REPLICATE);
+        warpPerspective(image, alignedImage, h, imageMasked.size(), INTER_LINEAR, BORDER_CONSTANT);
         
         /**
          Create a visulaisation of the current tracking points if requested
