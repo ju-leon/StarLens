@@ -31,6 +31,7 @@ enum EditOption : CaseIterable {
     case starPop
     case lightPollution
     case noiseReduction
+    case color
     
     var instance: Instance {
         switch self {
@@ -40,6 +41,8 @@ enum EditOption : CaseIterable {
             return Instance(identifier: "NOISE_REDUCTION", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.0)
         case .lightPollution:
             return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0)
+        case .color:
+            return Instance(identifier: "COLOR", icon: "eyedropper.full", defaultValue: 0.5)
         }
     }
 }
@@ -83,6 +86,8 @@ class ProjectEditor {
                         self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
                         self.imageEditor!.setNoiseReduction(self.editOptions[.noiseReduction] as! Double)
                         self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
+                        self.imageEditor!.setColor(self.editOptions[.color] as! Double)
+                        
                         resultCallback(self.imageEditor!.getFilteredImagePreview())
                     }
                 }

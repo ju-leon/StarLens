@@ -113,12 +113,21 @@ const int MASK_BLUR_RADIUS = 15;
     lightPol = factor;
 }
 
+/**
+ Set a color correction level in range [0.75, 1.25]
+ */
+- (void) setColor: (double) factor {
+    color = (factor * 0.5) + 0.75;
+    std::cout << "Color:" << color << std::endl;
+}
+
 #ifdef __cplusplus
 
 double noiseReductionLevel;
 double lightPol;
 double starPop;
 double skyPop;
+double color;
 int numImgs;
 
 int maskFeather = 35;
@@ -127,7 +136,7 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     // Apply skyPop
     addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result, CV_32F);
     
-    increaseStarBrightness(result, result, noiseReductionLevel);
+    increaseStarBrightness(result, result, noiseReductionLevel, color);
     
     result *= 256;
     result.convertTo(result, CV_16U);

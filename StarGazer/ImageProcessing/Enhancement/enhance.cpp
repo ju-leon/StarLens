@@ -65,13 +65,14 @@ void reduceLightPollution(const Mat &inputImage, Mat &outputImage, float intensi
 }
 
 
-void increaseStarBrightness(const Mat &inputImage, Mat outputImage, float intensity) {
+void increaseStarBrightness(const Mat &inputImage, Mat outputImage, float intensity, float colorCorrection) {
     inputImage /= 256;
     cvtColor(inputImage, outputImage, COLOR_RGB2HSV);
 
     vector<Mat> channels;
     split(outputImage,channels);
     
+    channels[0] = channels[0] * colorCorrection;
     channels[1] = channels[1] * (intensity + 1);
     
     Mat result;

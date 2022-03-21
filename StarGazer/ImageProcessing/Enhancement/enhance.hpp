@@ -21,5 +21,5 @@ void noiseReduction(const Mat& inputImage, Mat &outputImage, float intensity);
 
 void reduceLightPollution(const Mat& inputImage, Mat &outputImage, float intensity);
 
-void increaseStarBrightness(const Mat &inputImage, Mat outputImage, float intensity);
+void increaseStarBrightness(const Mat &inputImage, Mat outputImage, float intensity, float colorCorrection);
 #endif /* enhance_hpp */

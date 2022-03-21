@@ -234,6 +234,10 @@ struct EditOptionsBar: View {
                             model.activeEditMode = .noiseReduction
                             sliderValue = model.projectEditor!.editOptions[.noiseReduction] as! Double
                         })
+                        EditOptionButton(model: model, editMode: .color, onClick: {
+                            model.activeEditMode = .color
+                            sliderValue = model.projectEditor!.editOptions[.color] as! Double
+                        })
                     }
                 }
                 SlidingRuler(value: Binding(get: {sliderValue},
@@ -246,6 +250,8 @@ struct EditOptionsBar: View {
                                                         model.projectEditor!.editOptions[.starPop] = $0
                                                    case .lightPollution:
                                                         model.projectEditor!.editOptions[.lightPollution] = $0
+                                                   case .color:
+                                                        model.projectEditor!.editOptions[.color] = $0
                                                 }})
                                             , in: sliderRange,
                                             step: 0.5,
