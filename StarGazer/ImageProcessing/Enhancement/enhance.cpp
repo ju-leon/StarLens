@@ -19,26 +19,25 @@ void autoEnhance(const Mat &inputImage, Mat &outputImage) {
 void equalizeIntensity(const Mat& inputImage, Mat &outputImage)
 {
     Mat ycrcb;
-
-    cvtColor(inputImage,ycrcb,COLOR_RGB2Lab);
+    
+    cvtColor(outputImage,ycrcb,COLOR_RGB2YCrCb);
     
     vector<Mat> channels;
     split(ycrcb,channels);
 
+    
     auto clahe = createCLAHE(1.5, cv::Size(8,8));
     
     clahe->apply(channels[0], channels[0]);
     
     clahe->setClipLimit(0.5);
     
-    clahe->apply(channels[1], channels[1]);
-    clahe->apply(channels[2], channels[2]);
-
-    Mat result;
+    //clahe->apply(channels[1], channels[1]);
+    //clahe->apply(channels[2], channels[2]);
+    
     merge(channels,ycrcb);
 
-    cvtColor(ycrcb,outputImage,COLOR_Lab2RGB);
-
+    cvtColor(ycrcb,outputImage,COLOR_YCrCb2RGB);
 }
 
 /**
@@ -67,6 +66,19 @@ void reduceLightPollution(const Mat &inputImage, Mat &outputImage, float intensi
 
 
 void increaseStarBrightness(const Mat &inputImage, Mat outputImage, float intensity) {
+    inputImage /= 256;
+    cvtColor(inputImage, outputImage, COLOR_RGB2HSV);
+
+    vector<Mat> channels;
+    split(outputImage,channels);
+    
+    channels[1] = channels[1] * (intensity + 1);
+    
+    Mat result;
+    merge(channels,outputImage);
+
+    cvtColor(outputImage, outputImage, COLOR_HSV2RGB);
+    outputImage *= 256;
     
 }
 

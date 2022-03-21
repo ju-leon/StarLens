@@ -101,7 +101,7 @@ const int MASK_BLUR_RADIUS = 15;
  */
 - (void) setNoiseReduction: (double) factor {
     // Convert brightness value to range [0, 10]
-    noiseReductionLevel = factor * 10;
+    noiseReductionLevel = factor;
 }
 
 
@@ -123,14 +123,22 @@ int numImgs;
 
 int maskFeather = 35;
 
-void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result) {
+void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result, bool reduceNoise = false) {
     // Apply skyPop
-    addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result);
+    addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result, CV_32F);
     
-    equalizeIntensityHighRes(result, result);
+    increaseStarBrightness(result, result, noiseReductionLevel);
+    
+    result *= 256;
+    result.convertTo(result, CV_16U);
+    
+    equalizeIntensity(result, result);
     
     reduceLightPollution(result, result, lightPol);
     
+
+    
+    result /= 256;
     result.convertTo(result, CV_8U);
 
     Mat foregroundNormal;
@@ -152,40 +160,11 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
         result.convertTo(result, CV_8UC3);
     }
     
-    //noiseReduction(result, result, noiseReductionLevel);
+    if (reduceNoise) {
+        noiseReduction(result, result, 3);
+    }
 
 }
-
-void equalizeIntensityHighRes(const Mat& inputImage, Mat &outputImage)
-{
-    Mat ycrcb;
-    
-    inputImage.convertTo(outputImage, CV_16U);
-    outputImage *= 256;
-    
-    cvtColor(outputImage,ycrcb,COLOR_RGB2YCrCb);
-    
-    vector<Mat> channels;
-    split(ycrcb,channels);
-
-    
-    auto clahe = createCLAHE(1.5, cv::Size(8,8));
-    
-    clahe->apply(channels[0], channels[0]);
-    
-    clahe->setClipLimit(0.5);
-    
-    //clahe->apply(channels[1], channels[1]);
-    //clahe->apply(channels[2], channels[2]);
-    
-    merge(channels,ycrcb);
-
-    cvtColor(ycrcb,outputImage,COLOR_YCrCb2RGB);
-    
-    outputImage /= 256;
-    outputImage.convertTo(outputImage, CV_16U);
-}
-
 
 #endif
 
