@@ -220,40 +220,21 @@ struct EditOptionsBar: View {
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 0) {
                         //Spacer()
-                        EditOptionButton(model: model, editMode: .starPop, onClick: {
-                            model.activeEditMode = .starPop
-                            sliderValue = model.projectEditor!.editOptions[.starPop] as! Double
-                        })
-
-                        EditOptionButton(model: model, editMode: .lightPollution, onClick: {
-                            model.activeEditMode = .lightPollution
-                            sliderValue = model.projectEditor!.editOptions[.lightPollution] as! Double
-                        })
-
-                        EditOptionButton(model: model, editMode: .noiseReduction, onClick: {
-                            model.activeEditMode = .noiseReduction
-                            sliderValue = model.projectEditor!.editOptions[.noiseReduction] as! Double
-                        })
-                        EditOptionButton(model: model, editMode: .color, onClick: {
-                            model.activeEditMode = .color
-                            sliderValue = model.projectEditor!.editOptions[.color] as! Double
-                        })
+                        
+                        ForEach(EditOption.allCases , id: \.self) { mode in
+                            EditOptionButton(model: model, editMode: mode, onClick: {
+                                model.activeEditMode = mode
+                                sliderValue = model.projectEditor!.editOptions[mode] as! Double
+                            })
+                        }
                     }
                 }
                 SlidingRuler(value: Binding(get: {sliderValue},
-                                           set: {
-                                                self.sliderValue = $0
-                                                switch model.activeEditMode {
-                                                   case .noiseReduction:
-                                                        model.projectEditor!.editOptions[.noiseReduction] = $0
-                                                   case .starPop:
-                                                        model.projectEditor!.editOptions[.starPop] = $0
-                                                   case .lightPollution:
-                                                        model.projectEditor!.editOptions[.lightPollution] = $0
-                                                   case .color:
-                                                        model.projectEditor!.editOptions[.color] = $0
-                                                }})
-                                            , in: sliderRange,
+                                            set: {
+                                                    self.sliderValue = $0
+                                                    model.projectEditor!.editOptions[model.activeEditMode] = $0
+                                                }),
+                                            in: sliderRange,
                                             step: 0.5,
                                             tick: .fraction) {
                                         sliding in
