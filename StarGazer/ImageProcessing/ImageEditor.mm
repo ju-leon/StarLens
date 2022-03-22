@@ -118,8 +118,15 @@ const int MASK_BLUR_RADIUS = 15;
  */
 - (void) setColor: (double) factor {
     color = (factor * 0.5) + 0.75;
-    std::cout << "Color:" << color << std::endl;
 }
+
+/**
+ Set a saturation level in range [0.5, 1.5]
+ */
+- (void) setSaturation: (double) factor {
+    color = factor + 0.5;
+}
+
 
 #ifdef __cplusplus
 

@@ -32,6 +32,7 @@ enum EditOption : CaseIterable {
     case lightPollution
     case noiseReduction
     case color
+    case saturation
     
     var instance: Instance {
         switch self {
@@ -43,6 +44,8 @@ enum EditOption : CaseIterable {
             return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0)
         case .color:
             return Instance(identifier: "COLOR", icon: "eyedropper.full", defaultValue: 0.5)
+        case .saturation:
+            return Instance(identifier: "SATURATION", icon: "paintbrush.pointed.fill", defaultValue: 0.5)
         }
     }
 }
@@ -87,6 +90,7 @@ class ProjectEditor {
                         self.imageEditor!.setNoiseReduction(self.editOptions[.noiseReduction] as! Double)
                         self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
                         self.imageEditor!.setColor(self.editOptions[.color] as! Double)
+                        self.imageEditor!.setSaturation(self.editOptions[.saturation] as! Double)
                         
                         resultCallback(self.imageEditor!.getFilteredImagePreview())
                     }
