@@ -370,39 +370,40 @@ struct CameraView: View {
             }
 
             HStack {
-                Button(action: {
-                    withAnimation {
-                        self.navigationModel.currentView = .projects
-                    }
-                }, label:{
-                    ZStack {
-                        //Color.white
-                        Image(uiImage: self.model.service.galleryPreviewImage)
-                                    .resizable()
-                                    .aspectRatio(contentMode: .fill)
-                                    .clipped()
-                        //LinearGradient(colors: [.white, .gray], startPoint: .top, endPoint: .bottom).opacity(0.4)
-                    }.frame(width: 50, height: 50, alignment: .center)
-                     .cornerRadius(15)
+                if model.captureStatus != .capturing {
+                    Button(action: {
+                        withAnimation {
+                            self.navigationModel.currentView = .projects
+                        }
+                    }, label:{
+                        ZStack {
+                            //Color.white
+                            Image(uiImage: self.model.service.galleryPreviewImage)
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .clipped()
+                            //LinearGradient(colors: [.white, .gray], startPoint: .top, endPoint: .bottom).opacity(0.4)
+                        }.frame(width: 50, height: 50, alignment: .center)
+                         .cornerRadius(15)
 
-                })
-                
+                    })
+                }
                 Spacer()
                 
                 captureButton//.frame(maxWidth: .infinity)
 
                 Spacer()
-                
-                ModalPresenter {
-                    ModalLink(destination: {
-                        dismiss in
-                        SettingsView(navigationModel: navigationModel, onDone: dismiss).environment(\.colorScheme, .dark)
-                    },
-                    label: {
-                        Image(systemName: "gear").font(.system(size: 40)).foregroundColor(.white)
-                    }).frame(width: 50, height: 50, alignment: .center)
+                if model.captureStatus != .capturing {
+                    ModalPresenter {
+                        ModalLink(destination: {
+                            dismiss in
+                            SettingsView(navigationModel: navigationModel, onDone: dismiss).environment(\.colorScheme, .dark)
+                        },
+                        label: {
+                            Image(systemName: "gear").font(.system(size: 40)).foregroundColor(.white)
+                        }).frame(width: 50, height: 50, alignment: .center)
+                    }
                 }
-                
                 //flipCameraButton
 
             }.padding(.horizontal, 20).frame(maxWidth: .infinity)
