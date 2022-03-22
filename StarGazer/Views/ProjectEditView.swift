@@ -74,10 +74,12 @@ class ProjectEditModel: ObservableObject {
         if (self.projectEditMode == .preview) {
             self.projectEditMode = .editing
         } else {
+            self.loading = true
             self.projectEditor?.saveProject(resultCallback: {
                 image  in
                 DispatchQueue.main.async {
                     self.previewImage = image
+                    self.loading = false
                 }
             })
             self.projectEditMode = .preview

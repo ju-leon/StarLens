@@ -30,7 +30,7 @@ enum EditOption : CaseIterable {
     
     case starPop
     case lightPollution
-    case noiseReduction
+    case brightness
     case color
     case saturation
     
@@ -38,14 +38,14 @@ enum EditOption : CaseIterable {
         switch self {
         case .starPop:
             return Instance(identifier: "STAR_POP", icon: "moon.stars.fill", defaultValue: 0.0)
-        case .noiseReduction:
-            return Instance(identifier: "NOISE_REDUCTION", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.0)
         case .lightPollution:
             return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0)
         case .color:
             return Instance(identifier: "COLOR", icon: "eyedropper.full", defaultValue: 0.5)
         case .saturation:
             return Instance(identifier: "SATURATION", icon: "paintbrush.pointed.fill", defaultValue: 0.5)
+        case .brightness:
+            return Instance(identifier: "BRIGHTNESS", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.5)
         }
     }
 }
@@ -80,6 +80,10 @@ class ProjectEditor {
             self.editOptions[option] = projectEditOptions[option.instance.identifier]
         }
     }
+    
+    deinit {
+        print("Project editor destroyed")
+    }
 
     func applyFilters(resultCallback: @escaping (UIImage) -> ()) {
         editQueue.async {
@@ -87,7 +91,7 @@ class ProjectEditor {
                 while (self.updatePreview) {
                     autoreleasepool {
                         self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
-                        self.imageEditor!.setNoiseReduction(self.editOptions[.noiseReduction] as! Double)
+                        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
                         self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
                         self.imageEditor!.setColor(self.editOptions[.color] as! Double)
                         self.imageEditor!.setSaturation(self.editOptions[.saturation] as! Double)
@@ -137,7 +141,7 @@ class ProjectEditor {
             let coverPhoto = self.imageEditor!.getFilteredImage()
             self.project.setCoverPhoto(image: coverPhoto)
             self.project.save()
-            
+                        
             resultCallback(coverPhoto)
         }
     }

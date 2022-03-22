@@ -24,52 +24,37 @@ using namespace cv;
 const int MASK_EROSION_RADIUS = 1;
 const int MASK_BLUR_RADIUS = 15;
 
-
+/**
+ Itialises previews of every image.
+ All images are resized to save memory and speed up computations.
+ */
 - (instancetype) initAtPath:(NSString *)path numImages:(int) numImages withMask: (UIImage *) mask{
     self = [super init];
     
-    string pathString = std::string([path UTF8String]);
+    pathString = std::string([path UTF8String]);
     
     std::ifstream ifs(pathString, std::ios::binary);
     readMatBinary(ifs, _combinedImage);
-    readMatBinary(ifs, _maxedImage);
-    readMatBinary(ifs, _stackedImage);
-    readMatBinary(ifs, _mask);
-    
+    resize(_combinedImage, _combinedImage, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
     _combinedImage.convertTo(_combinedImage, CV_32F);
     _combinedImage /= numImages;
-
+    
+    readMatBinary(ifs, _maxedImage);
+    resize(_maxedImage, _maxedImage, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
+    _maxedImage.convertTo(_maxedImage, CV_32F);
+    
+    readMatBinary(ifs, _stackedImage);
+    resize(_stackedImage, _stackedImage, cv::Size(_stackedImage.cols / 3, _stackedImage.rows / 3));
     _stackedImage.convertTo(_stackedImage, CV_32F);
     _stackedImage /= numImages;
     
-    if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty() || ![mask isKindOfClass:[UIImage class]]) {
-        return nil;
-    }
-    
-    _maxedImage.convertTo(_maxedImage, CV_32F);
+    readMatBinary(ifs, _mask);
+    resize(_mask, _mask, cv::Size(_mask.cols / 3, _mask.rows / 3));
     
     /*
-     TODO: Maks is now saved alognside project. No longer needed to pass mask
-    UIImage *maskRot = [mask rotateToImageOrientation];
-    _mask = [maskRot CVGrayscaleMat];
-    
-    std::cout << _mask.size << std::endl;
-    
-    Mat element = getStructuringElement(MORPH_ELLIPSE, cv::Size(MASK_EROSION_RADIUS, MASK_EROSION_RADIUS), cv::Point(-1, -1));
-    erode(_mask, _mask, element);
-    _mask.convertTo(_mask, CV_32F);
-    GaussianBlur( _mask,_mask, cv::Size( MASK_BLUR_RADIUS, MASK_BLUR_RADIUS), 0, 0);
-    
-    resize(_mask, _mask, _combinedImage.size());
-     */
-     
-    /**
-     Resize to speedup previews during editing
-     */
-    resize(_combinedImage, _combinedImagePreview, cv::Size(_combinedImage.cols / 3, _combinedImage.rows / 3));
-    resize(_maxedImage, _maxedImagePreview, cv::Size(_maxedImage.cols / 3, _maxedImage.rows / 3));
-    resize(_stackedImage, _stackedImagePreview, cv::Size(_stackedImage.cols / 3, _stackedImage.rows / 3));
-    resize(_mask, _maskPreview, cv::Size(_mask.cols / 3, _mask.rows / 3));
+    if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty() || ![mask isKindOfClass:[UIImage class]]) {
+        return nil;
+    }*/
 
     numImgs = numImages;
     
@@ -78,13 +63,29 @@ const int MASK_BLUR_RADIUS = 15;
 
 - (UIImage *) getFilteredImagePreview {
     Mat result;
-    applyFilters(_combinedImagePreview, _maxedImagePreview, _stackedImagePreview, _maskPreview, result);
+    applyFilters(_combinedImage, _maxedImage, _stackedImage, _mask, result);
     return [UIImage imageWithCVMat: result];
 }
 
 - (UIImage *) getFilteredImage {
+    std::ifstream ifs(pathString, std::ios::binary);
+    
+    Mat combinedImage, maxedImage, stackedImage, mask;
+    readMatBinary(ifs, combinedImage);
+    combinedImage.convertTo(combinedImage, CV_32F);
+    combinedImage /= numImgs;
+    
+    readMatBinary(ifs, maxedImage);
+    maxedImage.convertTo(maxedImage, CV_32F);
+    
+    readMatBinary(ifs, stackedImage);
+    stackedImage.convertTo(stackedImage, CV_32F);
+    stackedImage /= numImgs;
+    
+    readMatBinary(ifs, mask);
+    
     Mat result;
-    applyFilters(_combinedImage, _maxedImage, _stackedImage, _mask, result);
+    applyFilters(combinedImage, maxedImage, stackedImage, mask, result);
     return [UIImage imageWithCVMat: result];
 }
 
@@ -95,15 +96,6 @@ const int MASK_BLUR_RADIUS = 15;
     // Convert skyPop value to range [0, 1]
     starPop = factor;
 }
-
-/**
- Set a brightness value in range [0, 1]
- */
-- (void) setNoiseReduction: (double) factor {
-    // Convert brightness value to range [0, 10]
-    noiseReductionLevel = factor;
-}
-
 
 /**
  Set a contrast level in range [0, 1]
@@ -124,18 +116,29 @@ const int MASK_BLUR_RADIUS = 15;
  Set a saturation level in range [0.5, 1.5]
  */
 - (void) setSaturation: (double) factor {
-    color = factor + 0.5;
+    saturation = factor + 0.5;
 }
 
+/**
+ Set a brightness value in range [0.5, 1.5]
+ */
+- (void) setBrightness: (double) factor {
+    // Convert brightness value to range [0, 10]
+    brightness = factor + 0.5;
+}
 
 #ifdef __cplusplus
 
-double noiseReductionLevel;
+
 double lightPol;
 double starPop;
 double skyPop;
 double color;
+double saturation;
+double brightness;
+
 int numImgs;
+string pathString;
 
 int maskFeather = 35;
 
@@ -143,7 +146,7 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     // Apply skyPop
     addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result, CV_32F);
     
-    increaseStarBrightness(result, result, noiseReductionLevel, color);
+    adaptStarColor(result, result, color, saturation, brightness);
     
     result *= 256;
     result.convertTo(result, CV_16U);

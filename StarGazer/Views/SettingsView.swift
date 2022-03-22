@@ -110,7 +110,7 @@ struct SettingsView : View {
                             Text("Version")
 
                             Spacer()
-                            Text("alpha-0.0.1").opacity(0.8)
+                            Text("alpha-0.0.2").opacity(0.8)
                         }
                         
                         NavigationLink(destination: Licenses()) {
