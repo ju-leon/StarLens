@@ -293,13 +293,11 @@ public:
         
         // Append to the current total homography
         totalHomography = totalHomography * h;
-
-        // Before warping the image, apply single frame image processing
-        //equalizeIntensity(image, image);
         
-        // Use homography to warp image
+        // Use homography to warp image, set border of aligned image to pixel average of the sky
+        auto average = cv::mean(imageMasked);
         Mat alignedImage;
-        warpPerspective(image, alignedImage, h, imageMasked.size(), INTER_LINEAR, BORDER_CONSTANT);
+        warpPerspective(image, alignedImage, h, imageMasked.size(), INTER_LINEAR, BORDER_CONSTANT, average);
         
         /**
          Create a visulaisation of the current tracking points if requested
