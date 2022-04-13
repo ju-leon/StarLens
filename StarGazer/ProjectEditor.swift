@@ -154,5 +154,20 @@ class ProjectEditor {
                                      onFailed: onFailed)
         }
     }
-
+    
+    func exportTimelapse(onSucess: (()->())?, onFailed: (()->())?) {
+        editQueue.async {
+            let path = self.project.getUrl().appendingPathComponent(TIMELAPSE_FILE_NAME)
+            print(path)
+            
+            let fileManager = FileManager.default
+            if fileManager.fileExists(atPath: path.path) {
+                print("FILE AVAILABLE")
+            } else {
+                print("FILE NOT AVAILABLE")
+            }
+            
+            TimeLapseBuilder.saveToGallery(url: path)
+        }
+    }
 }

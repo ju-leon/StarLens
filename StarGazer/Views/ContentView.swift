@@ -44,6 +44,10 @@ final class CameraModel: ObservableObject {
     @Published var maxIso: Float = 100.0
     @Published var currentIso: Float = 400.0
     
+    @Published var flashEnabled: Bool = false
+    @Published var maskEnabled: Bool = true
+    @Published var timerEnabled: Bool = false
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -115,6 +119,21 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
 
+        service.$flashEnabled.sink { [weak self] (val) in
+                    self?.flashEnabled = val
+                }
+                .store(in: &self.subscriptions)
+
+        service.$maskEnabled.sink { [weak self] (val) in
+                    self?.maskEnabled = val
+                }
+                .store(in: &self.subscriptions)
+
+        service.$timerEnabled.sink { [weak self] (val) in
+                    self?.timerEnabled = val
+                }
+                .store(in: &self.subscriptions)
+        
     }
 
     func configure() {
@@ -178,6 +197,17 @@ final class CameraModel: ObservableObject {
         service.focusDistance = value
     }
 
+    func setMaskEnabled(value: Bool) {
+        self.service.maskEnabled = value
+    }
+    
+    func setFlashEnabled(value: Bool) {
+        self.service.flashEnabled = value
+    }
+    
+    func setTimerEnabled(value: Bool) {
+        self.service.timerEnabled = value
+    }
 }
 
 struct CameraOptionsBar : View {
@@ -344,7 +374,10 @@ struct CameraView: View {
                                 isoValue: Binding(get: {self.model.currentIso},
                                                   set: {self.model.service.activeIso = $0}),
                                 isoMin: Binding(get: {self.model.minIso}, set: {_ in}),
-                                isoMax: Binding(get: {self.model.maxIso}, set: {_ in})
+                                isoMax: Binding(get: {self.model.maxIso}, set: {_ in}),
+                                maskEnabled: Binding(get: {self.model.maskEnabled}, set: self.model.setMaskEnabled),
+                                timerEnabled: Binding(get: {self.model.timerEnabled}, set: self.model.setTimerEnabled),
+                                flashEnabled: Binding(get: {self.model.flashEnabled}, set: self.model.setFlashEnabled)
                 )
                 Spacer(minLength: 20)
                 

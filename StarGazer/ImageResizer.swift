@@ -42,6 +42,17 @@ public struct ImageResizer {
         return newImage
     }
 
+    public static func resizeImage(_ image: UIImage, _ targetSize: CGSize) -> UIImage? {
+        // Actually do the resizing to the rect using the ImageContext stuff
+        UIGraphicsBeginImageContextWithOptions(targetSize, false, 1.0)
+        image.draw(in: CGRect(x: 0, y: 0, width: Int(targetSize.width), height: Int(targetSize.height)))
+        let newImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+
+        return newImage
+    }
+
+    
     public static func resize(data: Data, targetWidth: CGFloat) -> UIImage? {
         guard let image = UIImage(data: data) else {
             return nil

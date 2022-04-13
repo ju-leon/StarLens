@@ -66,6 +66,10 @@ public class CameraService: NSObject {
     @Published public var maxIso: Float = 0
     @Published public var activeIso: Float = 400.0
     
+    @Published var flashEnabled: Bool = false
+    @Published var maskEnabled: Bool = true
+    @Published var timerEnabled: Bool = false
+    
     /**
         Values do not need to be published since they will never change during execution.
      */
@@ -74,7 +78,6 @@ public class CameraService: NSObject {
 
     private var debugEnabled = false
 
-    private var maskEnabled = false
     private var alignEnabled = false
     private var enhanceEnabled = false
 
@@ -404,7 +407,7 @@ public class CameraService: NSObject {
 
         self.captureQueue.async {
             self.photoStack = PhotoStack(
-                    mask: self.defaults.bool(forKey: UserOption.isMaskEnabled.rawValue),
+                    mask: self.maskEnabled,
                     align: self.alignEnabled,
                     enhance: self.enhanceEnabled,
                     location: self.location,
@@ -613,6 +616,7 @@ public class CameraService: NSObject {
                         )
                     }
 
+                
 
                     let photoCaptureProcessor = PhotoCaptureProcessor(with: photoSettings!, willCapturePhotoAnimation: { [weak self] in
                         // Tells the UI to flash the screen to signal that SwiftCamera took a photo.

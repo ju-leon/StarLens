@@ -34,6 +34,8 @@ class CaptureObject {
     func toUIImage() -> UIImage {
         var uiImage : UIImage = UIImage()
         
+        print(url)
+        
         autoreleasepool {
             let newImage = CIImage(contentsOf: url)!
             let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!

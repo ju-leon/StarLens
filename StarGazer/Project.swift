@@ -15,6 +15,7 @@ let PROCESSED_FILE_NAME = "processed.png"
 let MAXED_FILE_NAME = "imageMaxed.png"
 let AVERAGED_FILE_NAME = "imageAveraged.png"
 let CHECKPOINT_FILE_NAME = "checkpoint.stargazer"
+let TIMELAPSE_FILE_NAME = "timelapse.mp4"
 
 enum ProjectKeys: String {
     case captureStart = "captureStart"
@@ -23,6 +24,7 @@ enum ProjectKeys: String {
     case metadata = "metadata"
     case unprocessedPhotoURLs = "photos"
     case processingComplete = "processingComplete"
+    case timelapseComplete = "timelapseComplete"
     case numImages = "numImages"
     case editOptions = "editOptions"
     case orientation = "orientation"
@@ -46,13 +48,14 @@ class Project: NSObject {
     private var unprocessedPhotoURLs: [String] = []
 
     private var processingComplete = false
-
+    private var timelapseComplete = false
+    
     private var coverPhoto: UIImage?
     
     private var editOptions: [String: Any?] = [:]
 
     private var orientation: UIImage.Orientation = .up
-
+    
     init(url: URL, captureStart: Date) {
         self.url = url
         self.captureStart = captureStart
@@ -76,7 +79,10 @@ class Project: NSObject {
         self.unprocessedPhotoURLs = plist![ProjectKeys.unprocessedPhotoURLs.rawValue] as! [String]
 
         self.processingComplete = plist![ProjectKeys.processingComplete.rawValue] as! Bool
-
+        if FileManager.default.fileExists(atPath: url.appendingPathComponent(TIMELAPSE_FILE_NAME).path) {
+            self.timelapseComplete = true
+        }
+        
         self.numImages = plist![ProjectKeys.numImages.rawValue] as! Int
 
         self.orientation = UIImage.Orientation(rawValue: plist![ProjectKeys.orientation.rawValue] as! Int)!
@@ -186,6 +192,14 @@ class Project: NSObject {
         return self.orientation
     }
 
+    public func setTimelapseComplete() {
+        self.timelapseComplete = true
+    }
+    
+    public func getTimelapseComplete() -> Bool {
+        return self.timelapseComplete
+    }
+    
     public func createMetadata(location: CLLocationCoordinate2D?) {
         if self.metadata == nil {
             return
@@ -281,6 +295,7 @@ class Project: NSObject {
         plist[ProjectKeys.numImages.rawValue] = self.numImages
         plist[ProjectKeys.editOptions.rawValue] = self.editOptions
         plist[ProjectKeys.orientation.rawValue] = self.orientation.rawValue
+        plist[ProjectKeys.timelapseComplete.rawValue] = self.timelapseComplete
 
         Project.savePlist(url: self.url.appendingPathComponent(PLIST_FILE_NAME), projectData: plist)
     }

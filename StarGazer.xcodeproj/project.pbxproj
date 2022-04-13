@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		050945CF28045AAB00089BEB /* TimeLapseBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 050945CE28045AAB00089BEB /* TimeLapseBuilder.swift */; };
 		0510811A27BEE06100A50129 /* Lottie in Frameworks */ = {isa = PBXBuildFile; productRef = 0510811927BEE06100A50129 /* Lottie */; };
 		0510811C27BEE51000A50129 /* LottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0510811B27BEE51000A50129 /* LottieView.swift */; };
 		051F0A80276FBA370015C507 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A7F276FBA370015C507 /* CameraService.swift */; };
@@ -92,6 +93,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		050945CE28045AAB00089BEB /* TimeLapseBuilder.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimeLapseBuilder.swift; sourceTree = "<group>"; };
 		0510811B27BEE51000A50129 /* LottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LottieView.swift; sourceTree = "<group>"; };
 		051F0A7F276FBA370015C507 /* CameraService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CameraService.swift; sourceTree = "<group>"; };
 		051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureProcessor.swift; sourceTree = "<group>"; };
@@ -222,6 +224,14 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		050945CD28045A8900089BEB /* TimeLapse */ = {
+			isa = PBXGroup;
+			children = (
+				050945CE28045AAB00089BEB /* TimeLapseBuilder.swift */,
+			);
+			path = TimeLapse;
+			sourceTree = "<group>";
+		};
 		0510811D27BEE52E00A50129 /* Lottie */ = {
 			isa = PBXGroup;
 			children = (
@@ -281,6 +291,7 @@
 				0555FF102785D5670077B7A8 /* Extensions */,
 				05DE223C277D0799007A90DE /* ImageProcessing */,
 				056CBBC927790DE700538E2E /* Filters */,
+				050945CD28045A8900089BEB /* TimeLapse */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
@@ -711,6 +722,7 @@
 				3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */,
 				0510811C27BEE51000A50129 /* LottieView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
+				050945CF28045AAB00089BEB /* TimeLapseBuilder.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 				3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */,
 				05EE7B4F27E51BB50047EF8F /* enhance.cpp in Sources */,

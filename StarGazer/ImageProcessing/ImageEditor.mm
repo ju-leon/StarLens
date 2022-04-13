@@ -49,8 +49,11 @@ const int MASK_BLUR_RADIUS = 15;
     _stackedImage /= numImages;
     
     readMatBinary(ifs, _mask);
-    resize(_mask, _mask, cv::Size(_mask.cols / 3, _mask.rows / 3));
-    
+    if (_mask.empty()) {
+        _mask = Mat::ones(_stackedImage.rows, _stackedImage.cols, CV_32F);
+    } else {
+        resize(_mask, _mask, cv::Size(_mask.cols / 3, _mask.rows / 3));
+    }
     /*
     if (_combinedImage.empty() || _maxedImage.empty() || _stackedImage.empty() || ![mask isKindOfClass:[UIImage class]]) {
         return nil;
@@ -83,6 +86,9 @@ const int MASK_BLUR_RADIUS = 15;
     stackedImage /= numImgs;
     
     readMatBinary(ifs, mask);
+    if (_mask.empty()) {
+        _mask = Mat::ones(_stackedImage.rows, _stackedImage.cols, CV_32F);
+    }
     
     Mat result;
     applyFilters(combinedImage, maxedImage, stackedImage, mask, result);
@@ -120,11 +126,11 @@ const int MASK_BLUR_RADIUS = 15;
 }
 
 /**
- Set a brightness value in range [0.5, 1.5]
+ Set a brightness value in range [0, 2]
  */
 - (void) setBrightness: (double) factor {
     // Convert brightness value to range [0, 10]
-    brightness = factor + 0.5;
+    brightness = (factor * 2);
 }
 
 #ifdef __cplusplus

@@ -55,10 +55,15 @@ public class PhotoStack {
 
     private var numImages = 0
 
+    private let tempDir: URL
+    
+    private let createTimelapse: Bool = true
+    private var timeLapseBuilder: TimeLapseBuilder? = nil
+    
     init(mask: Bool, align: Bool, enhance: Bool, location: CLLocationCoordinate2D?, orientation: AVCaptureVideoOrientation) {
         self.STRING_ID = ProcessInfo.processInfo.globallyUniqueString
 
-        let tempDir = FileManager.default.temporaryDirectory
+        tempDir = FileManager.default.temporaryDirectory
         do {
             try FileManager.default.createDirectory(atPath: tempDir.appendingPathComponent(self.STRING_ID, isDirectory: true).path, withIntermediateDirectories: true, attributes: nil)
         } catch {
@@ -95,6 +100,7 @@ public class PhotoStack {
 
         self.captureProject.setOrientation(orientation: self.orientation)
         
+        
     }
 
     init(project: Project) {
@@ -107,7 +113,9 @@ public class PhotoStack {
         self.coverPhoto = UIImage()
 
         self.STRING_ID = project.getUrl().lastPathComponent
-
+        
+        tempDir = FileManager.default.temporaryDirectory
+        
         location = nil
     }
 
@@ -132,13 +140,26 @@ public class PhotoStack {
         return images
     }
 
+    func initTimelapseBuilder(withSize: CGSize) {
+        let lapsePath = self.captureProject.getUrl().appendingPathComponent(TIMELAPSE_FILE_NAME).path
+        do {
+            try timeLapseBuilder = TimeLapseBuilder(
+                videoResolution: withSize,
+                frameRate: 60,
+                type: .mp4,
+                outputPath: lapsePath
+            )
+        } catch {
+            timeLapseBuilder = nil
+        }
+    }
 
     func add(captureObject: CaptureObject,
              statusUpdateCallback: ((PhotoStackingResult) -> ())?,
              previewImageCallback: ((UIImage) -> Void)?,
              addToProject: Bool = false) -> UIImage {
+        
         self.dispatch.addOperation {
-
             let image = captureObject.toUIImage()
             autoreleasepool {
                 if (addToProject) {
@@ -147,6 +168,26 @@ public class PhotoStack {
                     self.captureProject.save()
                 }
 
+            }
+            
+            /**
+            Create the timelapse
+             */
+            if self.createTimelapse {
+                if self.timeLapseBuilder == nil {
+                    self.initTimelapseBuilder(withSize: image.size)
+                }
+                
+                let resizedImage = ImageResizer.resizeImage(image, self.timeLapseBuilder!.canvasSize)
+                if resizedImage != nil {
+                    self.timeLapseBuilder?.addImage(image: resizedImage!, onSucess: {
+                        print("Sucess adding image")
+                    }, onError: {
+                        error in
+                        print("Failed adding iamge: \(error)")
+                    })
+
+                }
             }
 
             /**
@@ -223,13 +264,6 @@ public class PhotoStack {
         return self.coverPhoto
     }
 
-    func addPhoto(photo: Data) -> UIImage {
-        let image = UIImage(data: photo)!
-        coverPhoto = blendPreview(image1: coverPhoto, image2: image)
-
-        return coverPhoto
-    }
-
     func getCoverPhoto() -> UIImage {
         return coverPhoto
     }
@@ -247,21 +281,6 @@ public class PhotoStack {
 
         return image
 
-    }
-
-
-    func scale(image: CIImage, factor: CGFloat) -> CIImage {
-        let scaleDownFilter = CIFilter(name: "CILanczosScaleTransform")!
-
-        let targetSize = CGSize(width: image.extent.width * factor, height: image.extent.height * factor)
-        let scale = targetSize.height / (image.extent.height)
-        let aspectRatio = targetSize.width / ((image.extent.width) * scale)
-
-        scaleDownFilter.setValue(image, forKey: kCIInputImageKey)
-        scaleDownFilter.setValue(scale, forKey: kCIInputScaleKey)
-        scaleDownFilter.setValue(aspectRatio, forKey: kCIInputAspectRatioKey)
-
-        return scaleDownFilter.outputImage!
     }
 
     func saveStack(finished: Bool, statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
@@ -305,6 +324,12 @@ public class PhotoStack {
             let imageMaxed = self.stacker!.getPreviewImage()
             */
 
+            if self.createTimelapse {
+                self.timeLapseBuilder?.completeStack(onSucess: {
+                    self.captureProject.setTimelapseComplete()
+                })
+            }
+            
             statusUpdateCallback?(PhotoStackingResult.SUCCESS)
 
 
@@ -313,47 +338,8 @@ public class PhotoStack {
             ProjectController.storePreviewImage(image: resized)
 
             self.stacker?.deallocMerger()
+            
         }
     }
-
-
-    func savePreview(image: UIImage) {
-        PHPhotoLibrary.requestAuthorization(for: .addOnly) { status in
-
-            // Don't continue if not authorized.
-            guard status == .authorized else {
-                return
-            }
-
-            PHPhotoLibrary.shared().performChanges {
-                let creationRequest = PHAssetCreationRequest.forAsset()
-                creationRequest.addResource(with: .photo,
-                        data: image.jpegData(compressionQuality: 0.99)!,
-                        options: nil)
-
-
-            } completionHandler: { success, error in
-                // Process the Photos library error.
-            }
-
-        }
-    }
-
-
-    private func blendPreview(image1: UIImage, image2: UIImage) -> UIImage {
-        let rect = CGRect(x: 0, y: 0, width: image1.size.width, height: image1.size.height)
-        let renderer = UIGraphicsImageRenderer(size: image1.size)
-
-        let result = renderer.image { ctx in
-            // fill the background with white so that translucent colors get lighter
-            UIColor.black.set()
-            ctx.fill(rect)
-
-            image1.draw(in: rect, blendMode: .normal, alpha: 1)
-
-            image2.draw(in: rect, blendMode: .lighten, alpha: 1)
-        }
-
-        return result
-    }
+    
 }

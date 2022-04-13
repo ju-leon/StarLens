@@ -77,8 +77,12 @@ struct SegmentedPicker: View {
                 .eraseToAnyView()
     }
     
-    @State var expanded = false
+    @State private var expanded = false
     @State private var selection: Int = 0
+    
+    @Binding private var maskEnabled: Bool
+    @Binding private var timerEnabled: Bool
+    @Binding private var flashEnabled: Bool
     
     @Binding private var focusValue: Double
     
@@ -94,11 +98,18 @@ struct SegmentedPicker: View {
          onFocusChanged: @escaping (Bool) -> (),
          isoValue: Binding<Float>,
          isoMin: Binding<Float>,
-         isoMax: Binding<Float>) {
+         isoMax: Binding<Float>,
+         maskEnabled: Binding<Bool>,
+         timerEnabled: Binding<Bool>,
+         flashEnabled: Binding<Bool>) {
         self._focusValue = focusValue
         self._isoValue = isoValue
         self._isoMin = isoMin
         self._isoMax = isoMax
+        
+        self._maskEnabled = maskEnabled
+        self._timerEnabled = timerEnabled
+        self._flashEnabled = flashEnabled
         
         self.onFocusChanged = onFocusChanged
     }
@@ -121,22 +132,66 @@ struct SegmentedPicker: View {
                 VStack {
                     Divider()
                     ZStack {
+                        /*
+                         Sliding ruler for focus adjustments
+                         */
                         SlidingRuler(value: $focusValue,
                                      in: 0...1,
                                      step: 0.5,
                                      tick: .fraction,
                                      onEditingChanged: onFocusChanged
                         ).padding(.bottom).opacity(selection == 0 ? 1 : 0)
+                        /*
+                         Sliding ruler for iso adjustments
+                         */
                         SlidingRuler(value: $isoValue,
                                      in: isoMin...isoMax,
                                      step: 500.0,
-                                     tick: .unit,
+                                     tick: .fraction,
                                      onEditingChanged: {
                             (value) in
-                            
                             //model.focusUpdate(value)
-                            
                         }).padding(.bottom).opacity(selection == 1 ? 1 : 0)
+                        /*
+                         Other edit options
+                         */
+                        HStack{
+                            Spacer()
+                            Button(action: {
+                                self.maskEnabled.toggle()
+                            }, label: {
+                                Image(systemName: "scissors")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                                    .padding()
+                            }).opacity(self.maskEnabled ? 1.0 : 0.5)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                self.timerEnabled.toggle()
+                            }, label: {
+                                Image(systemName: "timer")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                                    .padding()
+                            }).opacity(self.timerEnabled ? 1.0 : 0.5)
+                            
+                            Spacer()
+                            
+                            Button(action: {
+                                self.flashEnabled.toggle()
+                            }, label: {
+                                Image(systemName: self.flashEnabled ? "bolt.fill" : "bolt.slash.fill")
+                                    .font(.system(size: 20))
+                                    .foregroundColor(.white)
+                                    .padding()
+                            }).opacity(self.flashEnabled ? 1.0 : 0.5)
+                            
+                            Spacer()
+                            
+                            
+                        }.padding(.bottom).opacity(selection == 2 ? 1 : 0)
                     }
                 }.transition(.scale)
             }

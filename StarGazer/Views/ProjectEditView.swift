@@ -154,6 +154,20 @@ class ProjectEditModel: ObservableObject {
             }
         })
     }
+    
+    func saveTimelapse() {
+        self.projectEditor?.exportTimelapse(onSucess: {
+            DispatchQueue.main.async {
+                self.showSaveSucessDialog = true
+            }
+        }, onFailed: {
+            DispatchQueue.main.async {
+                self.showSaveFailedDialog = true
+            }
+        })
+    }
+    
+    
 }
 
 struct EditOptionButton: View {
@@ -331,7 +345,7 @@ struct ActionOptionsBar: View {
 
             Spacer()
 
-            if (model.isProcessed) {
+            if model.isProcessed {
                 Button(action: {
                     withAnimation {
                         model.toggleEditMode()
@@ -367,6 +381,8 @@ struct ActionOptionsBar: View {
                 }.padding(10.0)
 
             }
+            .disabled(!model.isProcessed)
+            .opacity(model.isProcessed ? 1.0 : 0.5)
             .padding()
             .foregroundColor(.white)
             .confirmationDialog(
@@ -378,10 +394,17 @@ struct ActionOptionsBar: View {
                     self.model.saveJPEG()
                     print("Cliecked")
                 }
+                
+                if model.getProject() != nil && model.getProject()!.getTimelapseComplete() {
+                    Button("Timelapse (MP4)") {
+                        self.model.saveTimelapse()
+                    }
+                }
                 Button("RAW") {
                     print("Cliecked")
                 }
             }
+        
         }
     }
 }
