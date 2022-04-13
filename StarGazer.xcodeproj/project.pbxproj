@@ -15,6 +15,7 @@
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
 		0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FB27BF01D50060ABA0 /* shutterstill.json */; };
 		0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FE27BF02310060ABA0 /* shutterprep.json */; };
+		053D9070280718B20033BDE0 /* VideoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053D906F280718B20033BDE0 /* VideoManager.swift */; };
 		054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 054763F027CA2B2E00D15B25 /* AlertToast */; };
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
@@ -101,6 +102,7 @@
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		0536C3FB27BF01D50060ABA0 /* shutterstill.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterstill.json; sourceTree = "<group>"; };
 		0536C3FE27BF02310060ABA0 /* shutterprep.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterprep.json; sourceTree = "<group>"; };
+		053D906F280718B20033BDE0 /* VideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoManager.swift; sourceTree = "<group>"; };
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = FPN_MobileNet.mlpackage; sourceTree = "<group>"; };
@@ -228,6 +230,7 @@
 			isa = PBXGroup;
 			children = (
 				050945CE28045AAB00089BEB /* TimeLapseBuilder.swift */,
+				053D906F280718B20033BDE0 /* VideoManager.swift */,
 			);
 			path = TimeLapse;
 			sourceTree = "<group>";
@@ -706,6 +709,7 @@
 				05D4508327943EC6008DB81E /* ProjectController.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
+				053D9070280718B20033BDE0 /* VideoManager.swift in Sources */,
 				05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */,
 				05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,

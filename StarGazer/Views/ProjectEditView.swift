@@ -144,7 +144,7 @@ class ProjectEditModel: ObservableObject {
     }
     
     func saveJPEG() {
-        self.projectEditor?.exportJPEG(onSucess: {
+        self.projectEditor?.exportJPEG(onSuccess: {
             DispatchQueue.main.async {
                 self.showSaveSucessDialog = true
             }
@@ -156,7 +156,7 @@ class ProjectEditModel: ObservableObject {
     }
     
     func saveTimelapse() {
-        self.projectEditor?.exportTimelapse(onSucess: {
+        self.projectEditor?.exportTimelapse(onSuccess: {
             DispatchQueue.main.async {
                 self.showSaveSucessDialog = true
             }
@@ -390,17 +390,17 @@ struct ActionOptionsBar: View {
                  isPresented: $showingSaveDialog,
                  titleVisibility: .visible
             ) {
-                Button("JPEG (Recommended)") {
+                Button("Photo") {
                     self.model.saveJPEG()
                     print("Cliecked")
                 }
                 
                 if model.getProject() != nil && model.getProject()!.getTimelapseComplete() {
-                    Button("Timelapse (MP4)") {
+                    Button("Timelapse") {
                         self.model.saveTimelapse()
                     }
                 }
-                Button("RAW") {
+                Button("RAW Photo") {
                     print("Cliecked")
                 }
             }
@@ -458,7 +458,7 @@ struct ProjectEditView: View {
                 }
                 .background(.black)
                 .toast(isPresenting: $model.showSaveSucessDialog) {
-                    AlertToast(displayMode: .hud, type: .regular, title: "Photo saved!")
+                    AlertToast(displayMode: .hud, type: .regular, title: "Saved!")
                 }
                 .toast(isPresenting: $model.showSaveFailedDialog) {
                     AlertToast(displayMode: .hud, type: .regular, title: "Saving failed!")

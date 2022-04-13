@@ -6,7 +6,6 @@ import AVFoundation
 
 import UIKit
 import Photos
-import AssetsLibrary
 
 
 let kErrorDomain = "TimeLapseBuilder"
@@ -135,30 +134,6 @@ public class TimeLapseBuilder {
             onSucess?()
         }
         
-    }
-    
-    static public func saveToGallery(url: URL) {
-        /*
-        PHPhotoLibrary.shared().performChanges({
-            PHAssetChangeRequest.creationRequestForAssetFromVideo(atFileURL: url)
-        }) { saved, error in
-            if saved {
-                print("Saved")
-            } else {
-                print(error)
-            }
-        }*/
-        
-        let library = ALAssetsLibrary()
-
-        library.writeVideoAtPath(toSavedPhotosAlbum: url, completionBlock: { (url, error) -> Void in
-            if (error != nil) {
-                print(error)
-            } else {
-                print(url)
-            }
-            // Done! Go check your camera roll
-        })
     }
     
     func dimensionsOfImage(url: URL) -> CGSize? {

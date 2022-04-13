@@ -146,28 +146,22 @@ class ProjectEditor {
         }
     }
     
-    func exportJPEG(onSucess: (()->())?, onFailed: (()->())?) {
+    func exportJPEG(onSuccess: (()->())?, onFailed: (()->())?) {
         editQueue.async {
             let coverPhoto = self.imageEditor!.getFilteredImage()
             coverPhoto.saveToGallery(metadata: self.project.getMetadata(),
-                                     onSuccess: onSucess,
+                                     onSuccess: onSuccess,
                                      onFailed: onFailed)
         }
     }
     
-    func exportTimelapse(onSucess: (()->())?, onFailed: (()->())?) {
+    func exportTimelapse(onSuccess: (()->())?, onFailed: (()->())?) {
         editQueue.async {
             let path = self.project.getUrl().appendingPathComponent(TIMELAPSE_FILE_NAME)
-            print(path)
-            
-            let fileManager = FileManager.default
-            if fileManager.fileExists(atPath: path.path) {
-                print("FILE AVAILABLE")
-            } else {
-                print("FILE NOT AVAILABLE")
-            }
-            
-            TimeLapseBuilder.saveToGallery(url: path)
+                        
+            VideoManager.saveToGallery(atUrl: path, onSuccess: onSuccess, onError: {
+                _ in onFailed?()
+            })
         }
     }
 }
