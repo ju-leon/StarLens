@@ -86,6 +86,10 @@ struct ProjectsView : View {
 //                        Image(systemName: "xmark.circle.fill").font(.system(size: 20)).foregroundColor(.gray).padding()
                     }).padding()
                 )
+                
+                if model.projects.count == 0 {
+                    Text("No projects yet.")
+                }
             }
         }
     }
