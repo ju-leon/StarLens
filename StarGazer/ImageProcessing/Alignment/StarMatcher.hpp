@@ -164,9 +164,9 @@ public:
                 matches.push_back(DMatch(baseConstellations[indices[0]].index, constellation.index, dists[0]));
 
                 // Draw the constellation
-                line(constellationVis, constellation.base, constellation.left, Scalar(255, 0, 255), 1);
-                line(constellationVis, constellation.base, constellation.right, Scalar(255, 0, 255), 1);
-                line(constellationVis, constellation.left, constellation.right, Scalar(255, 0, 255), 1);
+                line(constellationVis, constellation.base, constellation.left, Scalar(255, 0, 255), 3);
+                line(constellationVis, constellation.base, constellation.right, Scalar(255, 0, 255), 3);
+                line(constellationVis, constellation.left, constellation.right, Scalar(255, 0, 255), 3);
             }
 
         }

@@ -6,6 +6,7 @@ import AVFoundation
 
 import UIKit
 import Photos
+import Accelerate
 
 
 let kErrorDomain = "TimeLapseBuilder"
@@ -18,6 +19,10 @@ public protocol TimelapseBuilderDelegate: AnyObject {
     func timeLapseBuilder(_ timelapseBuilder: TimeLapseBuilder, didMakeProgress progress: Progress)
     func timeLapseBuilder(_ timelapseBuilder: TimeLapseBuilder, didFinishWithURL url: URL)
     func timeLapseBuilder(_ timelapseBuilder: TimeLapseBuilder, didFailWithError error: Error)
+}
+
+public enum TimeLapseError: Error {
+    case initialisationError
 }
 
 public class TimeLapseBuilder {
@@ -103,27 +108,33 @@ public class TimeLapseBuilder {
     func addImage(image: UIImage,
                   onSucess: (() -> ())?,
                   onError: ((Error) -> ())?) {
-        //videoWriterInput.requestMediaDataWhenReady(on: timelapseQueue) {
-            while !self.videoWriterInput.isReadyForMoreMediaData {
-                print("Not ready, spinning...")
-                usleep(100)
+        
+        var x = 0
+        // if the video writer is busy, wait some time. If it stays busy for 10ms, abort
+        while !self.videoWriterInput.isReadyForMoreMediaData {
+            x += 1
+            usleep(2000)
+            if x > 50 {
+                onError?(TimeLapseError.initialisationError)
+                return
             }
-            
-            let presentationTime = CMTimeMake(value: self.frameCount, timescale: self.frameRate)
-            
-            if self.appendPixelBufferForImageAtURL(image, pixelBufferAdaptor: self.pixelBufferAdaptor, presentationTime: presentationTime) {
-                self.frameCount += 1
-                onSucess?()
-            } else {
-                let error = NSError(
-                    domain: kErrorDomain,
-                    code: kFailedToAppendPixelBufferError,
-                    userInfo: ["description": "AVAssetWriterInputPixelBufferAdapter failed to append pixel buffer"]
-                )
-                print("ERROR CREATING TIMELAPSE: \(error)")
-                onError?(error)
-            }
-        //}
+        }
+        
+        let presentationTime = CMTimeMake(value: self.frameCount, timescale: self.frameRate)
+        
+        if self.appendPixelBufferForImageAtURL(image, pixelBufferAdaptor: self.pixelBufferAdaptor, presentationTime: presentationTime) {
+            self.frameCount += 1
+            onSucess?()
+        } else {
+            let error = NSError(
+                domain: kErrorDomain,
+                code: kFailedToAppendPixelBufferError,
+                userInfo: ["description": "AVAssetWriterInputPixelBufferAdapter failed to append pixel buffer"]
+            )
+            print("ERROR CREATING TIMELAPSE: \(error)")
+            onError?(error)
+        }
+    
     }
     
     func completeStack(onSucess: (() -> ())?) {
