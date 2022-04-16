@@ -155,11 +155,30 @@ class ProjectEditor {
         }
     }
     
+    func exportRAW(onSuccess: (()->())?, onFailed: (()->())?) {
+        editQueue.async {
+            let path = self.project.getUrl().appendingPathComponent(TIFF_FILE_NAME)
+            self.imageEditor?.exportRawImage(path.path)
+            
+            RawSaver.saveToGallery(url: path, metadata: nil,
+                                   onSuccess: onSuccess,
+                                   onFailed: {
+                _ in onFailed?()
+            })
+            
+            /*
+            coverPhoto.saveToGallery(metadata: self.project.getMetadata(),
+                                     onSuccess: onSuccess,
+                                     onFailed: onFailed)
+            */
+         }
+    }
+    
     func exportTimelapse(onSuccess: (()->())?, onFailed: (()->())?) {
         editQueue.async {
             let path = self.project.getUrl().appendingPathComponent(TIMELAPSE_FILE_NAME)
                         
-            VideoManager.saveToGallery(atUrl: path, onSuccess: onSuccess, onError: {
+            VideoSaver.saveToGallery(atUrl: path, onSuccess: onSuccess, onError: {
                 _ in onFailed?()
             })
         }

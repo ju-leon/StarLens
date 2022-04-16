@@ -16,6 +16,7 @@ let MAXED_FILE_NAME = "imageMaxed.png"
 let AVERAGED_FILE_NAME = "imageAveraged.png"
 let CHECKPOINT_FILE_NAME = "checkpoint.stargazer"
 let TIMELAPSE_FILE_NAME = "timelapse.mp4"
+let TIFF_FILE_NAME = "rawimage.tiff"
 
 enum ProjectKeys: String {
     case captureStart = "captureStart"

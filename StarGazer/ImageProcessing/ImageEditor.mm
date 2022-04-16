@@ -70,29 +70,28 @@ const int MASK_BLUR_RADIUS = 15;
     return [UIImage imageWithCVMat: result];
 }
 
+
 - (UIImage *) getFilteredImage {
-    std::ifstream ifs(pathString, std::ios::binary);
-    
-    Mat combinedImage, maxedImage, stackedImage, mask;
-    readMatBinary(ifs, combinedImage);
-    combinedImage.convertTo(combinedImage, CV_32F);
-    combinedImage /= numImgs;
-    
-    readMatBinary(ifs, maxedImage);
-    maxedImage.convertTo(maxedImage, CV_32F);
-    
-    readMatBinary(ifs, stackedImage);
-    stackedImage.convertTo(stackedImage, CV_32F);
-    stackedImage /= numImgs;
-    
-    readMatBinary(ifs, mask);
-    if (_mask.empty()) {
-        _mask = Mat::ones(_stackedImage.rows, _stackedImage.cols, CV_32F);
-    }
-    
     Mat result;
-    applyFilters(combinedImage, maxedImage, stackedImage, mask, result);
+    createFilteredImage(result);
     return [UIImage imageWithCVMat: result];
+}
+
+- (void) exportRawImage: (NSString *) path {
+    Mat result;
+    createFilteredImage(result);
+    
+    cv::cvtColor(result, result, COLOR_BGR2RGB);
+    
+    result.convertTo(result, CV_16U);
+    result = result * 256;
+    
+    std::cout << [path UTF8String] << std::endl;
+
+    std::vector<Mat> imgs;
+    split(result, imgs);
+    imwrite([path UTF8String], result);
+    
 }
 
 /**
@@ -161,23 +160,21 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     
     reduceLightPollution(result, result, lightPol);
     
-
-    
     result /= 256;
     result.convertTo(result, CV_8U);
 
     Mat foregroundNormal;
     foreground.convertTo(foregroundNormal, CV_8U);
-    
+
     // Apply mask
     if (!mask.empty()) {
         //Mat floatMask;
         //cvtColor(mask, floatMask, COLOR_GRAY2BGR);
         //floatMask.convertTo(floatMask, CV_32FC3);
-        applyMask(foregroundNormal, 1 - mask, foregroundNormal);
         
         applyMask(result, mask, result);
-              
+        applyMask(foregroundNormal, 1 - mask, foregroundNormal);
+        
         addWeighted(foregroundNormal, 1, result, 1, 0, result, CV_8U);
         
         
@@ -190,6 +187,30 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
     }
 
 }
+
+void createFilteredImage(Mat &result) {
+    std::ifstream ifs(pathString, std::ios::binary);
+    
+    Mat combinedImage, maxedImage, stackedImage, mask;
+    readMatBinary(ifs, combinedImage);
+    combinedImage.convertTo(combinedImage, CV_32F);
+    combinedImage /= numImgs;
+    
+    readMatBinary(ifs, maxedImage);
+    maxedImage.convertTo(maxedImage, CV_32F);
+    
+    readMatBinary(ifs, stackedImage);
+    stackedImage.convertTo(stackedImage, CV_32F);
+    stackedImage /= numImgs;
+    
+    readMatBinary(ifs, mask);
+    if (mask.empty()) {
+        mask = Mat::ones(stackedImage.rows, stackedImage.cols, CV_32F);
+    }
+    
+    applyFilters(combinedImage, maxedImage, stackedImage, mask, result);
+}
+
 
 #endif
 

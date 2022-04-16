@@ -43,6 +43,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (UIImage *) getFilteredImage;
 
+- (void) exportRawImage: (NSString *) path;
+
 @end
 
 NS_ASSUME_NONNULL_END

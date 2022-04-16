@@ -45,6 +45,7 @@ extension UIImage {
 
             // Don't continue if not authorized.
             guard status == .authorized else {
+                onFailed?()
                 return
             }
 

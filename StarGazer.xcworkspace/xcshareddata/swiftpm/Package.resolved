@@ -1,61 +1,59 @@
 {
-  "object": {
-    "pins": [
-      {
-        "package": "AlertToast",
-        "repositoryURL": "https://github.com/elai950/AlertToast.git",
-        "state": {
-          "branch": null,
-          "revision": "a4f4267f6454259ba4ed8f9dadb87334a789c26c",
-          "version": "1.3.7"
-        }
-      },
-      {
-        "package": "CoreGeometry",
-        "repositoryURL": "https://gitlab.com/Pyroh/CoreGeometry.git",
-        "state": {
-          "branch": null,
-          "revision": "c8604b90dc60084e9d08f289573e537585b84129",
-          "version": "4.0.0"
-        }
-      },
-      {
-        "package": "Lottie",
-        "repositoryURL": "https://github.com/airbnb/lottie-ios.git",
-        "state": {
-          "branch": null,
-          "revision": "4a6058cbbdfe4f74aeae92c8bd51ad3b0de2a1ee",
-          "version": "3.3.0"
-        }
-      },
-      {
-        "package": "ModalView",
-        "repositoryURL": "https://github.com/diniska/modal-view",
-        "state": {
-          "branch": null,
-          "revision": "3f1a97297112770677b507556f581f7ed561593a",
-          "version": "1.0.1"
-        }
-      },
-      {
-        "package": "SlidingRuler",
-        "repositoryURL": "https://github.com/Pyroh/SlidingRuler.git",
-        "state": {
-          "branch": "main",
-          "revision": "707b15e0ade64b488e7146a487cc5ee9570af9fa",
-          "version": null
-        }
-      },
-      {
-        "package": "SmoothOperators",
-        "repositoryURL": "https://github.com/Pyroh/SmoothOperators.git",
-        "state": {
-          "branch": null,
-          "revision": "7fc92b9f8e65b79bc6d1295ad1e62973d60beb54",
-          "version": "0.14.0"
-        }
+  "pins" : [
+    {
+      "identity" : "alerttoast",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/elai950/AlertToast.git",
+      "state" : {
+        "revision" : "a4f4267f6454259ba4ed8f9dadb87334a789c26c",
+        "version" : "1.3.7"
       }
-    ]
-  },
-  "version": 1
+    },
+    {
+      "identity" : "coregeometry",
+      "kind" : "remoteSourceControl",
+      "location" : "https://gitlab.com/Pyroh/CoreGeometry.git",
+      "state" : {
+        "revision" : "c8604b90dc60084e9d08f289573e537585b84129",
+        "version" : "4.0.0"
+      }
+    },
+    {
+      "identity" : "lottie-ios",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/airbnb/lottie-ios.git",
+      "state" : {
+        "revision" : "4a6058cbbdfe4f74aeae92c8bd51ad3b0de2a1ee",
+        "version" : "3.3.0"
+      }
+    },
+    {
+      "identity" : "modal-view",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/diniska/modal-view",
+      "state" : {
+        "revision" : "3f1a97297112770677b507556f581f7ed561593a",
+        "version" : "1.0.1"
+      }
+    },
+    {
+      "identity" : "slidingruler",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Pyroh/SlidingRuler.git",
+      "state" : {
+        "branch" : "main",
+        "revision" : "707b15e0ade64b488e7146a487cc5ee9570af9fa"
+      }
+    },
+    {
+      "identity" : "smoothoperators",
+      "kind" : "remoteSourceControl",
+      "location" : "https://github.com/Pyroh/SmoothOperators.git",
+      "state" : {
+        "revision" : "7fc92b9f8e65b79bc6d1295ad1e62973d60beb54",
+        "version" : "0.14.0"
+      }
+    }
+  ],
+  "version" : 2
 }

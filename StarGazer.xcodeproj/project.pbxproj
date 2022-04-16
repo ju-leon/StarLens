@@ -13,9 +13,11 @@
 		051F0A80276FBA370015C507 /* CameraService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A7F276FBA370015C507 /* CameraService.swift */; };
 		051F0A84276FBC960015C507 /* PhotoCaptureProcessor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */; };
 		051F0A86276FBCBB0015C507 /* ImageResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 051F0A85276FBCBB0015C507 /* ImageResizer.swift */; };
+		053443162809A1F100ECF604 /* SlidingRuler in Frameworks */ = {isa = PBXBuildFile; productRef = 053443152809A1F100ECF604 /* SlidingRuler */; };
+		053443212809A61E00ECF604 /* opencv2.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0534431C2809A3C500ECF604 /* opencv2.framework */; };
 		0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FB27BF01D50060ABA0 /* shutterstill.json */; };
 		0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */ = {isa = PBXBuildFile; fileRef = 0536C3FE27BF02310060ABA0 /* shutterprep.json */; };
-		053D9070280718B20033BDE0 /* VideoManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053D906F280718B20033BDE0 /* VideoManager.swift */; };
+		053D9070280718B20033BDE0 /* VideoSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 053D906F280718B20033BDE0 /* VideoSaver.swift */; };
 		054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */ = {isa = PBXBuildFile; productRef = 054763F027CA2B2E00D15B25 /* AlertToast */; };
 		0555FF122785D57B0077B7A8 /* MLMultiArrayExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */; };
 		0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0555FF132785D61A0077B7A8 /* CGImageExtension.swift */; };
@@ -27,6 +29,8 @@
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
 		056CBBD4277C6A6900538E2E /* OpticalFlowVisualizer.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBD2277C6A6900538E2E /* OpticalFlowVisualizer.metal */; };
 		056CBBD5277C6A6900538E2E /* OpticalFlowVisualizerFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBD3277C6A6900538E2E /* OpticalFlowVisualizerFilter.swift */; };
+		058018D528099C0400881E7F /* RawSaver.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058018D428099C0400881E7F /* RawSaver.swift */; };
+		058018D728099CA300881E7F /* ExportError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058018D628099CA300881E7F /* ExportError.swift */; };
 		05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05849A3427BAF8C90073BB75 /* SettingsView.swift */; };
 		058EEB5527B931AC00970D7F /* SaveBinaryCV.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */; };
 		05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */; };
@@ -45,7 +49,6 @@
 		05D4508127943488008DB81E /* ProjectsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D4508027943488008DB81E /* ProjectsView.swift */; };
 		05D4508327943EC6008DB81E /* ProjectController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D4508227943EC6008DB81E /* ProjectController.swift */; };
 		05D4508527943F12008DB81E /* Project.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D4508427943F12008DB81E /* Project.swift */; };
-		05D9F46627DBF4A3005A219A /* SlidingRuler in Frameworks */ = {isa = PBXBuildFile; productRef = 05D9F46527DBF4A3005A219A /* SlidingRuler */; };
 		05DE2232277C728C007A90DE /* CoreGraphics.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2231277C728C007A90DE /* CoreGraphics.framework */; };
 		05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2233277C7294007A90DE /* CoreMedia.framework */; };
 		05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 05DE2235277C729E007A90DE /* CoreFoundation.framework */; };
@@ -71,9 +74,7 @@
 		3B2A0AC74BE999EEA6281B19 /* CaptureView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A01974F64B6F47AF2F12B /* CaptureView.swift */; };
 		3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */; };
 		3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3B2A0AF963F942431EE0A19B /* ProcessingView.swift */; };
-		6948A4D8FA4A8EA88A4AC16E /* Pods_StarGazer_StarGazerUITests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */; };
 		8A13B089EC51684D47BE9933 /* Pods_StarGazer.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */; };
-		FA125E79CB9AAAB183440C2D /* Pods_StarGazerTests.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A7642934E6E17F28421A5B9C /* Pods_StarGazerTests.framework */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -100,9 +101,10 @@
 		051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoCaptureProcessor.swift; sourceTree = "<group>"; };
 		051F0A85276FBCBB0015C507 /* ImageResizer.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageResizer.swift; sourceTree = "<group>"; };
 		051F0A8B276FC0C60015C507 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		0534431C2809A3C500ECF604 /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		0536C3FB27BF01D50060ABA0 /* shutterstill.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterstill.json; sourceTree = "<group>"; };
 		0536C3FE27BF02310060ABA0 /* shutterprep.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutterprep.json; sourceTree = "<group>"; };
-		053D906F280718B20033BDE0 /* VideoManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoManager.swift; sourceTree = "<group>"; };
+		053D906F280718B20033BDE0 /* VideoSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VideoSaver.swift; sourceTree = "<group>"; };
 		0555FF112785D57B0077B7A8 /* MLMultiArrayExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MLMultiArrayExtension.swift; sourceTree = "<group>"; };
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = FPN_MobileNet.mlpackage; sourceTree = "<group>"; };
@@ -113,6 +115,8 @@
 		056CBBD2277C6A6900538E2E /* OpticalFlowVisualizer.metal */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.metal; path = OpticalFlowVisualizer.metal; sourceTree = "<group>"; };
 		056CBBD3277C6A6900538E2E /* OpticalFlowVisualizerFilter.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = OpticalFlowVisualizerFilter.swift; sourceTree = "<group>"; };
 		05752DF227A5E6E6004B5461 /* ImageMerger.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = ImageMerger.hpp; sourceTree = "<group>"; };
+		058018D428099C0400881E7F /* RawSaver.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RawSaver.swift; sourceTree = "<group>"; };
+		058018D628099CA300881E7F /* ExportError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportError.swift; sourceTree = "<group>"; };
 		05849A3427BAF8C90073BB75 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveBinaryCV.cpp; sourceTree = "<group>"; };
 		058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SaveBinaryCV.hpp; sourceTree = "<group>"; };
@@ -161,7 +165,6 @@
 		05DE22712781CAF1007A90DE /* CoreVideo.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreVideo.framework; path = System/Library/Frameworks/CoreVideo.framework; sourceTree = SDKROOT; };
 		05DE22732781CAFA007A90DE /* QuartzCore.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = QuartzCore.framework; path = System/Library/Frameworks/QuartzCore.framework; sourceTree = SDKROOT; };
 		05DE22752781CB0A007A90DE /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = System/Library/Frameworks/Foundation.framework; sourceTree = SDKROOT; };
-		05DE22772781CC3D007A90DE /* opencv2.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; path = opencv2.framework; sourceTree = "<group>"; };
 		05EE7B4D27E51BB50047EF8F /* enhance.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = enhance.cpp; sourceTree = "<group>"; };
 		05EE7B4E27E51BB50047EF8F /* enhance.hpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.h; path = enhance.hpp; sourceTree = "<group>"; };
 		05EE7B5327E672EC0047EF8F /* SegmentedPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SegmentedPicker.swift; sourceTree = "<group>"; };
@@ -176,9 +179,7 @@
 		426CCD848BF90E192F8C2927 /* Pods-StarGazer-StarGazerUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer-StarGazerUITests.debug.xcconfig"; path = "Target Support Files/Pods-StarGazer-StarGazerUITests/Pods-StarGazer-StarGazerUITests.debug.xcconfig"; sourceTree = "<group>"; };
 		4EBB33ED430F0F1CAAB6B88B /* Pods-StarGazerTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazerTests.release.xcconfig"; path = "Target Support Files/Pods-StarGazerTests/Pods-StarGazerTests.release.xcconfig"; sourceTree = "<group>"; };
 		90B9CD25C3F4652D837B8FAC /* Pods-StarGazer.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer.release.xcconfig"; path = "Target Support Files/Pods-StarGazer/Pods-StarGazer.release.xcconfig"; sourceTree = "<group>"; };
-		A7642934E6E17F28421A5B9C /* Pods_StarGazerTests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_StarGazerTests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E0B599600EC1D98488D5EEE0 /* Pods-StarGazer-StarGazerUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazer-StarGazerUITests.release.xcconfig"; path = "Target Support Files/Pods-StarGazer-StarGazerUITests/Pods-StarGazer-StarGazerUITests.release.xcconfig"; sourceTree = "<group>"; };
-		E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_StarGazer_StarGazerUITests.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */ = {isa = PBXFileReference; explicitFileType = wrapper.framework; includeInIndex = 0; path = Pods_StarGazer.framework; sourceTree = BUILT_PRODUCTS_DIR; };
 		F857A401FB3DB9F990DF1485 /* Pods-StarGazerTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-StarGazerTests.debug.xcconfig"; path = "Target Support Files/Pods-StarGazerTests/Pods-StarGazerTests.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -188,21 +189,22 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05D9F46627DBF4A3005A219A /* SlidingRuler in Frameworks */,
-				055F7D2527C4418000D2AE59 /* ModalView in Frameworks */,
-				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
-				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
-				054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */,
-				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
-				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
-				0510811A27BEE06100A50129 /* Lottie in Frameworks */,
-				05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */,
-				05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */,
-				05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */,
+				053443212809A61E00ECF604 /* opencv2.framework in Frameworks */,
 				05DE2238277C72A8007A90DE /* AssetsLibrary.framework in Frameworks */,
-				05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */,
-				05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */,
+				05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */,
 				05DE2232277C728C007A90DE /* CoreGraphics.framework in Frameworks */,
+				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
+				05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */,
+				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
+				05DE22742781CAFA007A90DE /* QuartzCore.framework in Frameworks */,
+				05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */,
+				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
+				055F7D2527C4418000D2AE59 /* ModalView in Frameworks */,
+				054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */,
+				0510811A27BEE06100A50129 /* Lottie in Frameworks */,
+				05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */,
+				053443162809A1F100ECF604 /* SlidingRuler in Frameworks */,
+				05DE2236277C729E007A90DE /* CoreFoundation.framework in Frameworks */,
 				8A13B089EC51684D47BE9933 /* Pods_StarGazer.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -211,7 +213,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				FA125E79CB9AAAB183440C2D /* Pods_StarGazerTests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -219,7 +220,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				6948A4D8FA4A8EA88A4AC16E /* Pods_StarGazer_StarGazerUITests.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -230,7 +230,6 @@
 			isa = PBXGroup;
 			children = (
 				050945CE28045AAB00089BEB /* TimeLapseBuilder.swift */,
-				053D906F280718B20033BDE0 /* VideoManager.swift */,
 			);
 			path = TimeLapse;
 			sourceTree = "<group>";
@@ -265,6 +264,17 @@
 			path = Filters;
 			sourceTree = "<group>";
 		};
+		058018D328099BD600881E7F /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				058018D628099CA300881E7F /* ExportError.swift */,
+				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
+				053D906F280718B20033BDE0 /* VideoSaver.swift */,
+				058018D428099C0400881E7F /* RawSaver.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
 		05B9B8AF276BDBAF00FF442F = {
 			isa = PBXGroup;
 			children = (
@@ -297,6 +307,7 @@
 				050945CD28045A8900089BEB /* TimeLapse */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
+				058018D328099BD600881E7F /* Export */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
 				056CBBCC2779C8AD00538E2E /* CaptureObject.swift */,
 				05CEB59D27723D8800EDDE7D /* PhotoStack.swift */,
@@ -305,7 +316,6 @@
 				05D4508227943EC6008DB81E /* ProjectController.swift */,
 				05D4508427943F12008DB81E /* Project.swift */,
 				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
-				3B2A0D2F3EACE7853E8BB8AB /* ImageSaver.swift */,
 				05C65CE427CC0E96001ADE0F /* UserOptions.swift */,
 				3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */,
 				3B2A07B712EAB45B4304C926 /* Views */,
@@ -345,7 +355,7 @@
 		05DE222E277C727C007A90DE /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				05DE22772781CC3D007A90DE /* opencv2.framework */,
+				0534431C2809A3C500ECF604 /* opencv2.framework */,
 				05DE22752781CB0A007A90DE /* Foundation.framework */,
 				05DE22732781CAFA007A90DE /* QuartzCore.framework */,
 				05DE22712781CAF1007A90DE /* CoreVideo.framework */,
@@ -358,8 +368,6 @@
 				05DE2233277C7294007A90DE /* CoreMedia.framework */,
 				05DE2231277C728C007A90DE /* CoreGraphics.framework */,
 				E9D94575AAA3ADD066CDDD7C /* Pods_StarGazer.framework */,
-				E6878BD2DD074A150DAC2BD0 /* Pods_StarGazer_StarGazerUITests.framework */,
-				A7642934E6E17F28421A5B9C /* Pods_StarGazerTests.framework */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -492,7 +500,7 @@
 				0510811927BEE06100A50129 /* Lottie */,
 				055F7D2427C4418000D2AE59 /* ModalView */,
 				054763F027CA2B2E00D15B25 /* AlertToast */,
-				05D9F46527DBF4A3005A219A /* SlidingRuler */,
+				053443152809A1F100ECF604 /* SlidingRuler */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -705,11 +713,12 @@
 				0555FF142785D61A0077B7A8 /* CGImageExtension.swift in Sources */,
 				05BE420827AF1EDD00F45670 /* ImageEditor.mm in Sources */,
 				05BE420A27AF32EC00F45670 /* ProjectEditor.swift in Sources */,
+				058018D528099C0400881E7F /* RawSaver.swift in Sources */,
 				058EEB5527B931AC00970D7F /* SaveBinaryCV.cpp in Sources */,
 				05D4508327943EC6008DB81E /* ProjectController.swift in Sources */,
 				056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */,
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
-				053D9070280718B20033BDE0 /* VideoManager.swift in Sources */,
+				053D9070280718B20033BDE0 /* VideoSaver.swift in Sources */,
 				05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */,
 				05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
@@ -726,6 +735,7 @@
 				3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */,
 				0510811C27BEE51000A50129 /* LottieView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
+				058018D728099CA300881E7F /* ExportError.swift in Sources */,
 				050945CF28045AAB00089BEB /* TimeLapseBuilder.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 				3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */,
@@ -1138,6 +1148,11 @@
 			package = 0510811827BEE06100A50129 /* XCRemoteSwiftPackageReference "lottie-ios" */;
 			productName = Lottie;
 		};
+		053443152809A1F100ECF604 /* SlidingRuler */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */;
+			productName = SlidingRuler;
+		};
 		054763F027CA2B2E00D15B25 /* AlertToast */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */;
@@ -1147,11 +1162,6 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */;
 			productName = ModalView;
-		};
-		05D9F46527DBF4A3005A219A /* SlidingRuler */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */;
-			productName = SlidingRuler;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

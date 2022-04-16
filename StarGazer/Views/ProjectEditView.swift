@@ -155,6 +155,18 @@ class ProjectEditModel: ObservableObject {
         })
     }
     
+    func saveRAW() {
+        self.projectEditor?.exportRAW(onSuccess: {
+            DispatchQueue.main.async {
+                self.showSaveSucessDialog = true
+            }
+        }, onFailed: {
+            DispatchQueue.main.async {
+                self.showSaveFailedDialog = true
+            }
+        })
+    }
+    
     func saveTimelapse() {
         self.projectEditor?.exportTimelapse(onSuccess: {
             DispatchQueue.main.async {
@@ -401,7 +413,8 @@ struct ActionOptionsBar: View {
                     }
                 }
                 Button("RAW Photo") {
-                    print("Cliecked")
+                    self.model.saveRAW()
+                    print("Saving raw")
                 }
             }
         
