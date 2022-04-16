@@ -79,12 +79,12 @@ const int MASK_BLUR_RADIUS = 15;
 
 - (void) exportRawImage: (NSString *) path {
     Mat result;
-    createFilteredImage(result);
+    createFilteredImage(result, false);
     
     cv::cvtColor(result, result, COLOR_BGR2RGB);
     
-    result.convertTo(result, CV_16U);
-    result = result * 256;
+    //result.convertTo(result, CV_16U);
+    //result = result * 256;
     
     std::cout << [path UTF8String] << std::endl;
 
@@ -147,6 +147,47 @@ string pathString;
 
 int maskFeather = 35;
 
+void applyFilters16bit(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result, bool reduceNoise = false) {
+    // Apply skyPop
+    addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result, CV_32F);
+    
+    adaptStarColor(result, result, color, saturation, brightness);
+    
+    result *= 256;
+    result.convertTo(result, CV_16U);
+    
+    equalizeIntensity(result, result);
+    
+    reduceLightPollution(result, result, lightPol);
+    
+    //result /= 256;
+    //result.convertTo(result, CV_8U);
+
+    Mat foregroundNormal;
+    foreground.copyTo(foregroundNormal);
+    foregroundNormal *= 256;
+    foregroundNormal.convertTo(foregroundNormal, CV_16U);
+    
+    std::cout << "Foreground type: " << foregroundNormal.type() << std::endl;
+    
+    // Apply mask
+    
+    if (!mask.empty()) {
+        //Mat floatMask;
+        //cvtColor(mask, floatMask, COLOR_GRAY2BGR);
+        //floatMask.convertTo(floatMask, CV_32FC3);
+        
+        applyMask(result, mask, result, CV_16U);
+        applyMask(foregroundNormal, 1 - mask, foregroundNormal, CV_16U);
+        
+        addWeighted(foregroundNormal, 1, result, 1, 0, result, CV_16U);
+    }
+    
+    if (reduceNoise) {
+        noiseReduction(result, result, 3);
+    }
+}
+
 void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mask, Mat &result, bool reduceNoise = false) {
     // Apply skyPop
     addWeighted(imageCombined, 1 - starPop, imageMaxed, starPop, 0, result, CV_32F);
@@ -188,7 +229,7 @@ void applyFilters(Mat &imageCombined, Mat &imageMaxed, Mat &foreground, Mat &mas
 
 }
 
-void createFilteredImage(Mat &result) {
+void createFilteredImage(Mat &result, bool to8bit = true) {
     std::ifstream ifs(pathString, std::ios::binary);
     
     Mat combinedImage, maxedImage, stackedImage, mask;
@@ -208,7 +249,12 @@ void createFilteredImage(Mat &result) {
         mask = Mat::ones(stackedImage.rows, stackedImage.cols, CV_32F);
     }
     
-    applyFilters(combinedImage, maxedImage, stackedImage, mask, result);
+    applyFilters16bit(combinedImage, maxedImage, stackedImage, mask, result);
+
+    if (to8bit) {
+        result /= 256;
+        result.convertTo(result, CV_8U);
+    }
 }
 
 

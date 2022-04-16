@@ -45,13 +45,13 @@ void blendHardLight(Mat im1, Mat im2, Mat out) {
 /**
  Applies a mask to an image. Supports soft masks if mask is float in range [0-1].
  */
-void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage) {
+void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage, int type) {
     vector<Mat> channels;
     split(inputImage,channels);
     
-    cv::multiply(channels[0], mask, channels[0], 1.0, CV_8U);
-    cv::multiply(channels[1], mask, channels[1], 1.0, CV_8U);
-    cv::multiply(channels[2], mask, channels[2], 1.0, CV_8U);
+    cv::multiply(channels[0], mask, channels[0], 1.0, type);
+    cv::multiply(channels[1], mask, channels[1], 1.0, type);
+    cv::multiply(channels[2], mask, channels[2], 1.0, type);
 
     merge(channels, outputImage);
 }

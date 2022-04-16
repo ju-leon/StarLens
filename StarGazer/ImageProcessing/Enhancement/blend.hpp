@@ -21,6 +21,6 @@ void blendSoftLight(Mat im1, Mat im2, Mat out);
 
 void blendHardLight(Mat im1, Mat im2, Mat out);
 
-void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage);
+void applyMask(const Mat &inputImage, const Mat &mask, Mat &outputImage, int type = CV_8U);
 
 #endif /* blend_hpp */
