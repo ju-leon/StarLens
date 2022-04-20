@@ -79,22 +79,28 @@ class ProjectEditor {
         for option in EditOption.allCases {
             self.editOptions[option] = projectEditOptions[option.instance.identifier]
         }
+        
+        updateFilterValues()
     }
     
     deinit {
         print("Project editor destroyed")
     }
 
+    func updateFilterValues() {
+        self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
+        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
+        self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
+        self.imageEditor!.setColor(self.editOptions[.color] as! Double)
+        self.imageEditor!.setSaturation(self.editOptions[.saturation] as! Double)
+    }
+    
     func applyFilters(resultCallback: @escaping (UIImage) -> ()) {
         editQueue.async {
             if self.imageEditor != nil {
                 while (self.updatePreview) {
                     autoreleasepool {
-                        self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
-                        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
-                        self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
-                        self.imageEditor!.setColor(self.editOptions[.color] as! Double)
-                        self.imageEditor!.setSaturation(self.editOptions[.saturation] as! Double)
+                        self.updateFilterValues()
                         
                         resultCallback(self.imageEditor!.getFilteredImagePreview())
                     }
