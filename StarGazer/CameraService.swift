@@ -205,9 +205,11 @@ public class CameraService: NSObject {
 
 
     public func checkForPermissions() {
+        /*
         self.locationManager.requestWhenInUseAuthorization()
+        */
 
-
+        /*
         switch AVCaptureDevice.authorizationStatus(for: .video) {
         case .authorized:
             // The user has previously granted access to the camera.
@@ -217,7 +219,8 @@ public class CameraService: NSObject {
              The user has not yet been presented with the option to grant
              video access. Suspend the session queue to delay session
              setup until the access request has completed.
-             */
+             
+             Handled by PermissionSwiftUI
             sessionQueue.suspend()
             AVCaptureDevice.requestAccess(for: .video, completionHandler: { granted in
                 if !granted {
@@ -225,6 +228,8 @@ public class CameraService: NSObject {
                 }
                 self.sessionQueue.resume()
             })
+             */
+            break
 
         default:
             // The user has previously denied access.
@@ -241,6 +246,7 @@ public class CameraService: NSObject {
                 self.isCameraButtonDisabled = true
             }
         }
+         */
     }
 
     //  MARK: Session Management

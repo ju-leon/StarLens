@@ -13,6 +13,7 @@ import SlidingRuler
 import Lottie
 import ModalView
 
+
 final class CameraModel: ObservableObject {
     public var service = CameraService()
     
@@ -453,7 +454,6 @@ struct CameraView: View {
 
     }
     
-
     var body: some View {
         GeometryReader { reader in
             ZStack {

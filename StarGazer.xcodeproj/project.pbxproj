@@ -33,6 +33,12 @@
 		058018D728099CA300881E7F /* ExportError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058018D628099CA300881E7F /* ExportError.swift */; };
 		05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05849A3427BAF8C90073BB75 /* SettingsView.swift */; };
 		058EEB5527B931AC00970D7F /* SaveBinaryCV.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */; };
+		05B65A692810523D00D77530 /* PermissionsSwiftUICamera in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A682810523D00D77530 /* PermissionsSwiftUICamera */; };
+		05B65A6B2810523D00D77530 /* PermissionsSwiftUILocation in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A6A2810523D00D77530 /* PermissionsSwiftUILocation */; };
+		05B65A6D2810523D00D77530 /* PermissionsSwiftUIPhoto in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A6C2810523D00D77530 /* PermissionsSwiftUIPhoto */; };
+		05B65A6F2811A12C00D77530 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B65A6E2811A12C00D77530 /* TutorialView.swift */; };
+		05B65A712812CDFB00D77530 /* StarLensWelcome.json in Resources */ = {isa = PBXBuildFile; fileRef = 05B65A702812CDFB00D77530 /* StarLensWelcome.json */; };
+		05B65A732812D3A400D77530 /* TimedLottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B65A722812D3A400D77530 /* TimedLottieView.swift */; };
 		05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */; };
 		05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B9B8BF276BDBB100FF442F /* Assets.xcassets */; };
 		05B9B8C3276BDBB100FF442F /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B9B8C2276BDBB100FF442F /* Preview Assets.xcassets */; };
@@ -120,6 +126,9 @@
 		05849A3427BAF8C90073BB75 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveBinaryCV.cpp; sourceTree = "<group>"; };
 		058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SaveBinaryCV.hpp; sourceTree = "<group>"; };
+		05B65A6E2811A12C00D77530 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
+		05B65A702812CDFB00D77530 /* StarLensWelcome.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = StarLensWelcome.json; path = ../../../../Desktop/StarLensWelcome.json; sourceTree = "<group>"; };
+		05B65A722812D3A400D77530 /* TimedLottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimedLottieView.swift; sourceTree = "<group>"; };
 		05B9B8B8276BDBAF00FF442F /* StarGazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StarGazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerApp.swift; sourceTree = "<group>"; };
 		05B9B8BF276BDBB100FF442F /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
@@ -193,6 +202,7 @@
 				05DE2238277C72A8007A90DE /* AssetsLibrary.framework in Frameworks */,
 				05DE226E2781CACA007A90DE /* AVFoundation.framework in Frameworks */,
 				05DE2232277C728C007A90DE /* CoreGraphics.framework in Frameworks */,
+				05B65A692810523D00D77530 /* PermissionsSwiftUICamera in Frameworks */,
 				05DE22702781CAE3007A90DE /* CoreImage.framework in Frameworks */,
 				05DE2234277C7294007A90DE /* CoreMedia.framework in Frameworks */,
 				05DE22722781CAF1007A90DE /* CoreVideo.framework in Frameworks */,
@@ -200,6 +210,8 @@
 				05DE226C2781CA21007A90DE /* UIKit.framework in Frameworks */,
 				05DE22762781CB0B007A90DE /* Foundation.framework in Frameworks */,
 				055F7D2527C4418000D2AE59 /* ModalView in Frameworks */,
+				05B65A6D2810523D00D77530 /* PermissionsSwiftUIPhoto in Frameworks */,
+				05B65A6B2810523D00D77530 /* PermissionsSwiftUILocation in Frameworks */,
 				054763F127CA2B2E00D15B25 /* AlertToast in Frameworks */,
 				0510811A27BEE06100A50129 /* Lottie in Frameworks */,
 				05DE223A277C72B2007A90DE /* Accelerate.framework in Frameworks */,
@@ -237,6 +249,7 @@
 		0510811D27BEE52E00A50129 /* Lottie */ = {
 			isa = PBXGroup;
 			children = (
+				05B65A702812CDFB00D77530 /* StarLensWelcome.json */,
 				05C65CE627CC14EB001ADE0F /* shutter.json */,
 				0536C3FE27BF02310060ABA0 /* shutterprep.json */,
 				0536C3FB27BF01D50060ABA0 /* shutterstill.json */,
@@ -438,6 +451,7 @@
 			children = (
 				05EE7B5327E672EC0047EF8F /* SegmentedPicker.swift */,
 				0510811B27BEE51000A50129 /* LottieView.swift */,
+				05B65A722812D3A400D77530 /* TimedLottieView.swift */,
 			);
 			path = Components;
 			sourceTree = "<group>";
@@ -454,6 +468,7 @@
 				3B2A0AF963F942431EE0A19B /* ProcessingView.swift */,
 				05D4508027943488008DB81E /* ProjectsView.swift */,
 				05D338AA27A47A85008BB868 /* ProjectEditView.swift */,
+				05B65A6E2811A12C00D77530 /* TutorialView.swift */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -501,6 +516,9 @@
 				055F7D2427C4418000D2AE59 /* ModalView */,
 				054763F027CA2B2E00D15B25 /* AlertToast */,
 				053443152809A1F100ECF604 /* SlidingRuler */,
+				05B65A682810523D00D77530 /* PermissionsSwiftUICamera */,
+				05B65A6A2810523D00D77530 /* PermissionsSwiftUILocation */,
+				05B65A6C2810523D00D77530 /* PermissionsSwiftUIPhoto */,
 			);
 			productName = StarGazer;
 			productReference = 05B9B8B8276BDBAF00FF442F /* StarGazer.app */;
@@ -582,6 +600,7 @@
 				055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */,
 				054763EF27CA2B2E00D15B25 /* XCRemoteSwiftPackageReference "AlertToast" */,
 				05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */,
+				05B65A672810523D00D77530 /* XCRemoteSwiftPackageReference "PermissionsSwiftUI" */,
 			);
 			productRefGroup = 05B9B8B9276BDBAF00FF442F /* Products */;
 			projectDirPath = "";
@@ -599,6 +618,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				05B65A712812CDFB00D77530 /* StarLensWelcome.json in Resources */,
 				0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */,
 				0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */,
 				05B9B8C3276BDBB100FF442F /* Preview Assets.xcassets in Resources */,
@@ -734,9 +754,11 @@
 				3B2A05F33EB44385E6E04728 /* CameraPreview.swift in Sources */,
 				3B2A0DF990A7BBDDC71C7A5E /* ProcessingView.swift in Sources */,
 				0510811C27BEE51000A50129 /* LottieView.swift in Sources */,
+				05B65A732812D3A400D77530 /* TimedLottieView.swift in Sources */,
 				3B2A0275CFBFEAD7C1733E1D /* StateControlView.swift in Sources */,
 				058018D728099CA300881E7F /* ExportError.swift in Sources */,
 				050945CF28045AAB00089BEB /* TimeLapseBuilder.swift in Sources */,
+				05B65A6F2811A12C00D77530 /* TutorialView.swift in Sources */,
 				3B2A09E3AF13441AEFBB03FA /* ImageSaver.swift in Sources */,
 				3B2A0D3938D697BC8035E4D2 /* DeviceOrientationManager.swift in Sources */,
 				05EE7B4F27E51BB50047EF8F /* enhance.cpp in Sources */,
@@ -1132,6 +1154,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		05B65A672810523D00D77530 /* XCRemoteSwiftPackageReference "PermissionsSwiftUI" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/jevonmao/PermissionsSwiftUI";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
 		05D9F46427DBF4A3005A219A /* XCRemoteSwiftPackageReference "SlidingRuler" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/Pyroh/SlidingRuler.git";
@@ -1162,6 +1192,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 055F7D2327C4418000D2AE59 /* XCRemoteSwiftPackageReference "modal-view" */;
 			productName = ModalView;
+		};
+		05B65A682810523D00D77530 /* PermissionsSwiftUICamera */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05B65A672810523D00D77530 /* XCRemoteSwiftPackageReference "PermissionsSwiftUI" */;
+			productName = PermissionsSwiftUICamera;
+		};
+		05B65A6A2810523D00D77530 /* PermissionsSwiftUILocation */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05B65A672810523D00D77530 /* XCRemoteSwiftPackageReference "PermissionsSwiftUI" */;
+			productName = PermissionsSwiftUILocation;
+		};
+		05B65A6C2810523D00D77530 /* PermissionsSwiftUIPhoto */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 05B65A672810523D00D77530 /* XCRemoteSwiftPackageReference "PermissionsSwiftUI" */;
+			productName = PermissionsSwiftUIPhoto;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
