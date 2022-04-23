@@ -12,6 +12,7 @@ import AVFoundation
 import UIKit
 import SlidingRuler
 import ModalView
+import CoreLocation
 
 struct SwitchTask: View {
     @State var text: String
@@ -40,6 +41,9 @@ struct SettingsView : View {
     var rawOptions = ["Combined", "Background + Foreground", "Background + Foreground + Mask"]
     @State private var selectedRawExport = 0
     
+    @State private var recordLocation = true
+    @State private var showPermissionAlert = false
+    
     @State private var applyMask = true
     @State private var shortExposure = true
     @State private var rawEnabled = true
@@ -52,7 +56,27 @@ struct SettingsView : View {
         NavigationView {
                 List {                   
                     Section(header: Text("General")) {
-                        Toggle("Add GPS location to photo", isOn: .constant(true))
+                        Toggle("Add GPS location to photo", isOn: $recordLocation).onChange(of: recordLocation, perform: {
+                            _ in
+                            
+                            if recordLocation {
+                                let manager = CLLocationManager()
+                                switch manager.authorizationStatus {
+                                case .restricted, .denied, .notDetermined:
+                                    showPermissionAlert = true
+                                    recordLocation = false
+                                default:
+                                    print("Permission ok")
+                                }
+                            }
+                            saveDefault(key: .recordLocation, value: recordLocation)
+
+                        }).alert(isPresented: $showPermissionAlert) {
+                            Alert(title: Text("Permission not granted"),
+                                  message: Text("Go to Settings>Privacy>Location Services and allow StarLens to access your location to be able to save the location of an image."),
+                                  dismissButton: .default(Text("OK"))
+                            )
+                        }
                         
                         Toggle("Show grid", isOn: .constant(false))
                     }
@@ -144,6 +168,7 @@ struct SettingsView : View {
             self.applyMask = defaults.bool(forKey: UserOption.isMaskEnabled.rawValue)
             self.shortExposure = defaults.bool(forKey: UserOption.shortExposure.rawValue)
             self.rawEnabled = defaults.bool(forKey: UserOption.rawEnabled.rawValue)
+            self.recordLocation = defaults.bool(forKey: UserOption.recordLocation.rawValue)
         })
         
     }

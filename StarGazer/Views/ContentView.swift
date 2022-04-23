@@ -356,6 +356,12 @@ struct CameraView: View {
                                                     if model.willCapturePhoto {
                                                         Color.black
                                                     }
+                                                    
+                                                    if model.captureStatus == .permission {
+                                                        Text("Camera permission not granted.\n\nGo to Settings>Privacy>Camera and allow StarLens to use the camera, then restart the app.")
+                                                            .multilineTextAlignment(.center)
+                                                            .padding()
+                                                    }
                                                 }
                                         )
                                         .animation(.easeInOut)

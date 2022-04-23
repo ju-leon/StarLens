@@ -11,6 +11,7 @@ import AVFoundation
 import UIKit
 import SlidingRuler
 import AlertToast
+import Photos
 
 enum ProjectEditMode: Int {
     case preview = 0
@@ -35,6 +36,8 @@ class ProjectEditModel: ObservableObject {
     @Published var showSaveFailedDialog = false
     
     @Published var loading = true
+    
+    @Published var showPermissionAlert = false
     
     public var projectEditor: ProjectEditor?
     
@@ -150,6 +153,7 @@ class ProjectEditModel: ObservableObject {
             }
         }, onFailed: {
             DispatchQueue.main.async {
+                self.checkAndShowPermissionMessage()
                 self.showSaveFailedDialog = true
             }
         })
@@ -162,6 +166,7 @@ class ProjectEditModel: ObservableObject {
             }
         }, onFailed: {
             DispatchQueue.main.async {
+                self.checkAndShowPermissionMessage()
                 self.showSaveFailedDialog = true
             }
         })
@@ -174,9 +179,19 @@ class ProjectEditModel: ObservableObject {
             }
         }, onFailed: {
             DispatchQueue.main.async {
+                self.checkAndShowPermissionMessage()
                 self.showSaveFailedDialog = true
             }
         })
+    }
+    
+    func checkAndShowPermissionMessage() {
+        switch PHPhotoLibrary.authorizationStatus(for: .readWrite) {
+        case .restricted, .denied, .limited:
+            self.showPermissionAlert = true
+        default:
+            return
+        }
     }
     
     
@@ -477,6 +492,11 @@ struct ProjectEditView: View {
                     AlertToast(displayMode: .hud, type: .regular, title: "Saving failed!")
                 }.toast(isPresenting: $model.loading) {
                     AlertToast(type: .loading)
+                }.alert(isPresented: $model.showPermissionAlert) {
+                    Alert(title: Text("Permission not granted"),
+                          message: Text("Go to Settings>Privacy>Photos and allow StarLens to access your photos to be able to export to your photo gallery."),
+                          dismissButton: .default(Text("OK"))
+                    )
                 }
             }
         }.onAppear(perform: {

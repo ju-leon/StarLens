@@ -137,6 +137,15 @@ public class CameraService: NSObject {
         // Should always we overwritten inside the switch case, since all devices should have a wide angle camera
         self.activeZoomLevel = CameraZoomLevel(zoomLevel: -1, device: availableCameras[0])
         super.init()
+        
+        switch AVCaptureDevice.authorizationStatus(for: .video) {
+            case .denied:
+                self.captureStatus = .permission
+            case .restricted:
+                self.captureStatus = .permission
+            default:
+                print("Permission ok")
+        }
 
 
         for camera in availableCameras {
@@ -189,11 +198,20 @@ public class CameraService: NSObject {
             self.galleryPreviewImage = UIImage()
         }
 
-        // Start updating the users location
-        if CLLocationManager.locationServicesEnabled() {
-            locationManager.delegate = self
-            locationManager.desiredAccuracy = kCLLocationAccuracyBest
-            locationManager.requestLocation()
+        // Start updating the users location is requested
+        if defaults.bool(forKey: UserOption.recordLocation.rawValue) {
+            if CLLocationManager.locationServicesEnabled() {
+                let manager = CLLocationManager()
+                switch manager.authorizationStatus {
+                case .notDetermined, .restricted, .denied:
+                    print("Location not autorised.")
+                default:
+                    locationManager.delegate = self
+                    locationManager.desiredAccuracy = kCLLocationAccuracyBest
+                    locationManager.requestLocation()
+
+                }
+            }
         }
 
         // Start updating device orientation
@@ -835,5 +853,6 @@ extension CameraService {
         case capturing
         case processing
         case failed
+        case permission
     }
 }

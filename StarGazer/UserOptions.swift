@@ -12,6 +12,7 @@ enum UserOption : String {
     case imageQuality = "image-quality"
     case rawOption = "raw-option"
     case completedTutorial = "tutorial-done"
+    case recordLocation = "record-location"
     /**
      Debug options
      */
