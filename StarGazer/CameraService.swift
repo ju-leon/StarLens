@@ -352,13 +352,13 @@ public class CameraService: NSObject {
                     self.session.stopRunning()
                     self.isSessionRunning = self.session.isInterrupted
 
-                    if !self.session.isRunning {
-                        DispatchQueue.main.async {
+                    //if !self.session.isRunning {
+                     //   DispatchQueue.main.async {
                             self.isCameraButtonDisabled = true
                             self.isCameraUnavailable = true
                             completion?()
-                        }
-                    }
+                    //
+                    //}
                 }
             }
         }
@@ -368,7 +368,7 @@ public class CameraService: NSObject {
     public func start(completion: (() -> ())? = nil) {
 //        We use our capture session queue to ensure our UI runs smoothly on the main thread.
         self.captureQueue.async {
-            if !self.isSessionRunning && self.isConfigured {
+            //if !self.isSessionRunning && self.isConfigured {
                 switch self.setupResult {
                 case .success:
                     self.session.startRunning()
@@ -393,7 +393,7 @@ public class CameraService: NSObject {
                         self.isCameraUnavailable = true
                     }
                 }
-            }
+            //}
         }
     }
 
@@ -725,8 +725,6 @@ public class CameraService: NSObject {
                     }
                 }
             } else if self.captureStatus == .processing {
-
-
                 self.photoStack?.markEndCapture()
                 sessionQueue.async {
                     self.photoStack!.saveStack(finished: true, statusUpdateCallback:
@@ -803,19 +801,28 @@ public class CameraService: NSObject {
     }
 
     func processLater() {
-        photoStack!.suspendProcessing()
         DispatchQueue.main.async {
+            print("Suspending processing")
+            self.photoStack!.suspendProcessing()
+            
+            print("Status preparing")
             self.captureStatus = .preparing
-        }
 
-        photoStack!.saveStack(finished: false, statusUpdateCallback: {
-            _ in
-            self.stop()
-
-            DispatchQueue.main.async {
+            self.sessionQueue.async {
                 self.resetCamera(deletingStack: false)
             }
-        })
+            
+            /*
+            self.photoStack!.saveStack(finished: false, statusUpdateCallback: {
+                _ in
+                self.stop()
+
+                DispatchQueue.main.async {
+                    self.resetCamera(deletingStack: false)
+                }
+            })
+             */
+        }
     }
 
 }

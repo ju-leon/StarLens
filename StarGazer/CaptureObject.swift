@@ -31,16 +31,18 @@ class CaptureObject {
         return captureTime
     }
     
-    func toUIImage() -> UIImage {
-        var uiImage : UIImage = UIImage()
+    func toUIImage() -> UIImage? {
+        var uiImage : UIImage? = nil
         
         print(url)
         
         autoreleasepool {
-            let newImage = CIImage(contentsOf: url)!
-            let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)!
+            if let newImage = CIImage(contentsOf: url),
+               let cgImage = CIContext().createCGImage(newImage, from: newImage.extent)
+            {
+                uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
+            }
 
-            uiImage = UIImage(cgImage: cgImage, scale: 1.0, orientation: .right)
         }
 
         return uiImage

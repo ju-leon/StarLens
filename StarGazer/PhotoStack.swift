@@ -124,6 +124,10 @@ public class PhotoStack {
 
     func suspendProcessing() {
         self.dispatch.cancelAllOperations()
+        
+        self.dispatch.addOperation {
+            self.stacker
+        }
     }
 
     func markEndCapture() {
@@ -134,8 +138,9 @@ public class PhotoStack {
         var images: [UIImage] = []
         for captureObject in fromCaptureArray {
             let image = captureObject.toUIImage()
-            print(image)
-            images.append(image)
+            if image != nil {
+                images.append(image!)
+            }
         }
         return images
     }
@@ -172,14 +177,22 @@ public class PhotoStack {
             let image = captureObject.toUIImage()
             
             /**
+            Make sure a valid image is pased to the function
+             */
+            if image == nil {
+                print("Image invalid")
+                return
+            }
+            
+            /**
             Create the timelapse
              */
             if self.createTimelapse {
                 if self.timeLapseBuilder == nil {
-                    self.initTimelapseBuilder(withSize: image.size)
+                    self.initTimelapseBuilder(withSize: image!.size)
                 }
                 
-                let resizedImage = ImageResizer.resizeImage(image, self.timeLapseBuilder!.canvasSize)
+                let resizedImage = ImageResizer.resizeImage(image!, self.timeLapseBuilder!.canvasSize)
                 if resizedImage != nil {
                     self.timeLapseBuilder?.addImage(image: resizedImage!, onSucess: {
                         print("Sucess adding image")
@@ -195,10 +208,10 @@ public class PhotoStack {
              Check if the stacker is called for the first time, if so, we need to init it.
              */
             if self.stacker == nil {
-                self.coverPhoto = image
+                self.coverPhoto = image!
 
                 if (addToProject) {
-                    self.captureProject.setCoverPhoto(image: image)
+                    self.captureProject.setCoverPhoto(image: image!)
                     self.captureProject.save()
                 }
 
@@ -208,13 +221,13 @@ public class PhotoStack {
                  */
                 
                 //let rotatedImage = UIImage(cgImage: image.cgImage!, scale: 1.0, orientation: self.orientation)
-                let maskImage = ImageSegementation.segementImage(image: image)
+                let maskImage = ImageSegementation.segementImage(image: image!)
 
                 autoreleasepool {
                     if self.maskEnabled {
-                        self.stacker = OpenCVStacker.init(image: image, withMask: maskImage, visaliseTrackingPoints: true)
+                        self.stacker = OpenCVStacker.init(image: image!, withMask: maskImage, visaliseTrackingPoints: true)
                     } else {
-                        self.stacker = OpenCVStacker.init(image: image, withMask: nil, visaliseTrackingPoints: true)
+                        self.stacker = OpenCVStacker.init(image: image!, withMask: nil, visaliseTrackingPoints: true)
                     }
 
                     self.numImages += 1
@@ -241,7 +254,7 @@ public class PhotoStack {
                  Otherwise, the photo can be merged
                  */
                 autoreleasepool {
-                    if let stackedImage = self.stacker!.addAndProcess(image) {
+                    if let stackedImage = self.stacker!.addAndProcess(image!) {
                         self.coverPhoto = stackedImage
                         self.numImages += 1
                         statusUpdateCallback?(.SUCCESS)
@@ -285,6 +298,9 @@ public class PhotoStack {
     }
 
     func saveStack(finished: Bool, statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
+        
+        print("Save stack called <===============================================")
+        
         self.dispatch.addOperation {
             print("Attempting to save stack")
             if (self.stacker == nil) {
