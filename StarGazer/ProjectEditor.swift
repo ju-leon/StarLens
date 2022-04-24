@@ -88,11 +88,11 @@ class ProjectEditor {
     }
 
     func updateFilterValues() {
-        self.imageEditor!.setStarPop(self.editOptions[.starPop] as! Double)
-        self.imageEditor!.setBrightness(self.editOptions[.brightness] as! Double)
-        self.imageEditor!.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
-        self.imageEditor!.setColor(self.editOptions[.color] as! Double)
-        self.imageEditor!.setSaturation(self.editOptions[.saturation] as! Double)
+        self.imageEditor?.setStarPop(self.editOptions[.starPop] as! Double)
+        self.imageEditor?.setBrightness(self.editOptions[.brightness] as! Double)
+        self.imageEditor?.setLightPolReduction(self.editOptions[.lightPollution] as! Double)
+        self.imageEditor?.setColor(self.editOptions[.color] as! Double)
+        self.imageEditor?.setSaturation(self.editOptions[.saturation] as! Double)
     }
     
     func applyFilters(resultCallback: @escaping (UIImage) -> ()) {
@@ -188,5 +188,10 @@ class ProjectEditor {
                 _ in onFailed?()
             })
         }
+    }
+    
+    func cancelStacking() {
+        print("Suspending stacking")
+        self.photoStack?.suspendProcessing()
     }
 }

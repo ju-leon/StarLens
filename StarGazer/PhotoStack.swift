@@ -159,16 +159,17 @@ public class PhotoStack {
              previewImageCallback: ((UIImage) -> Void)?,
              addToProject: Bool = false) -> UIImage {
         
+        autoreleasepool {
+            if (addToProject) {
+                self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
+                self.captureProject.setMetadata(data: captureObject.metadata)
+                self.captureProject.save()
+            }
+
+        }
+        
         self.dispatch.addOperation {
             let image = captureObject.toUIImage()
-            autoreleasepool {
-                if (addToProject) {
-                    self.captureProject.addUnprocessedPhotoURL(url: captureObject.getURL())
-                    self.captureProject.setMetadata(data: captureObject.metadata)
-                    self.captureProject.save()
-                }
-
-            }
             
             /**
             Create the timelapse

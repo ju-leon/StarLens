@@ -45,7 +45,6 @@ class ProjectEditModel: ObservableObject {
     
     private var interfaceQueue: DispatchQueue = DispatchQueue(label: "StarStacker.uiQueue")
 
-    
     func getProject() -> Project? {
         return self.project
     }
@@ -194,6 +193,13 @@ class ProjectEditModel: ObservableObject {
         }
     }
     
+    func cancelStacking() {
+        self.projectEditor?.cancelStacking()
+        self.projectEditMode = .preview
+        self.numPictures = 0
+        self.numFailed = 0
+        self.numProcessed = 0
+    }
     
 }
 
@@ -459,7 +465,8 @@ struct ProjectEditView: View {
                         numPictures: $model.numPictures,
                         photo: $model.previewImage,
                         cancelProcessing: {
-                            //TODO: Cancel stacking..
+                            print("Cancel stacking command received")
+                            model.cancelStacking()
                         }
                 )
             } else {
