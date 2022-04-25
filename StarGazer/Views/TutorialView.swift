@@ -12,36 +12,61 @@ import AVFoundation
 import UIKit
 import Lottie
 
+struct TutorialPage: View {
+    
+    @State var image: String
+    @State var title: String
+    @State var describtion: String
+    
+    var body: some View {
+        VStack {
+            Image(image).resizable().scaledToFit().padding()
+            Text(title).font(.title).padding()
+            Text(describtion).font(.body).multilineTextAlignment(.center)
+        }.padding()
+    }
+    
+}
+
 struct TutorialView : View {
     @StateObject var navigationModel: StateControlModel
     
     @State private var selectedPage = 0
     
     var body: some View {
-        TimedLottieView(name: "StarLensWelcome",  loopMode: .autoReverse, currentPage: $selectedPage)
-        .onChange(of: selectedPage, perform: {
-            value in
-            print("...")
-        })
-        TabView(selection: $selectedPage) {
-            Text("Wait for clear skys").tag(0)
-            Text("Use a tripod").tag(1)
-            Text("Hit the shutter button").tag(2)
-        }
-        .disabled(true)
-        .tabViewStyle(PageTabViewStyle())
-        Button(selectedPage < 2 ? "Next" : "Done", action: {
-            withAnimation{
-                if self.selectedPage < 2 {
-                    selectedPage += 1
-                    print("Page now \(selectedPage)")
-                } else {
-                    navigationModel.currentView = .camera
-                    UserDefaults.standard.set(true, forKey: UserOption.completedTutorial.rawValue)
-                }
+        VStack {
+            TabView(selection: $selectedPage) {
+                TutorialPage(image: "Stars",
+                             title: "Wait for clear skies",
+                             describtion: "Stars like dark, clear nights. Make sure to be as far away from other light sources such as cities or highways as possible. Ideally wait for a clear night with a new moon.").tag(0)
+                TutorialPage(image: "Tripod",
+                             title: "Use a tripod",
+                             describtion: "Make sure your phone doesn't move during shooting. Place it on a hard, steady surface or use a tripod.").tag(1)
+                TutorialPage(image: "Patience",
+                             title: "Be patient",
+                             describtion: "StarLens allows you to take exposures of several minutes. The longer you allow you camera to collect light, the more details it can capture.").tag(2)
             }
-            //navigationModel.currentView = .camera
-        })
+            //.disabled(true)
+            .tabViewStyle(PageTabViewStyle())
+            Button(selectedPage < 2 ? "Next" : "Done", action: {
+                withAnimation{
+                    if self.selectedPage < 2 {
+                        selectedPage += 1
+                        print("Page now \(selectedPage)")
+                    } else {
+                        navigationModel.currentView = .camera
+                        UserDefaults.standard.set(true, forKey: UserOption.completedTutorial.rawValue)
+                    }
+                }
+                //navigationModel.currentView = .camera
+            })
+            .padding()
+            .background(.white)
+            .foregroundColor(.black)
+            .clipShape(Capsule())
+        }
+        .background(.black)
+        .foregroundColor(.white)
         
     }
     

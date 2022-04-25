@@ -33,11 +33,13 @@
 		058018D728099CA300881E7F /* ExportError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 058018D628099CA300881E7F /* ExportError.swift */; };
 		05849A3527BAF8C90073BB75 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05849A3427BAF8C90073BB75 /* SettingsView.swift */; };
 		058EEB5527B931AC00970D7F /* SaveBinaryCV.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */; };
+		05AF2C612815A52A00C8DD16 /* tripod.json in Resources */ = {isa = PBXBuildFile; fileRef = 05AF2C5E2815A52A00C8DD16 /* tripod.json */; };
+		05AF2C622815A52A00C8DD16 /* stars.json in Resources */ = {isa = PBXBuildFile; fileRef = 05AF2C5F2815A52A00C8DD16 /* stars.json */; };
+		05AF2C632815A52A00C8DD16 /* patience.json in Resources */ = {isa = PBXBuildFile; fileRef = 05AF2C602815A52A00C8DD16 /* patience.json */; };
 		05B65A692810523D00D77530 /* PermissionsSwiftUICamera in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A682810523D00D77530 /* PermissionsSwiftUICamera */; };
 		05B65A6B2810523D00D77530 /* PermissionsSwiftUILocation in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A6A2810523D00D77530 /* PermissionsSwiftUILocation */; };
 		05B65A6D2810523D00D77530 /* PermissionsSwiftUIPhoto in Frameworks */ = {isa = PBXBuildFile; productRef = 05B65A6C2810523D00D77530 /* PermissionsSwiftUIPhoto */; };
 		05B65A6F2811A12C00D77530 /* TutorialView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B65A6E2811A12C00D77530 /* TutorialView.swift */; };
-		05B65A712812CDFB00D77530 /* StarLensWelcome.json in Resources */ = {isa = PBXBuildFile; fileRef = 05B65A702812CDFB00D77530 /* StarLensWelcome.json */; };
 		05B65A732812D3A400D77530 /* TimedLottieView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B65A722812D3A400D77530 /* TimedLottieView.swift */; };
 		05B9B8BC276BDBAF00FF442F /* StarGazerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */; };
 		05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 05B9B8BF276BDBB100FF442F /* Assets.xcassets */; };
@@ -126,8 +128,10 @@
 		05849A3427BAF8C90073BB75 /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
 		058EEB5327B931AC00970D7F /* SaveBinaryCV.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = SaveBinaryCV.cpp; sourceTree = "<group>"; };
 		058EEB5427B931AC00970D7F /* SaveBinaryCV.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = SaveBinaryCV.hpp; sourceTree = "<group>"; };
+		05AF2C5E2815A52A00C8DD16 /* tripod.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = tripod.json; sourceTree = "<group>"; };
+		05AF2C5F2815A52A00C8DD16 /* stars.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = stars.json; sourceTree = "<group>"; };
+		05AF2C602815A52A00C8DD16 /* patience.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = patience.json; sourceTree = "<group>"; };
 		05B65A6E2811A12C00D77530 /* TutorialView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TutorialView.swift; sourceTree = "<group>"; };
-		05B65A702812CDFB00D77530 /* StarLensWelcome.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; name = StarLensWelcome.json; path = ../../../../Desktop/StarLensWelcome.json; sourceTree = "<group>"; };
 		05B65A722812D3A400D77530 /* TimedLottieView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimedLottieView.swift; sourceTree = "<group>"; };
 		05B9B8B8276BDBAF00FF442F /* StarGazer.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = StarGazer.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StarGazerApp.swift; sourceTree = "<group>"; };
@@ -249,7 +253,9 @@
 		0510811D27BEE52E00A50129 /* Lottie */ = {
 			isa = PBXGroup;
 			children = (
-				05B65A702812CDFB00D77530 /* StarLensWelcome.json */,
+				05AF2C602815A52A00C8DD16 /* patience.json */,
+				05AF2C5F2815A52A00C8DD16 /* stars.json */,
+				05AF2C5E2815A52A00C8DD16 /* tripod.json */,
 				05C65CE627CC14EB001ADE0F /* shutter.json */,
 				0536C3FE27BF02310060ABA0 /* shutterprep.json */,
 				0536C3FB27BF01D50060ABA0 /* shutterstill.json */,
@@ -618,12 +624,14 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				05B65A712812CDFB00D77530 /* StarLensWelcome.json in Resources */,
 				0536C3FF27BF02310060ABA0 /* shutterprep.json in Resources */,
 				0536C3FD27BF01D50060ABA0 /* shutterstill.json in Resources */,
 				05B9B8C3276BDBB100FF442F /* Preview Assets.xcassets in Resources */,
+				05AF2C612815A52A00C8DD16 /* tripod.json in Resources */,
 				05B9B8C0276BDBB100FF442F /* Assets.xcassets in Resources */,
 				05C65CE727CC14EB001ADE0F /* shutter.json in Resources */,
+				05AF2C632815A52A00C8DD16 /* patience.json in Resources */,
+				05AF2C622815A52A00C8DD16 /* stars.json in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -358,6 +358,7 @@ struct ActionOptionsBar: View {
         HStack {
 
             Button(action: {
+                print("Delete")
                 showingDeleteDialog = true
             }) {
                 HStack {
@@ -365,7 +366,10 @@ struct ActionOptionsBar: View {
                     Text("Delete")
                 }.padding(10.0)
 
-            }.padding().foregroundColor(.red).alert(isPresented: $showingDeleteDialog) {
+            }
+            .padding()
+            .foregroundColor(.red)
+            .alert(isPresented: $showingDeleteDialog) {
                 Alert(title: Text("Delete project"),
                         message: Text("This will delete the project and all it's files. This action cannot be undone.\nAre you sure?"),
                         primaryButton: .cancel(Text("Cancel")),
@@ -438,6 +442,12 @@ struct ActionOptionsBar: View {
                     print("Saving raw")
                 }
             }
+            .alert(isPresented: $model.showPermissionAlert) {
+                Alert(title: Text("Permission not granted"),
+                      message: Text("Go to Settings>Privacy>Photos and allow StarLens to access your photos to be able to export to your photo gallery."),
+                      dismissButton: .default(Text("OK"))
+                )
+            }
         
         }
     }
@@ -475,6 +485,7 @@ struct ProjectEditView: View {
                             .resizable()
                             .aspectRatio(contentMode: .fit)
                             .clipped()
+                            
                     Spacer()
 
                     ZStack {
@@ -499,11 +510,6 @@ struct ProjectEditView: View {
                     AlertToast(displayMode: .hud, type: .regular, title: "Saving failed!")
                 }.toast(isPresenting: $model.loading) {
                     AlertToast(type: .loading)
-                }.alert(isPresented: $model.showPermissionAlert) {
-                    Alert(title: Text("Permission not granted"),
-                          message: Text("Go to Settings>Privacy>Photos and allow StarLens to access your photos to be able to export to your photo gallery."),
-                          dismissButton: .default(Text("OK"))
-                    )
                 }
             }
         }.onAppear(perform: {
