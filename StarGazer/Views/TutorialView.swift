@@ -45,12 +45,15 @@ struct TutorialView : View {
                 TutorialPage(image: "Patience",
                              title: "Be patient",
                              describtion: "StarLens allows you to take exposures of several minutes. The longer you allow you camera to collect light, the more details it can capture.").tag(2)
+                TutorialPage(image: "Interface",
+                             title: "Let the AI help you",
+                             describtion: "SmartMask automatically recognizes the stars in your image, seperates foreground and background, and merges everything together. Only the movement of the stars is corrected, while the foreground stays rock solid.").tag(3)
             }
             //.disabled(true)
             .tabViewStyle(PageTabViewStyle())
-            Button(selectedPage < 2 ? "Next" : "Done", action: {
+            Button(selectedPage < 3 ? "Next" : "Done", action: {
                 withAnimation{
-                    if self.selectedPage < 2 {
+                    if self.selectedPage < 3 {
                         selectedPage += 1
                         print("Page now \(selectedPage)")
                     } else {

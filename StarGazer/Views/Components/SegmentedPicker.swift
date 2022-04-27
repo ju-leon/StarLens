@@ -84,6 +84,8 @@ struct SegmentedPicker: View {
     @Binding private var timerEnabled: Bool
     @Binding private var flashEnabled: Bool
     
+    @State private var autoIso: Bool = true
+    
     @Binding private var focusValue: Double
     
     @Binding private var isoValue: Float
@@ -144,14 +146,32 @@ struct SegmentedPicker: View {
                         /*
                          Sliding ruler for iso adjustments
                          */
-                        SlidingRuler(value: $isoValue,
-                                     in: isoMin...isoMax,
-                                     step: 500.0,
-                                     tick: .fraction,
-                                     onEditingChanged: {
-                            (value) in
-                            //model.focusUpdate(value)
-                        }).padding(.bottom).opacity(selection == 1 ? 1 : 0)
+                        HStack {
+                            Button(action: {
+                                withAnimation {
+                                    self.autoIso.toggle()
+                                }
+                            }, label: {
+                                Image(systemName: "a.square.fill")
+                                    .font(.system(size: 40))
+                                    .foregroundColor(.white)
+                                    .padding()
+                                    
+                            }).opacity(autoIso ? 1.0 : 0.3)
+
+                            SlidingRuler(value: $isoValue,
+                                         in: isoMin...isoMax,
+                                         step: 500.0,
+                                         tick: .fraction,
+                                         onEditingChanged: {
+                                (value) in
+                                withAnimation {
+                                    self.autoIso = false
+                                }
+                                //model.focusUpdate(value)
+                            })
+                            .opacity(autoIso ? 0.5 : 1.0)
+                        }.padding(.bottom).opacity(selection == 1 ? 1 : 0)
                         /*
                          Other edit options
                          */
@@ -160,7 +180,10 @@ struct SegmentedPicker: View {
                             Button(action: {
                                 self.maskEnabled.toggle()
                             }, label: {
-                                Image(systemName: "scissors")
+                                Image("star-auto")
+                                    .resizable()
+                                    .scaledToFit()
+                                    .frame(width: 20, height: 20, alignment: .center)
                                     .font(.system(size: 20))
                                     .foregroundColor(.white)
                                     .padding()
