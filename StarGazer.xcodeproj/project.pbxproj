@@ -51,6 +51,7 @@
 		05BE420A27AF32EC00F45670 /* ProjectEditor.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05BE420927AF32EC00F45670 /* ProjectEditor.swift */; };
 		05C65CE527CC0E96001ADE0F /* UserOptions.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05C65CE427CC0E96001ADE0F /* UserOptions.swift */; };
 		05C65CE727CC14EB001ADE0F /* shutter.json in Resources */ = {isa = PBXBuildFile; fileRef = 05C65CE627CC14EB001ADE0F /* shutter.json */; };
+		05CCE1FE282302C700BF6DB9 /* DefaultsManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CCE1FD282302C700BF6DB9 /* DefaultsManager.swift */; };
 		05CEB59E27723D8800EDDE7D /* PhotoStack.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05CEB59D27723D8800EDDE7D /* PhotoStack.swift */; };
 		05D338AB27A47A86008BB868 /* ProjectEditView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05D338AA27A47A85008BB868 /* ProjectEditView.swift */; };
 		05D4507F279378BF008DB81E /* blend.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 05D4507D279378BF008DB81E /* blend.cpp */; };
@@ -147,6 +148,7 @@
 		05BE420927AF32EC00F45670 /* ProjectEditor.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditor.swift; sourceTree = "<group>"; };
 		05C65CE427CC0E96001ADE0F /* UserOptions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserOptions.swift; sourceTree = "<group>"; };
 		05C65CE627CC14EB001ADE0F /* shutter.json */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.json; path = shutter.json; sourceTree = "<group>"; };
+		05CCE1FD282302C700BF6DB9 /* DefaultsManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DefaultsManager.swift; sourceTree = "<group>"; };
 		05CEB59D27723D8800EDDE7D /* PhotoStack.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoStack.swift; sourceTree = "<group>"; };
 		05D338AA27A47A85008BB868 /* ProjectEditView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProjectEditView.swift; sourceTree = "<group>"; };
 		05D4507D279378BF008DB81E /* blend.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; path = blend.cpp; sourceTree = "<group>"; };
@@ -325,6 +327,7 @@
 				058018D328099BD600881E7F /* Export */,
 				056CBBC927790DE700538E2E /* Filters */,
 				050945CD28045A8900089BEB /* TimeLapse */,
+				05CCE1FF282302D600BF6DB9 /* Defaults */,
 				05B9B8BB276BDBAF00FF442F /* StarGazerApp.swift */,
 				051F0A7F276FBA370015C507 /* CameraService.swift */,
 				051F0A83276FBC960015C507 /* PhotoCaptureProcessor.swift */,
@@ -335,7 +338,6 @@
 				05D4508227943EC6008DB81E /* ProjectController.swift */,
 				05D4508427943F12008DB81E /* Project.swift */,
 				05BE420927AF32EC00F45670 /* ProjectEditor.swift */,
-				05C65CE427CC0E96001ADE0F /* UserOptions.swift */,
 				3B2A04C5459BE23383B7E873 /* DeviceOrientationManager.swift */,
 				3B2A07B712EAB45B4304C926 /* Views */,
 				05B9B8BF276BDBB100FF442F /* Assets.xcassets */,
@@ -369,6 +371,15 @@
 				05B9B8D8276BDBB100FF442F /* StarGazerUITestsLaunchTests.swift */,
 			);
 			path = StarGazerUITests;
+			sourceTree = "<group>";
+		};
+		05CCE1FF282302D600BF6DB9 /* Defaults */ = {
+			isa = PBXGroup;
+			children = (
+				05C65CE427CC0E96001ADE0F /* UserOptions.swift */,
+				05CCE1FD282302C700BF6DB9 /* DefaultsManager.swift */,
+			);
+			path = Defaults;
 			sourceTree = "<group>";
 		};
 		05DE222E277C727C007A90DE /* Frameworks */ = {
@@ -748,6 +759,7 @@
 				05DE2258277DB420007A90DE /* UIImageOpenCV.mm in Sources */,
 				053D9070280718B20033BDE0 /* VideoSaver.swift in Sources */,
 				05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */,
+				05CCE1FE282302C700BF6DB9 /* DefaultsManager.swift in Sources */,
 				05DE225C277DB540007A90DE /* UIImageRotate.mm in Sources */,
 				051F0A80276FBA370015C507 /* CameraService.swift in Sources */,
 				056CBBD4277C6A6900538E2E /* OpticalFlowVisualizer.metal in Sources */,

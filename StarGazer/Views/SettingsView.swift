@@ -48,10 +48,6 @@ struct SettingsView : View {
     @State private var shortExposure = true
     @State private var rawEnabled = true
     
-    func saveDefault(key: UserOption, value: Any) {
-        defaults.set(value, forKey: key.rawValue)
-    }
-    
     var body: some View {
         NavigationView {
                 List {                   
@@ -69,8 +65,7 @@ struct SettingsView : View {
                                     print("Permission ok")
                                 }
                             }
-                            saveDefault(key: .recordLocation, value: recordLocation)
-
+                            DefaultsManager.saveBool(option: .recordLocation, state: recordLocation)
                         }).alert(isPresented: $showPermissionAlert) {
                             Alert(title: Text("Permission not granted"),
                                   message: Text("Go to Settings>Privacy>Location Services and allow StarLens to access your location to be able to save the location of an image."),
@@ -87,7 +82,8 @@ struct SettingsView : View {
                                 Text(self.imageQualities[$0])
                             }
                         }.onChange(of: selectedImageQuality, perform: {
-                            _ in saveDefault(key: .imageQuality, value: selectedImageQuality)
+                            _ in
+                            DefaultsManager.saveInt(option: .imageQuality, state: selectedImageQuality)
                         })
                         
                         Picker(selection: $selectedRawExport, label: Text("RAW Export")) {
@@ -95,7 +91,8 @@ struct SettingsView : View {
                                 Text(self.rawOptions[$0])
                             }
                         }.onChange(of: selectedRawExport, perform: {
-                            _ in saveDefault(key: .rawOption, value: selectedRawExport)
+                            _ in
+                            DefaultsManager.saveInt(option: .rawOption, state: selectedRawExport)
                         })
                         
                     }
@@ -108,17 +105,17 @@ struct SettingsView : View {
                     Section(header: Text("Debug")) {
                         Toggle("Apply mask", isOn: $applyMask).onChange(of: applyMask, perform: {
                             _ in
-                            saveDefault(key: .isMaskEnabled, value: applyMask)
+                            DefaultsManager.saveBool(option: .isMaskEnabled, state: applyMask)
                         })
                         
                         Toggle("Short exposure", isOn: $shortExposure).onChange(of: shortExposure, perform: {
                             _ in
-                            saveDefault(key: .shortExposure, value: shortExposure)
+                            DefaultsManager.saveBool(option: .shortExposure, state: shortExposure)
                         })
                         
                         Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
                             _ in
-                            saveDefault(key: .rawEnabled, value: rawEnabled)
+                            DefaultsManager.saveBool(option: .rawEnabled, state: rawEnabled)
                         })
                     }
                     
@@ -163,12 +160,12 @@ struct SettingsView : View {
                 )
                  
         }.onAppear(perform: {
-            self.selectedImageQuality = defaults.integer(forKey: UserOption.imageQuality.rawValue)
-            self.selectedRawExport = defaults.integer(forKey: UserOption.rawOption.rawValue)
-            self.applyMask = defaults.bool(forKey: UserOption.isMaskEnabled.rawValue)
-            self.shortExposure = defaults.bool(forKey: UserOption.shortExposure.rawValue)
-            self.rawEnabled = defaults.bool(forKey: UserOption.rawEnabled.rawValue)
-            self.recordLocation = defaults.bool(forKey: UserOption.recordLocation.rawValue)
+            self.selectedImageQuality = DefaultsManager.readInt(option: .imageQuality)
+            self.selectedRawExport = DefaultsManager.readInt(option: .rawOption)
+            self.applyMask = DefaultsManager.readBool(option: .isMaskEnabled)
+            self.shortExposure = DefaultsManager.readBool(option: .shortExposure)
+            self.rawEnabled = DefaultsManager.readBool(option: .rawEnabled)
+            self.recordLocation = DefaultsManager.readBool(option: .recordLocation)
         })
         
     }

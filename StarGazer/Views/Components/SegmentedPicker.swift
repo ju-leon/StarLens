@@ -94,7 +94,7 @@ struct SegmentedPicker: View {
     
     private let onFocusChanged: (Bool) -> ()
     
-    private let items: [String] = ["FOCUS", "ISO", "MORE"]
+    private let items: [String] = ["FOCUS", "ISO"]
     
     init(focusValue: Binding<Double>,
          onFocusChanged: @escaping (Bool) -> (),

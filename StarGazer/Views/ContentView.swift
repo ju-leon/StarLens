@@ -212,48 +212,52 @@ final class CameraModel: ObservableObject {
 }
 
 struct CameraOptionsBar : View {
-    var body: some View {
+    @State var maskEnabled = DefaultsManager.readBool(option: .isMaskEnabled)
+    @State var timerEnabled = false
+    @State var flashEnabled = false
     
+    var body: some View {
         HStack {
             Spacer()
-            
+
             Button(action: {
-                
+                maskEnabled.toggle()
+                DefaultsManager.saveBool(option: .isMaskEnabled, state: maskEnabled)
             }, label: {
-                Image(systemName: "gyroscope")
-                    .font(.system(size: 25))
+                Image(maskEnabled ? "star-auto" : "star-off")
+                    .resizable()
+                    .scaledToFit()
+                    .frame(width: 20, height: 20, alignment: .center)
+                    .font(.system(size: 20))
                     .foregroundColor(.white)
                     .padding()
-            }).animation(.easeInOut(duration: 0.2))
+            }).opacity(maskEnabled ? 1.0 : 0.5)
             
             Spacer()
             
             Button(action: {
-                
+                timerEnabled.toggle()
             }, label: {
-                
-                Image(systemName: "circle.dashed.inset.filled")
-                    .font(.system(size: 25))
+                Image(systemName: "timer")
+                    .font(.system(size: 20))
                     .foregroundColor(.white)
                     .padding()
-            }).animation(.easeInOut(duration: 0.2))
+            }).opacity(timerEnabled ? 1.0 : 0.5)
             
             Spacer()
             
             Button(action: {
-                
+                flashEnabled.toggle()
             }, label: {
-                Image(systemName: "circle.righthalf.filled")
-                    .font(.system(size: 25))
+                Image(systemName: flashEnabled ? "bolt.fill" : "bolt.slash.fill")
+                    .font(.system(size: 20))
                     .foregroundColor(.white)
                     .padding()
-            }).animation(.easeInOut(duration: 0.2))
+            }).opacity(flashEnabled ? 1.0 : 0.5)
             
             Spacer()
         }
         .frame(maxWidth: .infinity, alignment: .center)
-        .background(Color.init(.sRGB, red: 1, green: 1, blue: 1, opacity: 0.1))
-        .cornerRadius(30)
         .padding()
         
     }
@@ -333,8 +337,9 @@ struct CameraView: View {
         VStack {
             
             if model.captureStatus != .capturing {
-                Spacer()
+                //Spacer()
                 VStack {
+                    CameraOptionsBar()
                     Spacer()
                     ZStack(alignment: .bottom) {
                         GeometryReader {
