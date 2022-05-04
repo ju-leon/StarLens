@@ -49,6 +49,8 @@ final class CameraModel: ObservableObject {
     @Published var maskEnabled: Bool = true
     @Published var timerEnabled: Bool = false
     
+    @Published var timerValue: Int = 0
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -135,6 +137,11 @@ final class CameraModel: ObservableObject {
                 }
                 .store(in: &self.subscriptions)
         
+        service.$timerValue.sink { [weak self] (val) in
+                    self?.timerValue = val
+                }
+                .store(in: &self.subscriptions)
+        
     }
 
     func configure() {
@@ -214,9 +221,19 @@ final class CameraModel: ObservableObject {
 struct CameraOptionsBar : View {
     @State var maskEnabled = DefaultsManager.readBool(option: .isMaskEnabled)
     
-    @State var timerIndex = 0
+    @State var timerIndex : Int
     
     @State var flashEnabled = false
+    
+    init() {
+        let hasTime = TIMER_STATES.contains(where: {$0 == DefaultsManager.readInt(option: .timerValue)})
+        
+        if hasTime {
+            timerIndex = TIMER_STATES.firstIndex{ $0 == DefaultsManager.readInt(option: .timerValue) }!
+        } else {
+            timerIndex = 0
+        }
+    }
     
     var body: some View {
         HStack {
@@ -374,7 +391,10 @@ struct CameraView: View {
                                         .overlay(
                                                 Group {
                                                     if model.willCapturePhoto {
-                                                        Color.black
+                                                        Color.black.overlay(
+                                                            Text(String(model.timerValue))
+                                                                .font(.system(size: 100))
+                                                        )
                                                     }
                                                     
                                                     if model.captureStatus == .permission {

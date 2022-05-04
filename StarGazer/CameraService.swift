@@ -68,7 +68,9 @@ public class CameraService: NSObject {
     
     @Published var flashEnabled: Bool = false
     @Published var maskEnabled: Bool = true
+    
     @Published var timerEnabled: Bool = false
+    @Published var timerValue: Int = 0
     
     /**
         Values do not need to be published since they will never change during execution.
@@ -430,6 +432,7 @@ public class CameraService: NSObject {
         }
 
         self.captureQueue.async {
+            
             self.photoStack = PhotoStack(
                     mask: self.maskEnabled,
                     align: self.alignEnabled,
@@ -438,15 +441,33 @@ public class CameraService: NSObject {
                     orientation: self.orientation
             )
 
-            DispatchQueue.main.async {
-                self.captureStatus = .capturing
-                self.capturePhoto()
-            }
+            self.countdownTimer(from: DefaultsManager.readInt(option: .timerValue), onCompletion: {
+                DispatchQueue.main.async {
+                    self.captureStatus = .capturing
+                    self.capturePhoto()
+                }
+            })
 
         }
     }
 
-
+    private func countdownTimer(from: Int, onCompletion: @escaping ()->()) {
+        DispatchQueue.main.async {
+            self.timerValue = from
+        }
+        
+        print("Timer Value: \(from)")
+        
+        if (from > 0) {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+                self.countdownTimer(from: from - 1, onCompletion: onCompletion   )
+            })
+        } else {
+            onCompletion()
+        }
+    }
+    
+    
     public func changeCamera(_ device: AVCaptureDevice) {
         self.blackOutCamera = true
         self.captureQueue.async {
