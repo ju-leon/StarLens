@@ -213,7 +213,9 @@ final class CameraModel: ObservableObject {
 
 struct CameraOptionsBar : View {
     @State var maskEnabled = DefaultsManager.readBool(option: .isMaskEnabled)
-    @State var timerEnabled = false
+    
+    @State var timerIndex = 0
+    
     @State var flashEnabled = false
     
     var body: some View {
@@ -236,13 +238,26 @@ struct CameraOptionsBar : View {
             Spacer()
             
             Button(action: {
-                timerEnabled.toggle()
+                timerIndex = (timerIndex + 1) % TIMER_STATES.capacity
+                DefaultsManager.saveInt(option: .timerValue, state: TIMER_STATES[timerIndex])
             }, label: {
-                Image(systemName: "timer")
-                    .font(.system(size: 20))
-                    .foregroundColor(.white)
-                    .padding()
-            }).opacity(timerEnabled ? 1.0 : 0.5)
+                
+                    Image(systemName: "timer")
+                        .font(.system(size: 20))
+                        .foregroundColor(.white)
+                        .padding()
+                        .overlay(
+                            Spacer()
+                                .frame(width: 23, height: 23, alignment: .center).overlay(
+                                    Circle().fill(.black).frame(width: 12, height: 12, alignment: .center).overlay(
+                                        Image(systemName: "\(TIMER_STATES[timerIndex]).circle.fill")
+                                            .font(.system(size: 10))
+                                            .foregroundColor(.white)
+                                    ),
+                                    alignment: .bottomTrailing
+                                ).opacity(timerIndex == 0 ? 0 : 1)
+                        )
+            }).opacity(timerIndex == 0 ? 0.5 : 1.0)
             
             Spacer()
             
