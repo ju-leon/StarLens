@@ -181,8 +181,10 @@ final class CameraModel: ObservableObject {
     func tapToFocus(_ point: CGPoint, _ size: CGSize) {
         focusX = point.x - (size.width / 2)
         focusY = point.y - (size.height / 2)
-        focusOpacity = 1.0
         
+        withAnimation {
+            focusOpacity = 1.0
+        }
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
             withAnimation {
@@ -420,7 +422,7 @@ struct CameraView: View {
                                         )
                                         .overlay(
                                             Circle()
-                                                .strokeBorder(.yellow, lineWidth: 5)
+                                                .strokeBorder(.yellow, lineWidth: 5 * model.focusOpacity)
                                                 .background(Circle().fill(Color.white.opacity(0.5)))
                                                 .frame(width: 50, height: 50, alignment: .topLeading)
                                                 .offset(x: model.focusX, y: model.focusY)
