@@ -51,6 +51,10 @@ final class CameraModel: ObservableObject {
     
     @Published var timerValue: Int = 0
     
+    @Published var focusX = 0.0
+    @Published var focusY = 0.0
+    @Published var focusOpacity = 0.0
+    
     var alertError: AlertError!
 
     var session: AVCaptureSession
@@ -175,6 +179,17 @@ final class CameraModel: ObservableObject {
     }
 
     func tapToFocus(_ point: CGPoint, _ size: CGSize) {
+        focusX = point.x - (size.width / 2)
+        focusY = point.y - (size.height / 2)
+        focusOpacity = 1.0
+        
+        
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1, execute: {
+            withAnimation {
+                self.focusOpacity = 0.0
+            }
+        })
+        
         let x = point.y / size.height
         let y = 1.0 - point.x / size.width
         let focusPoint = CGPoint(x: x, y: y)
@@ -387,7 +402,6 @@ struct CameraView: View {
                                                 model.alertError.primaryAction?()
                                             }))
                                         })
-
                                         .overlay(
                                                 Group {
                                                     if model.willCapturePhoto {
@@ -404,7 +418,15 @@ struct CameraView: View {
                                                     }
                                                 }
                                         )
-                                        .animation(.easeInOut)
+                                        .overlay(
+                                            Circle()
+                                                .strokeBorder(.yellow, lineWidth: 5)
+                                                .background(Circle().fill(Color.white.opacity(0.5)))
+                                                .frame(width: 50, height: 50, alignment: .topLeading)
+                                                .offset(x: model.focusX, y: model.focusY)
+                                                .opacity(model.focusOpacity)
+                                        )
+                                        //.animation(.easeInOut)
                         }
                         zoomSelector.padding()
                         
