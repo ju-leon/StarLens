@@ -102,22 +102,19 @@ struct SettingsView : View {
                         Toggle("Keep unstacked images", isOn: .constant(true))
                     }
                     
-                    Section(header: Text("Debug")) {
-                        Toggle("Apply mask", isOn: $applyMask).onChange(of: applyMask, perform: {
-                            _ in
-                            DefaultsManager.saveBool(option: .isMaskEnabled, state: applyMask)
-                        })
-                        
-                        Toggle("Short exposure", isOn: $shortExposure).onChange(of: shortExposure, perform: {
-                            _ in
-                            DefaultsManager.saveBool(option: .shortExposure, state: shortExposure)
-                        })
-                        
-                        Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
-                            _ in
-                            DefaultsManager.saveBool(option: .rawEnabled, state: rawEnabled)
-                        })
-                    }
+                    #if DEBUG
+                        Section(header: Text("Debug")) {
+                            Toggle("Short exposure", isOn: $shortExposure).onChange(of: shortExposure, perform: {
+                                _ in
+                                DebugManager.saveBool(option: .shortExposure, state: shortExposure)
+                            })
+                            
+                            Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
+                                _ in
+                                DefaultsManager.saveBool(option: .rawEnabled, state: rawEnabled)
+                            })
+                        }
+                    #endif
                     
                     Section(header: Text("About"),
                             footer: VStack{
@@ -163,9 +160,12 @@ struct SettingsView : View {
             self.selectedImageQuality = DefaultsManager.readInt(option: .imageQuality)
             self.selectedRawExport = DefaultsManager.readInt(option: .rawOption)
             self.applyMask = DefaultsManager.readBool(option: .isMaskEnabled)
-            self.shortExposure = DefaultsManager.readBool(option: .shortExposure)
             self.rawEnabled = DefaultsManager.readBool(option: .rawEnabled)
             self.recordLocation = DefaultsManager.readBool(option: .recordLocation)
+        
+            #if DEBUG
+            self.shortExposure = DebugManager.readBool(option: .shortExposure)
+            #endif
         })
         
     }

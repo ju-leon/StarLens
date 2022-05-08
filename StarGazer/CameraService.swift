@@ -632,8 +632,7 @@ public class CameraService: NSObject {
                                 rawPixelFormatType: self.photoOutput.availableRawPhotoPixelFormatTypes.first(where: query)!,
                                 processedFormat: nil,
                                 bracketedSettings: self.isoRotation.map {
-                                    if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
-                                    ) {
+                                    if DebugManager.readBool(option: .shortExposure) {
                                         return autoExpSetting(Float($0) / Float($0))
                                     } else {
                                         return manualExpSetting(maxExposure,
@@ -648,8 +647,7 @@ public class CameraService: NSObject {
                                 rawPixelFormatType: 0,
                                 processedFormat: processedFormat,
                                 bracketedSettings: self.isoRotation.map {
-                                    if self.defaults.bool(forKey: UserOption.shortExposure.rawValue
-                                    ) {
+                                    if DebugManager.readBool(option: .shortExposure) {
                                         return autoExpSetting(Float($0) / Float($0))
                                     } else {
                                         return manualExpSetting(maxExposure,

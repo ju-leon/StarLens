@@ -14,13 +14,7 @@ enum UserOption : String {
     case rawOption = "raw-option"
     case completedTutorial = "tutorial-done"
     case recordLocation = "record-location"
-    
     case timerValue = "timer-value"
-    /**
-     Debug options
-     */
-    case isDebugEnabled = "debug"
     case isMaskEnabled = "mask"
-    case shortExposure = "short-exposure"
     case rawEnabled = "raw-enabled"
 }

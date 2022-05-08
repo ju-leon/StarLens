@@ -24,6 +24,7 @@
 		05590E6627D6985D0023C6EA /* FPN_MobileNet.mlpackage in Sources */ = {isa = PBXBuildFile; fileRef = 05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */; };
 		055F7D2227C4346F00D2AE59 /* ImageSegmentation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */; };
 		055F7D2527C4418000D2AE59 /* ModalView in Frameworks */ = {isa = PBXBuildFile; productRef = 055F7D2427C4418000D2AE59 /* ModalView */; };
+		05679B7928256E32004C23B3 /* DebugController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 05679B7828256E32004C23B3 /* DebugController.swift */; };
 		056CBBC827790DB900538E2E /* AverageStacking.metal in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBC727790DB900538E2E /* AverageStacking.metal */; };
 		056CBBCB27790DFE00538E2E /* AverageStackingFilter.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */; };
 		056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */ = {isa = PBXBuildFile; fileRef = 056CBBCC2779C8AD00538E2E /* CaptureObject.swift */; };
@@ -118,6 +119,7 @@
 		0555FF132785D61A0077B7A8 /* CGImageExtension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CGImageExtension.swift; sourceTree = "<group>"; };
 		05590E6527D6985D0023C6EA /* FPN_MobileNet.mlpackage */ = {isa = PBXFileReference; lastKnownFileType = folder.mlpackage; path = FPN_MobileNet.mlpackage; sourceTree = "<group>"; };
 		055F7D2127C4346F00D2AE59 /* ImageSegmentation.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImageSegmentation.swift; sourceTree = "<group>"; };
+		05679B7828256E32004C23B3 /* DebugController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DebugController.swift; sourceTree = "<group>"; };
 		056CBBC727790DB900538E2E /* AverageStacking.metal */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.metal; path = AverageStacking.metal; sourceTree = "<group>"; };
 		056CBBCA27790DFE00538E2E /* AverageStackingFilter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AverageStackingFilter.swift; sourceTree = "<group>"; };
 		056CBBCC2779C8AD00538E2E /* CaptureObject.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CaptureObject.swift; sourceTree = "<group>"; };
@@ -376,6 +378,7 @@
 		05CCE1FF282302D600BF6DB9 /* Defaults */ = {
 			isa = PBXGroup;
 			children = (
+				05679B7828256E32004C23B3 /* DebugController.swift */,
 				05C65CE427CC0E96001ADE0F /* UserOptions.swift */,
 				05CCE1FD282302C700BF6DB9 /* DefaultsManager.swift */,
 			);
@@ -767,6 +770,7 @@
 				05D4508527943F12008DB81E /* Project.swift in Sources */,
 				05D4508127943488008DB81E /* ProjectsView.swift in Sources */,
 				05EE7B5427E672ED0047EF8F /* SegmentedPicker.swift in Sources */,
+				05679B7928256E32004C23B3 /* DebugController.swift in Sources */,
 				05DE225F277DB711007A90DE /* homography.cpp in Sources */,
 				056CBBCD2779C8AD00538E2E /* CaptureObject.swift in Sources */,
 				3B2A0AC74BE999EEA6281B19 /* CaptureView.swift in Sources */,
