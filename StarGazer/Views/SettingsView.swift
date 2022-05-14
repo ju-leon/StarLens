@@ -86,32 +86,17 @@ struct SettingsView : View {
                             DefaultsManager.saveInt(option: .imageQuality, state: selectedImageQuality)
                         })
                         
-                        Picker(selection: $selectedRawExport, label: Text("RAW Export")) {
-                            ForEach(0 ..< rawOptions.count) {
-                                Text(self.rawOptions[$0])
-                            }
-                        }.onChange(of: selectedRawExport, perform: {
+                        Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
                             _ in
-                            DefaultsManager.saveInt(option: .rawOption, state: selectedRawExport)
+                            DefaultsManager.saveBool(option: .rawEnabled, state: rawEnabled)
                         })
-                        
                     }
 
-                    
-                    Section(header: Text("Experimental"), footer: Text("This will keep all captured images, even after processing. Projects will be very large. Only use if you have use for the raw, unstacked images.")) {
-                        Toggle("Keep unstacked images", isOn: .constant(true))
-                    }
-                    
                     #if DEBUG
                         Section(header: Text("Debug")) {
                             Toggle("Short exposure", isOn: $shortExposure).onChange(of: shortExposure, perform: {
                                 _ in
                                 DebugManager.saveBool(option: .shortExposure, state: shortExposure)
-                            })
-                            
-                            Toggle("Shoot RAW", isOn: $rawEnabled).onChange(of: rawEnabled, perform: {
-                                _ in
-                                DefaultsManager.saveBool(option: .rawEnabled, state: rawEnabled)
                             })
                         }
                     #endif
