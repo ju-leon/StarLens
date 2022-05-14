@@ -125,6 +125,8 @@ class ProjectEditor {
         print("Trying to stack photos...")
         editQueue.async {
             self.photoStack = PhotoStack(project: self.project)
+            
+            //self.photoStack?.continueFromCheckpoint()
 
             for photoURL in self.project.getUnprocessedPhotoURLS() {
                 let isRaw = photoURL.hasSuffix(".dng")
@@ -137,7 +139,7 @@ class ProjectEditor {
                 )
             }
 
-            self.photoStack?.saveStack(finished: true, statusUpdateCallback: onDone)
+            self.photoStack?.finishProcessing(statusUpdateCallback: onDone)
         }
     }
 

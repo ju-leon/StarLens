@@ -235,6 +235,7 @@ class Project: NSObject {
     }
 
     public func doneProcessing() {
+        self.unprocessedPhotoURLs = []
         self.processingComplete = true
     }
 

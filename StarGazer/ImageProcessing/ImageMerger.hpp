@@ -19,6 +19,9 @@
 #include "blend.hpp"
 #include "enhance.hpp"
 
+#define CHECKPOINT_FILENAME "/checkpoint.stargazer"
+#define METADATA_FILENAME "/checkpoint.meta"
+
 using namespace std;
 using namespace cv;
 
@@ -161,6 +164,30 @@ public:
         std::cout << "Size in bytes: " << sizeInBytes << std::endl;
         
         numImages = 1;
+        numFailed = 0;
+    }
+    
+    /**
+     Continue processing from a previously saved checkpoint
+     */
+    ImageMerger(string checkpoint, int numImages, bool visualiseTrackingPoints = false) : visualiseTrackingPoints(visualiseTrackingPoints) {
+        std::cout << "Checkpoint path: " << checkpoint + CHECKPOINT_FILENAME << std::endl;
+        
+        std::ifstream ifs(checkpoint + CHECKPOINT_FILENAME, std::ios::binary);
+
+        readMatBinary(ifs, currentCombined);
+        currentCombined.convertTo(currentCombined, CV_16U);
+        
+        readMatBinary(ifs, currentMaxed);
+        currentMaxed.convertTo(currentMaxed, CV_8U);
+        
+        readMatBinary(ifs, currentStacked);
+        currentStacked.convertTo(currentStacked, CV_16U);
+        
+        readMatBinary(ifs, foregroundMask);
+        foregroundMask.convertTo(foregroundMask, CV_32F);
+        
+        this->numImages = numImages;
         numFailed = 0;
     }
 
@@ -339,7 +366,7 @@ public:
     
     void saveToDirectory(string dir) {
         // Save combined
-        std::ofstream ofs(dir + "/checkpoint.stargazer", std::ios::binary);
+        std::ofstream ofs(dir + CHECKPOINT_FILENAME, std::ios::binary);
         writeMatBinary(ofs, currentCombined);
         writeMatBinary(ofs, currentMaxed);
         writeMatBinary(ofs, currentStacked);

@@ -20,6 +20,8 @@ NS_ASSUME_NONNULL_BEGIN
 
 - (instancetype) initWithImage:(UIImage *)image withMask: (nullable UIImage *)mask visaliseTrackingPoints: (bool)enabled;
 
+- (instancetype) initFromCheckpoint: (NSString *)path processed: (int)numImages visualiseTrackingPoints: (bool)enabled;
+
 /**
  * Merges a new image onto the current stack.
  * SLOW! ONLY CALL ASYNC!

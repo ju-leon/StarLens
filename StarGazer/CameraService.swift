@@ -746,7 +746,7 @@ public class CameraService: NSObject {
             } else if self.captureStatus == .processing {
                 self.photoStack?.markEndCapture()
                 sessionQueue.async {
-                    self.photoStack!.saveStack(finished: true, statusUpdateCallback:
+                    self.photoStack!.finishProcessing(statusUpdateCallback:
                     { (result) in
                         //self.stop(completion: {
                         self.resetCamera(deletingStack: false)

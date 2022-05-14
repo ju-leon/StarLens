@@ -53,6 +53,14 @@ unique_ptr<ImageMerger> merger;
     return self;
 }
 
+- (instancetype) initFromCheckpoint: (NSString *)path processed: (int)numImages visualiseTrackingPoints: (bool)enabled {
+    auto pathString = std::string([path UTF8String]);
+    
+    merger = make_unique<ImageMerger>(pathString, numImages, enabled);
+    
+    return self;
+}
+
 - (nullable UIImage *)addAndProcess:(UIImage *)image {
     cv::Mat matImage;
     cv::Mat mask;

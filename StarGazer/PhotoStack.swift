@@ -126,7 +126,7 @@ public class PhotoStack {
         self.dispatch.cancelAllOperations()
         
         self.dispatch.addOperation {
-            self.stacker
+            self.stacker?.saveFiles(self.captureProject.getUrl().path)
         }
     }
 
@@ -158,7 +158,7 @@ public class PhotoStack {
             timeLapseBuilder = nil
         }
     }
-
+    
     func add(captureObject: CaptureObject,
              statusUpdateCallback: ((PhotoStackingResult) -> ())?,
              previewImageCallback: ((UIImage) -> Void)?,
@@ -272,7 +272,6 @@ public class PhotoStack {
                 }
                 previewImageCallback?(previewImage)
             }
-
         }
 
         return self.coverPhoto
@@ -297,10 +296,7 @@ public class PhotoStack {
 
     }
 
-    func saveStack(finished: Bool, statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
-        
-        print("Save stack called <===============================================")
-        
+    func finishProcessing(statusUpdateCallback: ((PhotoStackingResult) -> ())?) {
         self.dispatch.addOperation {
             print("Attempting to save stack")
             if (self.stacker == nil) {
@@ -316,10 +312,22 @@ public class PhotoStack {
                 }
             }
 
-            if finished {
-                self.captureProject.setNumImages(self.numImages)
-                self.captureProject.doneProcessing()
-            }
+            /**
+            Delete all unprocessed photos
+             */
+            #if !DEBUG
+                for url in self.captureProject.getUnprocessedPhotoURLS() {
+                    do {
+                        let file = self.captureProject.getUrl().appendingPathComponent(url)
+                        try FileManager.default.removeItem(at: file)
+                    } catch let error as NSError {
+                        print("Error - Couldn't delete file: \(error.domain)")
+                    }
+                }
+            #endif
+            self.captureProject.setNumImages(self.numImages)
+            self.captureProject.doneProcessing()
+        
 
             let processedImage = self.stacker!.getProcessedImage()
             if processedImage != nil {
@@ -332,14 +340,6 @@ public class PhotoStack {
             }
 
             self.captureProject.save()
-
-
-            processedImage?.saveToGallery(metadata: self.captureProject.getMetadata(), orientation: self.captureProject.getOrientation())
-
-            /*
-            let imageStacked = self.stacker!.getProcessedImage()
-            let imageMaxed = self.stacker!.getPreviewImage()
-            */
 
             if self.createTimelapse {
                 self.timeLapseBuilder?.completeStack(onSucess: {
