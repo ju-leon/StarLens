@@ -116,6 +116,10 @@ struct SettingsView : View {
                             Text("beta-fs-0.0.1").opacity(0.8)
                         }
                         
+                        #if DEBUG
+                            Text("> DEBUG BUILD <")
+                        #endif
+                        
                         NavigationLink(destination: Licenses()) {
                             Text("Licenses used")
                         }
