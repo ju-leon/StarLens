@@ -45,7 +45,7 @@ struct TutorialView : View {
                 TutorialPage(image: "Patience",
                              title: "Be patient",
                              describtion: "StarLens allows you to take exposures of several minutes. The longer you allow you camera to collect light, the more details it can capture.").tag(2)
-                TutorialPage(image: "Interface",
+                TutorialPage(image: "auto-mask",
                              title: "Let the AI help you",
                              describtion: "SmartMask automatically recognizes the stars in your image, seperates foreground and background, and merges everything together. Only the movement of the stars is corrected, while the foreground stays rock solid.").tag(3)
             }
