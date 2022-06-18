@@ -35,6 +35,7 @@ class DefaultsManager {
      */
     static func setDefaultParameters() {
         DefaultsManager.saveBool(option: .isMaskEnabled, state: true)
+        DefaultsManager.saveBool(option: .recordLocation, state: true)
         DefaultsManager.saveBool(option: .rawEnabled, state: false)
         DefaultsManager.saveInt(option: .timerValue, state: 0)
     }

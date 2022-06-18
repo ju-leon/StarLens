@@ -35,9 +35,15 @@ struct StateControlView : View {
     var body: some View {
         switch navigationModel.currentView {
         case .tutorial:
-            TutorialView(navigationModel: navigationModel).JMModal(showModal: $showModal, for: [.camera, .photo, .location], autoDismiss: true, onAppear: {}, onDisappear: {
+            TutorialView(navigationModel: navigationModel).JMModal(
+                showModal: $showModal,
+                for: [.camera, .photo, .location],
+                autoDismiss: true, onAppear: {},
+                onDisappear: {
                 //self.navigationModel.currentView = .camera
             })
+            .changeHeaderDescriptionTo("StarLens needs access to the camera to work. Your photos will never be shared without your permission.")
+            .changeBottomDescriptionTo("Optionally you can add your location to your photos to better organise your photo library.")
         case .camera:
             CameraView(navigationModel: navigationModel)
                 .environment(\.colorScheme, .dark)

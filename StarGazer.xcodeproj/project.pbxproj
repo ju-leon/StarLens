@@ -962,9 +962,15 @@
 				);
 				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/ImageProcessing/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "StarLens needs access to the camera to capture the night sky.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "Optional, StarLens can add a location to your photos to help you organize your photos.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Optional, StarLens can add a location to your photos to help you organize your photos.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = dsfds;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Needed so export your photos after finishing a shooting.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gyroscope";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
@@ -1000,9 +1006,15 @@
 				);
 				GCC_PREFIX_HEADER = "$(SRCROOT)/StarGazer/ImageProcessing/PrefixHeader.pch";
 				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_NSCameraUsageDescription = "StarLens needs access to the camera to capture the night sky.";
+				INFOPLIST_KEY_NSLocationUsageDescription = "Optional, StarLens can add a location to your photos to help you organize your photos.";
+				INFOPLIST_KEY_NSLocationWhenInUseUsageDescription = "Optional, StarLens can add a location to your photos to help you organize your photos.";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = dsfds;
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "Needed so export your photos after finishing a shooting.";
 				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
-				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = "armv7 gyroscope";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				LD_RUNPATH_SEARCH_PATHS = (
