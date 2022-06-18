@@ -32,7 +32,7 @@ final class CameraModel: ObservableObject {
 
     @Published var processingProgress = 0.0
     
-    @Published var mask: Bool = false
+    @Published var mask: Bool = true
     @Published var debug: Bool = false
     
     @Published var focusDistance: Double = 1.0

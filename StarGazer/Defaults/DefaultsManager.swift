@@ -30,4 +30,13 @@ class DefaultsManager {
         return UserDefaults.standard.integer(forKey: option.rawValue)
     }
 
+    /**
+     Initalising
+     */
+    static func setDefaultParameters() {
+        DefaultsManager.saveBool(option: .isMaskEnabled, state: true)
+        DefaultsManager.saveBool(option: .rawEnabled, state: false)
+        DefaultsManager.saveInt(option: .timerValue, state: 0)
+    }
+    
 }

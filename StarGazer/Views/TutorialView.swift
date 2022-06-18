@@ -55,8 +55,10 @@ struct TutorialView : View {
                 withAnimation{
                     if self.selectedPage < 3 {
                         selectedPage += 1
-                        print("Page now \(selectedPage)")
                     } else {
+                        // Set default options for params on first use
+                        DefaultsManager.setDefaultParameters()
+                        
                         navigationModel.currentView = .camera
                         UserDefaults.standard.set(true, forKey: UserOption.completedTutorial.rawValue)
                     }
