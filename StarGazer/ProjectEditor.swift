@@ -17,13 +17,15 @@ enum ProjectEditorErrors: Error {
 enum EditOption : CaseIterable {
     class Instance {
         let identifier: String
+        let name: String
         let icon: String
         let defaultValue: Double
         
-        init(identifier: String, icon: String, defaultValue: Double) {
+        init(identifier: String, icon: String, defaultValue: Double, name: String) {
             self.identifier = identifier
             self.icon = icon
             self.defaultValue = defaultValue
+            self.name = name
         }
     }
 
@@ -37,15 +39,15 @@ enum EditOption : CaseIterable {
     var instance: Instance {
         switch self {
         case .starPop:
-            return Instance(identifier: "STAR_POP", icon: "moon.stars.fill", defaultValue: 0.0)
+            return Instance(identifier: "STAR_POP", icon: "moon.stars.fill", defaultValue: 0.0, name: "Star Pop")
         case .lightPollution:
-            return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0)
+            return Instance(identifier: "LIGHT_POLLUTION", icon: "circle.lefthalf.filled", defaultValue: 0.0, name: "Light Pollution")
         case .color:
-            return Instance(identifier: "COLOR", icon: "eyedropper.full", defaultValue: 0.5)
+            return Instance(identifier: "COLOR", icon: "eyedropper.full", defaultValue: 0.5, name: "Brightness")
         case .saturation:
-            return Instance(identifier: "SATURATION", icon: "paintbrush.pointed.fill", defaultValue: 0.5)
+            return Instance(identifier: "SATURATION", icon: "paintbrush.pointed.fill", defaultValue: 0.5, name: "Color")
         case .brightness:
-            return Instance(identifier: "BRIGHTNESS", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.5)
+            return Instance(identifier: "BRIGHTNESS", icon: "slider.horizontal.below.square.filled.and.square", defaultValue: 0.5, name: "Saturation")
         }
     }
 }

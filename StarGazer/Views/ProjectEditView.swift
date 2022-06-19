@@ -212,13 +212,19 @@ struct EditOptionButton: View {
         Button(action: {
             onClick()
         }) {
-            Circle()
-                .stroke(model.activeEditMode == editMode ? .blue : .white, lineWidth: model.activeEditMode == editMode ? 8 : 2)
+            VStack {
+                Circle()
+                    .fill(model.activeEditMode == editMode ? .yellow : Color(red: 0.2, green: 0.2, blue: 0.2))
+                    //.stroke(model.activeEditMode == editMode ? .yellow : .white, lineWidth: model.activeEditMode == editMode ? 8 : 2)
                     .frame(width: 60, height: 60, alignment: .center)
                     .overlay(
-                        Image(systemName: editMode.instance.icon).font(.system(size: 20))
+                        Image(systemName: editMode.instance.icon).font(.system(size: 20)).foregroundColor(model.activeEditMode == editMode ? .black : .white)
                     )
-        }.padding().foregroundColor(model.activeEditMode == editMode ? .accentColor : .white)
+
+                Text(editMode.instance.name).font(.caption2).foregroundColor(model.activeEditMode == editMode ? .yellow : .gray)
+            }
+        
+            }.padding().foregroundColor(model.activeEditMode == editMode ? .accentColor : .white)
     }
 
 }
