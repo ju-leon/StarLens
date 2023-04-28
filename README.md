@@ -18,15 +18,26 @@ Bad photos are automatically recognized and not added onto the stack not to ruin
 
 ## Sky Enhancement
 
-Using a custom trained segementation model, the sky in the image is recognized.
-Afterwards, the stars in the sky are artifically enhanced using a UNet trained to recognize and enahce stars.
+Using a custom trained segementation model, the sky in the image is recognized and segmented.
+For the segmentation model, refer to the following repo:
+https://github.com/ju-leon/SkySegmentation
+
+The dataset is currently not public. Please contact me directly if you need access.
+Overview over the training process can be found on WandB
+https://wandb.ai/leonjungemeyer/stargazer-segmentation
 
 ![segmentation_389_f4ebfe1e3be7957d2d87](https://user-images.githubusercontent.com/31135823/235187309-41c3d4eb-c8ba-44c5-a31d-8c4f2a6dbd44.png)
 ![segmentation_191_524f472014ba4177933b](https://user-images.githubusercontent.com/31135823/235187428-9ab29d78-ec94-4cd8-bec6-b47d4250b697.png)
 ![download](https://user-images.githubusercontent.com/31135823/235188081-91bb2e97-97b9-4717-9e32-4bb12396d22c.png)
 
-
+Afterwards, the stars in the sky are artifically enhanced using a UNet trained to recognize and enhance stars.
 This model, based on the few stars that a camera sensor in a phone is able to recognize, can generate structures that the signal to noise ratio from a normal phone sensor would never allow to make visible.
+
+The training of the enhancement model is located here:
+https://github.com/ju-leon/SkyEnhancement
+
+Overview over the training process can be found on WandB:
+https://wandb.ai/leonjungemeyer/stargazer-enhance
 
 ![segmentation_649_94b8ed8d86007d7930ba](https://user-images.githubusercontent.com/31135823/235186371-18e5575d-d470-4322-af64-4eb62f65116f.png)
 ![segmentation_649_77ddb0128680737aa977-1](https://user-images.githubusercontent.com/31135823/235186586-70cdf678-890f-48f6-817b-37459c7e76b9.png)
