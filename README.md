@@ -23,6 +23,7 @@ Afterwards, the stars in the sky are artifically enhanced using a UNet trained t
 
 ![segmentation_389_f4ebfe1e3be7957d2d87](https://user-images.githubusercontent.com/31135823/235187309-41c3d4eb-c8ba-44c5-a31d-8c4f2a6dbd44.png)
 ![segmentation_191_524f472014ba4177933b](https://user-images.githubusercontent.com/31135823/235187428-9ab29d78-ec94-4cd8-bec6-b47d4250b697.png)
+![download](https://user-images.githubusercontent.com/31135823/235188081-91bb2e97-97b9-4717-9e32-4bb12396d22c.png)
 
 
 This model, based on the few stars that a camera sensor in a phone is able to recognize, can generate structures that the signal to noise ratio from a normal phone sensor would never allow to make visible.
