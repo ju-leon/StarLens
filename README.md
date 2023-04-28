@@ -16,7 +16,7 @@ Bad photos are automatically recognized and not added onto the stack not to ruin
 
 ![stacking](https://user-images.githubusercontent.com/31135823/235184119-8ed4cce4-4ded-4bcb-89cb-8781174ec8f4.gif)
 
-## Sky Enhancement
+## AI Sky Enhancement
 
 Using a custom trained segementation model, the sky in the image is recognized and segmented.
 For the segmentation model, refer to the following repo:
