@@ -1,6 +1,6 @@
 ![Icon-83 5@2x](https://user-images.githubusercontent.com/31135823/235184765-f4d2b1ef-bf1e-4b54-9490-1cde26b60c57.png)
 
-# StarGazer
+# StarLens
 
 StarGazer makes you a professional astro photographer, with the push of a button.
 
