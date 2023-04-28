@@ -42,6 +42,6 @@ https://wandb.ai/leonjungemeyer/stargazer-enhance
 ![segmentation_649_94b8ed8d86007d7930ba](https://user-images.githubusercontent.com/31135823/235186371-18e5575d-d470-4322-af64-4eb62f65116f.png)
 ![segmentation_649_77ddb0128680737aa977-1](https://user-images.githubusercontent.com/31135823/235186586-70cdf678-890f-48f6-817b-37459c7e76b9.png)
 
-
+![Screenshot 2023-04-28 at 17 28 57](https://user-images.githubusercontent.com/31135823/235189946-2f659f22-000a-4731-9f8b-dca1ae5e69ee.png)
 
 ![screenshot](https://user-images.githubusercontent.com/31135823/235184191-88f2e89b-4530-4879-8215-5a1b4d177519.png)
